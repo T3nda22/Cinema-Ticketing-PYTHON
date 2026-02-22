@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinemax - Movie Theatre</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 3000px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        /* Top bar with logo and text */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            display: block;
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        /* Hero text overlay - positioned in middle of header */
+        .hero-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .hero-overlay h1 {
+            font-size: 64px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #999 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .hero-overlay p {
+            font-size: 24px;
+            color: white;
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+            padding: 10px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(2px);
+        }
+
+        .header img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 60px 80px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+        }
+
+        /* Section Title */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 42px;
+            font-weight: 600;
+            color: white;
+            position: relative;
+        }
+
+        .section-title h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: #e50914;
+            border-radius: 2px;
+        }
+
+        .view-all {
+            color: #e50914;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .view-all:hover {
+            color: #ff0f1a;
+        }
+
+        /* Movies Grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 25px;
+            margin-bottom: 80px;
+        }
+
+        .movie-card {
+            background: #1a1e24;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-info h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .movie-info .rating {
+            color: #ffd700;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .movie-info .duration {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .movie-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #e50914;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Coming Soon Section */
+        .coming-soon {
+            margin-bottom: 80px;
+        }
+
+        .coming-soon h3 {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .coming-soon h3:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 40px;
+            height: 4px;
+            background: #e50914;
+        }
+
+        .horror-fest {
+            color: #e50914;
+            font-size: 18px;
+            margin-left: 20px;
+            font-weight: 400;
+        }
+
+        .coming-soon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .coming-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid #2a3138;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coming-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e50914, #ff4d4d);
+        }
+
+        .coming-card .tagline {
+            font-size: 14px;
+            color: #e50914;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .coming-card .movie-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .coming-card .subtitle {
+            font-size: 18px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        .coming-card .release {
+            color: #e50914;
+            font-size: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-top: 1px solid #2a3138;
+            padding-top: 30px;
+        }
+
+        .coming-card.small .movie-title {
+            font-size: 32px;
+        }
+
+        .coming-card .cast {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+
+        /* Divider */
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e50914, transparent);
+            margin: 40px 0;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo and Top Text -->
+    <div class="header">
+        <!-- Top bar with logo and text -->
+        <div class="top-bar">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
+            </div>
+            <div class="top-text">
+                <span>MOVIES</span>
+                <span>SHOWTIMES</span>
+                <span>COMING SOON</span>
+                <span>CONTACT</span>
+                <span>SIGN IN</span>
+            </div>
+        </div>
+
+        <!-- Hero text overlay - centered in the middle of header -->
+        <div class="hero-overlay">
+            <h1>Experience Movies<br>Like Never Before</h1>
+            <p>Book Tickets, manage showtimes, and track sales—all in one place.</p>
+        </div>
+
+        <!-- Header Image (Chair Header.png) -->
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Divider -->
+        <div class="divider"></div>
+
+        <!-- Now Showing Section -->
+<div class="section-title">
+    <h2>Now Showing</h2>
+    <span class="view-all">view all ></span>
+</div>
+
+<div class="movies-grid">
+    <!-- US -->
+    <a href="{{ url_for('movie_details', movie_id=1) }}" style="text-decoration: none; color: inherit;">
+        <div class="movie-card">
+            <img src="{{ url_for('static', filename='images/cover1.jpg') }}" alt="Us">
+            <div class="movie-info">
+                <h3>US</h3>
+                <div class="rating">★★★★★ 7.1</div>
+                <div class="duration">2h 16m</div>
+            </div>
+            <div class="movie-tag">NOW</div>
+        </div>
+    </a>
+
+    <!-- The Shining -->
+    <a href="{{ url_for('movie_details', movie_id=2) }}" style="text-decoration: none; color: inherit;">
+        <div class="movie-card">
+            <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop" alt="The Shining">
+            <div class="movie-info">
+                <h3>The Shining</h3>
+                <div class="rating">★★★★★ 8.4</div>
+                <div class="duration">2h 26m</div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Beauty and the Beast -->
+    <a href="{{ url_for('movie_details', movie_id=3) }}" style="text-decoration: none; color: inherit;">
+        <div class="movie-card">
+            <img src="https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?w=400&h=600&fit=crop" alt="Beauty and the Beast">
+            <div class="movie-info">
+                <h3>Beauty and the Beast</h3>
+                <div class="rating">★★★★★ 7.7</div>
+                <div class="duration">2h 9m</div>
+            </div>
+        </div>
+    </a>
+
+    <!-- Step Brothers -->
+    <a href="{{ url_for('movie_details', movie_id=4) }}" style="text-decoration: none; color: inherit;">
+        <div class="movie-card">
+            <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop" alt="Step Brothers">
+            <div class="movie-info">
+                <h3>Step Brothers</h3>
+                <div class="rating">★★★★★ 6.9</div>
+                <div class="duration">1h 38m</div>
+            </div>
+        </div>
+    </a>
+
+    <!-- AFTER -->
+    <a href="{{ url_for('movie_details', movie_id=5) }}" style="text-decoration: none; color: inherit;">
+        <div class="movie-card">
+            <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=400&h=600&fit=crop" alt="AFTER">
+            <div class="movie-info">
+                <h3>AFTER</h3>
+                <div class="rating">★★★★★ 7.0</div>
+                <div class="duration">1h 45m</div>
+            </div>
+            <div class="movie-tag">NEW</div>
+        </div>
+    </a>
+</div>
+
+        <!-- Coming Soon Section -->
+        <div class="coming-soon">
+            <div style="display: flex; align-items: center; margin-bottom: 40px;">
+                <h3>Coming Soon</h3>
+                <span class="horror-fest">Horror Fest</span>
+            </div>
+
+            <div class="coming-soon-grid">
+                <!-- SMILE Card -->
+                <div class="coming-card">
+                    <div class="tagline">ONCE YOU SEE IT IT'S TOO LATE</div>
+                    <div class="movie-title">SMILE</div>
+                    <div class="subtitle">IN CINEMAS</div>
+                    <div class="release">SEPTEMBER 26</div>
+                </div>
+
+                <!-- Second Card -->
+                <div class="coming-card">
+                    <div class="tagline">THEY WILL NEVER LET GO</div>
+                    <div class="movie-title">SMILE</div>
+                    <div class="subtitle">ON THE THEATRES</div>
+                    <div class="release">COMING SOON</div>
+                </div>
+
+                <!-- Mirrors Card -->
+                <div class="coming-card">
+                    <div class="tagline">'THE HILLS HAVE EYES'</div>
+                    <div class="movie-title">MIRRORS</div>
+                    <div class="cast">KIEFFER SUTHERLAND</div>
+                    <div class="release">SEPTEMBER</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional text from design -->
+        <div style="display: flex; gap: 60px; margin: 60px 0; color: #666; font-size: 18px; justify-content: center;">
+            <span>MFT</span>
+            <span>WHAT HAPPENS NEXT?</span>
+            <span>DO NOT MISS</span>
+            <span>NOVELAID®</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+        Cinemax 20255 All rights reserved
+    </div>
+</body>
+</html>

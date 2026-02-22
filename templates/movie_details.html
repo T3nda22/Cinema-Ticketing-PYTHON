@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinemax - Select Seats</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        /* Top bar with logo and text */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            display: block;
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        .header img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 40px 80px 60px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+        }
+
+        /* Back Navigation */
+        .back-nav {
+            margin-bottom: 30px;
+        }
+
+        .back-nav a {
+            color: #999;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .back-nav a:hover {
+            color: #e50914;
+        }
+
+        .back-nav a:before {
+            content: '←';
+            font-size: 20px;
+            margin-right: 5px;
+        }
+
+        /* Movie Info Bar */
+        .movie-info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #1a1e24, #0f1217);
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid #e50914;
+        }
+
+        .movie-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .movie-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .movie-details {
+            display: flex;
+            gap: 30px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        .movie-details span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .movie-details i {
+            color: #e50914;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        .price-info {
+            background: #e50914;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        /* Cinema Header with Logo */
+        .cinema-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .cinema-header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #e50914;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Seat Legend */
+        .seat-legend {
+            display: flex;
+            gap: 60px;
+            margin-bottom: 30px;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(26, 30, 36, 0.5);
+            border-radius: 50px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .legend-box.your-seat {
+            background: #e50914;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+        }
+
+        .legend-box.available {
+            background: #2a3138;
+            border: 2px solid #3a434b;
+        }
+
+        .legend-box.taken {
+            background: #4a4a4a;
+            opacity: 0.8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .legend-box.taken:after {
+            content: '✕';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        /* Screen */
+        .screen-container {
+            margin: 40px 0 50px;
+            text-align: center;
+        }
+
+        .screen {
+            width: 70%;
+            height: 8px;
+            background: linear-gradient(90deg, transparent, #e50914, #ff6b6b, #e50914, transparent);
+            margin: 0 auto;
+            border-radius: 4px 4px 0 0;
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .screen-text {
+            color: #e50914;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 15px;
+            letter-spacing: 4px;
+        }
+
+        /* Seating Layout */
+        .seating-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        .seating-grid {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid #2a3138;
+        }
+
+        .seat-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .row-label {
+            width: 40px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #e50914;
+            text-align: center;
+        }
+
+        .seats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .seat {
+            width: 45px;
+            height: 45px;
+            background: #2a3138;
+            border: 2px solid #3a434b;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .seat:hover:not(.taken) {
+            background: #e50914;
+            border-color: #ff6b6b;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+        }
+
+        .seat.selected {
+            background: #e50914;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+        }
+
+        .seat.taken {
+            background: #4a4a4a;
+            border-color: #666;
+            cursor: not-allowed;
+            position: relative;
+            opacity: 0.8;
+        }
+
+        .seat.taken:after {
+            content: '✕';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .seat.empty {
+            background: transparent;
+            border: 2px dashed #3a434b;
+            cursor: default;
+        }
+
+        .seat.empty:hover {
+            background: transparent;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Confirm Button */
+        .confirm-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .confirm-btn {
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 100px;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .confirm-btn:hover {
+            background: #ff0f1a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6);
+        }
+
+        .confirm-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Selected Seats Info */
+        .selected-info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .selected-info span {
+            color: #e50914;
+            font-weight: 600;
+            font-size: 22px;
+        }
+
+        /* Ticket Limit Message */
+        .ticket-limit {
+            text-align: center;
+            margin: 20px 0;
+            color: #ffaa00;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo and Top Text -->
+    <div class="header">
+        <!-- Top bar with logo and text -->
+        <div class="top-bar">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'50\' viewBox=\'0 0 150 50\'%3E%3Crect width=\'150\' height=\'50\' fill=\'%23e50914\'/%3E%3Ctext x=\'20\' y=\'35\' font-family=\'Arial\' font-size=\'24\' fill=\'white\' font-weight=\'bold\'%3ECINEMAX%3C/text%3E%3C/svg%3E'">
+            </div>
+            <div class="top-text">
+                <span>MOVIES</span>
+                <span>SHOWTIMES</span>
+                <span>COMING SOON</span>
+                <span>CONTACT</span>
+                <span>SIGN IN</span>
+            </div>
+        </div>
+
+        <!-- Header Image -->
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1920\' height=\'300\' viewBox=\'0 0 1920 300\'%3E%3Crect width=\'1920\' height=\'300\' fill=\'%23222\'/%3E%3Ctext x=\'800\' y=\'160\' font-family=\'Arial\' font-size=\'40\' fill=\'%23555\'%3ECinema Header%3C/text%3E%3C/svg%3E'">
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Back Navigation -->
+        <div class="back-nav">
+            <a href="{{ url_for('movie_details', movie_id=movie.id) }}">Back to Movie Details</a>
+        </div>
+
+        <!-- Movie Info Bar - with data from URL parameters -->
+        <div class="movie-info-bar">
+            <div class="movie-title-section">
+                <div class="movie-title">{{ movie.title }} (2025)</div>
+                <div class="movie-details">
+                    <span><i>📅</i> Today, March 15</span>
+                    <span><i>⏰</i> {{ showtime }}</span>
+                    <span><i>📍</i> Screen 1</span>
+                    <span><i>🎟️</i> {{ tickets }} ticket(s)</span>
+                </div>
+            </div>
+            <div class="price-info">$15.00 per ticket</div>
+        </div>
+
+        <!-- Cinema Header -->
+        <div class="cinema-header">
+            <h1>CINEMAX</h1>
+        </div>
+
+        <!-- Seat Legend -->
+        <div class="seat-legend">
+            <div class="legend-item">
+                <div class="legend-box your-seat"></div>
+                <span>Your Seat</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box taken"></div>
+                <span>Taken</span>
+            </div>
+        </div>
+
+        <!-- Screen -->
+        <div class="screen-container">
+            <div class="screen"></div>
+            <div class="screen-text">SCREEN</div>
+        </div>
+
+        <!-- Ticket Limit Message -->
+        <div class="ticket-limit">
+            ⚠️ Please select exactly {{ tickets }} seat(s) ({{ tickets }} ticket(s) booked)
+        </div>
+
+        <!-- Seating Layout -->
+        <div class="seating-container">
+            <div class="seating-grid">
+                <!-- Row 10 -->
+                <div class="seat-row">
+                    <div class="row-label">10</div>
+                    <div class="seats">
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)">13</div>
+                        <div class="seat taken" onclick="return false;">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)">17</div>
+                    </div>
+                </div>
+
+                <!-- Row B -->
+                <div class="seat-row">
+                    <div class="row-label">B</div>
+                    <div class="seats">
+                        <div class="seat available" onclick="toggleSeat(this)">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)">17</div>
+                    </div>
+                </div>
+
+                <!-- Row C -->
+                <div class="seat-row">
+                    <div class="row-label">C</div>
+                    <div class="seats">
+                        <div class="seat available" onclick="toggleSeat(this)">1</div>
+                        <div class="seat available" onclick="toggleSeat(this)">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)">17</div>
+                    </div>
+                </div>
+
+                <!-- Row D -->
+                <div class="seat-row">
+                    <div class="row-label">D</div>
+                    <div class="seats">
+                        <div class="seat available" onclick="toggleSeat(this)">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)">17</div>
+                    </div>
+                </div>
+
+                <!-- Row E -->
+                <div class="seat-row">
+                    <div class="row-label">E</div>
+                    <div class="seats">
+                        <div class="seat available" onclick="toggleSeat(this)">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)">17</div>
+                    </div>
+                </div>
+
+                <!-- Row F -->
+                <div class="seat-row">
+                    <div class="row-label">F</div>
+                    <div class="seats">
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                    </div>
+                </div>
+
+                <!-- Row G -->
+                <div class="seat-row">
+                    <div class="row-label">G</div>
+                    <div class="seats">
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                    </div>
+                </div>
+
+                <!-- Row H -->
+                <div class="seat-row">
+                    <div class="row-label">H</div>
+                    <div class="seats">
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                        <div class="seat empty" onclick="return false;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Button -->
+        <div class="confirm-section">
+            <button class="confirm-btn" onclick="confirmSeats()">Confirm Seats</button>
+        </div>
+
+        <!-- Selected Seats Info -->
+        <div class="selected-info" id="selectedInfo">
+            Selected Seats: <span id="selectedCount">0</span> / {{ tickets }}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1920\' height=\'200\' viewBox=\'0 0 1920 200\'%3E%3Crect width=\'1920\' height=\'200\' fill=\'%23111\'/%3E%3Ctext x=\'800\' y=\'120\' fill=\'%23666\' font-size=\'30\'%3EFooter%3C/text%3E%3C/svg%3E'">
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+        Cinemax 20255 All rights reserved
+    </div>
+
+    <script>
+        const requiredTickets = {{ tickets }};
+
+        // Function to toggle seat selection
+        function toggleSeat(seat) {
+            // Don't toggle if seat is taken
+            if (seat.classList.contains('taken')) {
+                return;
+            }
+
+            // Get current selected count
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+
+            // If trying to select more than required tickets, prevent it
+            if (!seat.classList.contains('selected') && selectedSeats.length >= requiredTickets) {
+                alert(`You can only select ${requiredTickets} seat(s) for your booking.`);
+                return;
+            }
+
+            // Toggle selected class
+            seat.classList.toggle('selected');
+
+            // Update selected count
+            updateSelectedCount();
+        }
+
+        // Function to update selected seats count
+        function updateSelectedCount() {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+            const countSpan = document.getElementById('selectedCount');
+            countSpan.textContent = selectedSeats.length;
+
+            // Change color if correct number selected
+            if (selectedSeats.length === requiredTickets) {
+                countSpan.style.color = '#4CAF50';
+            } else {
+                countSpan.style.color = '#e50914';
+            }
+        }
+
+        // Function to confirm seat selection
+        function confirmSeats() {
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+
+            if (selectedSeats.length === 0) {
+                alert('Please select at least one seat!');
+                return;
+            }
+
+            if (selectedSeats.length !== requiredTickets) {
+                alert(`Please select exactly ${requiredTickets} seat(s). You have selected ${selectedSeats.length}.`);
+                return;
+            }
+
+            // Get seat numbers
+            const seatNumbers = [];
+            selectedSeats.forEach(seat => {
+                const row = seat.closest('.seat-row').querySelector('.row-label').textContent;
+                const seatNum = seat.textContent;
+                seatNumbers.push(`${row}${seatNum}`);
+            });
+
+            alert(`✅ Seats confirmed: ${seatNumbers.join(', ')}\nTotal: ${selectedSeats.length} ticket(s)\nAmount: $${selectedSeats.length * 15}\n\nThank you for choosing Cinemax!`);
+
+            // Here you would typically redirect to a payment page or confirmation page
+            // window.location.href = "{{ url_for('payment', movie_id=movie.id) }}";
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            updateSelectedCount();
+        }
+    </script>
+</body>
+</html>
