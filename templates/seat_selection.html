@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinemax - Seat Selection</title>
+    <title>Cinemax - Select Seats</title>
     <style>
         * {
             margin: 0;
@@ -302,6 +302,7 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            max-width: 900px;
         }
 
         .seat {
@@ -320,7 +321,7 @@
             transition: all 0.2s ease;
         }
 
-        .seat:hover:not(.taken) {
+        .seat:hover:not(.taken):not(.empty) {
             background: #e50914;
             border-color: #ff6b6b;
             transform: scale(1.05);
@@ -356,12 +357,22 @@
             background: transparent;
             border: 2px dashed #3a434b;
             cursor: default;
+            opacity: 0.5;
         }
 
         .seat.empty:hover {
             background: transparent;
             transform: none;
             box-shadow: none;
+        }
+
+        /* Ticket Limit Message */
+        .ticket-limit {
+            text-align: center;
+            margin: 20px 0;
+            color: #ffaa00;
+            font-size: 16px;
+            font-weight: 500;
         }
 
         /* Confirm Button */
@@ -394,6 +405,12 @@
 
         .confirm-btn:active {
             transform: translateY(0);
+        }
+
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* Selected Seats Info */
@@ -443,7 +460,7 @@
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'50\' viewBox=\'0 0 150 50\'%3E%3Crect width=\'150\' height=\'50\' fill=\'%23e50914\'/%3E%3Ctext x=\'20\' y=\'35\' font-family=\'Arial\' font-size=\'24\' fill=\'white\' font-weight=\'bold\'%3ECINEMAX%3C/text%3E%3C/svg%3E'">
             </div>
             <div class="top-text">
-                <span>MOVIES</span>
+                <span onclick="window.location.href='/'">MOVIES</span>
                 <span>SHOWTIMES</span>
                 <span>COMING SOON</span>
                 <span>CONTACT</span>
@@ -459,17 +476,18 @@
     <div class="content">
         <!-- Back Navigation -->
         <div class="back-nav">
-            <a href="{{ url_for('movie_details', movie_id=1) }}">Back to Movie Details</a>
+            <a href="{{ url_for('movie_details', movie_id=movie.id) }}">Back to Movie Details</a>
         </div>
 
-        <!-- Movie Info Bar -->
+        <!-- Movie Info Bar - with data from URL parameters -->
         <div class="movie-info-bar">
             <div class="movie-title-section">
-                <div class="movie-title">US (2025)</div>
+                <div class="movie-title">{{ movie.title }}</div>
                 <div class="movie-details">
-                    <span><i>📅</i> Today, March 15</span>
-                    <span><i>⏰</i> 6:00 PM</span>
+                    <span><i>📅</i> {{ show_date }}</span>
+                    <span><i>⏰</i> {{ showtime }}</span>
                     <span><i>📍</i> Screen 1</span>
+                    <span><i>🎟️</i> {{ tickets }} ticket(s)</span>
                 </div>
             </div>
             <div class="price-info">$15.00 per ticket</div>
@@ -502,14 +520,18 @@
             <div class="screen-text">SCREEN</div>
         </div>
 
-        <!-- Seating Layout -->
+        <!-- Ticket Limit Message -->
+        <div class="ticket-limit">
+            ⚠️ Please select exactly {{ tickets }} seat(s)
+        </div>
+
+        <!-- Seating Layout - Exactly matching your image -->
         <div class="seating-container">
             <div class="seating-grid">
                 <!-- Row 10 -->
                 <div class="seat-row">
                     <div class="row-label">10</div>
                     <div class="seats">
-                        <!-- Create seats 11-17 for row 10 -->
                         <div class="seat available" onclick="toggleSeat(this)">11</div>
                         <div class="seat available" onclick="toggleSeat(this)">12</div>
                         <div class="seat available" onclick="toggleSeat(this)">13</div>
@@ -689,12 +711,12 @@
 
         <!-- Confirm Button -->
         <div class="confirm-section">
-            <button class="confirm-btn" onclick="confirmSeats()">Confirm Seats</button>
+            <button class="confirm-btn" onclick="confirmSeats()" id="confirmBtn">Confirm Seats</button>
         </div>
 
         <!-- Selected Seats Info -->
         <div class="selected-info" id="selectedInfo">
-            Selected Seats: <span id="selectedCount">0</span>
+            Selected Seats: <span id="selectedCount">0</span> / {{ tickets }}
         </div>
     </div>
 
@@ -705,14 +727,25 @@
 
     <!-- Copyright -->
     <div class="copyright">
-        Cinemax 20255 All rights reserved
+        Cinemax 2025 All rights reserved
     </div>
 
     <script>
+        const requiredTickets = {{ tickets }};
+
         // Function to toggle seat selection
         function toggleSeat(seat) {
-            // Don't toggle if seat is taken
-            if (seat.classList.contains('taken')) {
+            // Don't toggle if seat is taken or empty
+            if (seat.classList.contains('taken') || seat.classList.contains('empty')) {
+                return;
+            }
+
+            // Get current selected count
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+
+            // If trying to select more than required tickets, prevent it
+            if (!seat.classList.contains('selected') && selectedSeats.length >= requiredTickets) {
+                alert(`You can only select ${requiredTickets} seat(s) for your booking.`);
                 return;
             }
 
@@ -728,6 +761,16 @@
             const selectedSeats = document.querySelectorAll('.seat.selected');
             const countSpan = document.getElementById('selectedCount');
             countSpan.textContent = selectedSeats.length;
+
+            // Enable/disable confirm button based on correct number selected
+            const confirmBtn = document.getElementById('confirmBtn');
+            if (selectedSeats.length === requiredTickets) {
+                confirmBtn.disabled = false;
+                countSpan.style.color = '#4CAF50';
+            } else {
+                confirmBtn.disabled = true;
+                countSpan.style.color = '#e50914';
+            }
         }
 
         // Function to confirm seat selection
@@ -739,6 +782,11 @@
                 return;
             }
 
+            if (selectedSeats.length !== requiredTickets) {
+                alert(`Please select exactly ${requiredTickets} seat(s). You have selected ${selectedSeats.length}.`);
+                return;
+            }
+
             // Get seat numbers
             const seatNumbers = [];
             selectedSeats.forEach(seat => {
@@ -747,7 +795,31 @@
                 seatNumbers.push(`${row}${seatNum}`);
             });
 
-            alert(`Seats confirmed: ${seatNumbers.join(', ')}\nTotal: ${selectedSeats.length} ticket(s)\nAmount: $${selectedSeats.length * 15}\n\nThank you for choosing Cinemax!`);
+            // Create form and submit to booking confirmation
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/confirm-booking';
+
+            const fields = {
+                'movie_id': '{{ movie.id }}',
+                'movie_title': '{{ movie.title }}',
+                'showtime': '{{ showtime }}',
+                'seats': seatNumbers.join(', '),
+                'tickets': '{{ tickets }}',
+                'total': (selectedSeats.length * 15).toFixed(2),
+                'show_date': '{{ show_date }}'
+            };
+
+            for (const [key, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
         }
 
         // Initialize on load

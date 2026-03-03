@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinemax - Sign In & Sign Up</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        /* Top bar with logo and text */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            display: block;
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        .header img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 60px 80px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+            min-height: calc(100vh - 400px);
+        }
+
+        /* Auth Container */
+        .auth-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1e24;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid #2a3138;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Left Panel - Login */
+        .login-panel {
+            flex: 1;
+            padding: 60px 50px;
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            position: relative;
+        }
+
+        .login-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #e50914, #ff4d4d);
+        }
+
+        .signup-panel {
+            flex: 1;
+            padding: 60px 50px;
+            background: #1a1e24;
+            position: relative;
+        }
+
+        .signup-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #e50914, #ff4d4d);
+        }
+
+        .panel-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #fff 0%, #999 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Form Styles */
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            background: #0a0c0f;
+            border: 1px solid #2a3138;
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e50914;
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #4a4f55;
+        }
+
+        /* Password Strength (for signup) */
+        .password-strength {
+            margin-top: 5px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            flex: 1;
+            background: #2a3138;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-bar.active:nth-child(1) {
+            background: #ff4d4d;
+        }
+
+        .strength-bar.active:nth-child(2) {
+            background: #ffaa4d;
+        }
+
+        .strength-bar.active:nth-child(3) {
+            background: #4dff4d;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #e50914;
+        }
+
+        .checkbox-group label {
+            color: #999;
+            text-transform: none;
+            font-weight: 400;
+            font-size: 14px;
+        }
+
+        .checkbox-group a {
+            color: #e50914;
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        /* Button */
+        .auth-btn {
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .auth-btn:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0 20px;
+            color: #666;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #2a3138, transparent);
+        }
+
+        .divider-text {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+        /* Social Login */
+        .social-login {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .social-btn {
+            flex: 1;
+            background: #0a0c0f;
+            border: 1px solid #2a3138;
+            border-radius: 12px;
+            padding: 14px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-btn:hover {
+            background: #1e2429;
+            border-color: #e50914;
+            transform: translateY(-2px);
+        }
+
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Switch Panel Link */
+        .switch-panel {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+        }
+
+        .switch-panel a {
+            color: #e50914;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .switch-panel a:hover {
+            text-decoration: underline;
+        }
+
+        /* Forgot Password */
+        .forgot-password {
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .forgot-password a {
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #e50914;
+        }
+
+        /* Terms */
+        .terms {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .terms a {
+            color: #e50914;
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .login-panel::before,
+            .signup-panel::before {
+                width: 100%;
+                height: 4px;
+            }
+
+            .login-panel::before {
+                top: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 4px;
+            }
+
+            .signup-panel::before {
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo and Top Text -->
+    <div class="header">
+        <div class="top-bar">
+            <div class="logo" onclick="location.href='/'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
+            </div>
+            <div class="top-text">
+                <span onclick="location.href='/'">MOVIES</span>
+                <span onclick="location.href='/showtimes'">SHOWTIMES</span>
+                <span>COMING SOON</span>
+                <span>CONTACT</span>
+                <span class="active" onclick="location.href='/signin'">SIGN IN</span>
+            </div>
+        </div>
+
+        <!-- Header Image -->
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="auth-container">
+            <!-- Login Panel -->
+            <div class="login-panel">
+                <h2 class="panel-title">Login</h2>
+
+                <form class="auth-form" method="POST" action="/login">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+
+                    <div class="forgot-password">
+                        <a href="/forgot-password">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Login</button>
+                </form>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">Or login with</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="social-login">
+                    <button class="social-btn">
+                        <span class="social-icon">📘</span>
+                        Facebook
+                    </button>
+                    <button class="social-btn">
+                        <span class="social-icon">📧</span>
+                        Google
+                    </button>
+                </div>
+
+                <div class="switch-panel">
+                    Don't have an account? <a href="#" onclick="switchToSignup()">Sign Up</a>
+                </div>
+            </div>
+
+            <!-- Sign Up Panel -->
+            <div class="signup-panel" id="signupPanel">
+                <h2 class="panel-title">Sign Up</h2>
+
+                <form class="auth-form" method="POST" action="/signup">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="password" placeholder="Create a password" required>
+                        <div class="password-strength">
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                        </div>
+                        <div class="strength-text">Use at least 8 characters with letters and numbers</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm your password" required>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a></label>
+                    </div>
+
+                    <button type="submit" class="auth-btn">Sign Up</button>
+                </form>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">Or Sign up with</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="social-login">
+                    <button class="social-btn">
+                        <span class="social-icon">📘</span>
+                        Facebook
+                    </button>
+                    <button class="social-btn">
+                        <span class="social-icon">📧</span>
+                        Google
+                    </button>
+                </div>
+
+                <div class="switch-panel">
+                    Already have an account? <a href="#" onclick="switchToLogin()">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+        Cinemax 2025 All rights reserved
+    </div>
+
+    <script>
+        // Switch to Sign Up panel
+        function switchToSignup() {
+            document.querySelector('.login-panel').style.display = 'none';
+            document.querySelector('.signup-panel').style.display = 'block';
+        }
+
+        // Switch to Login panel
+        function switchToLogin() {
+            document.querySelector('.login-panel').style.display = 'block';
+            document.querySelector('.signup-panel').style.display = 'none';
+        }
+
+        // Password strength indicator
+        document.getElementById('signup-password')?.addEventListener('input', function(e) {
+            const password = e.target.value;
+            const bars = document.querySelectorAll('.strength-bar');
+            const strengthText = document.querySelector('.strength-text');
+
+            // Remove all active classes
+            bars.forEach(bar => bar.classList.remove('active'));
+
+            if (password.length === 0) {
+                strengthText.textContent = 'Use at least 8 characters with letters and numbers';
+                return;
+            }
+
+            // Check strength
+            let strength = 0;
+
+            // Length check
+            if (password.length >= 8) strength++;
+
+            // Contains letter and number
+            if (/[a-zA-Z]/.test(password) && /[0-9]/.test(password)) strength++;
+
+            // Contains special character
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            // Update bars
+            for (let i = 0; i < strength; i++) {
+                bars[i].classList.add('active');
+            }
+
+            // Update text
+            if (strength === 0) {
+                strengthText.textContent = 'Weak password';
+            } else if (strength === 1) {
+                strengthText.textContent = 'Fair password';
+            } else if (strength === 2) {
+                strengthText.textContent = 'Good password';
+            } else if (strength === 3) {
+                strengthText.textContent = 'Strong password';
+            }
+        });
+
+        // Password confirmation validation
+        document.getElementById('confirm-password')?.addEventListener('input', function(e) {
+            const password = document.getElementById('signup-password').value;
+            const confirm = e.target.value;
+
+            if (confirm.length > 0) {
+                if (password === confirm) {
+                    this.style.borderColor = '#4dff4d';
+                } else {
+                    this.style.borderColor = '#ff4d4d';
+                }
+            } else {
+                this.style.borderColor = '#2a3138';
+            }
+        });
+
+        // Form submission for signup
+        document.querySelector('.signup-panel form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+
+            if (password !== confirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            if (password.length < 8) {
+                alert('Password must be at least 8 characters long!');
+                return;
+            }
+
+            // Submit the form (you can modify this to use fetch/AJAX)
+            this.submit();
+        });
+
+        // Handle login form
+        document.querySelector('.login-panel form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                alert('Please fill in all fields!');
+                return;
+            }
+
+            // Submit the form (you can modify this to use fetch/AJAX)
+            this.submit();
+        });
+
+        // Add click handlers for navigation
+        document.querySelectorAll('.top-text span').forEach(span => {
+            span.addEventListener('click', function(e) {
+                const text = this.textContent;
+                if (text === 'SIGN IN') {
+                    // Already on sign in page
+                    return;
+                } else if (text === 'MOVIES') {
+                    window.location.href = '/';
+                } else if (text === 'SHOWTIMES') {
+                    window.location.href = '/showtimes';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

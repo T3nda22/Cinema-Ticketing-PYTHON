@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinemax - Booking Confirmation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            display: block;
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        .header img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 40px 80px 60px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Confirmation Container */
+        .confirmation-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .confirmation-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid #2a3138;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confirmation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e50914, #ff6b6b, #e50914);
+        }
+
+        /* Success Icon */
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+        }
+
+        .success-icon svg {
+            width: 50px;
+            height: 50px;
+            fill: white;
+        }
+
+        .checkmark {
+            color: white;
+            font-size: 50px;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff, #e50914);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #2a3138;
+        }
+
+        /* Booking Reference */
+        .reference-section {
+            background: #1a1e24;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 40px;
+            text-align: center;
+            border: 2px dashed #e50914;
+            position: relative;
+        }
+
+        .reference-label {
+            color: #999;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .reference-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #e50914;
+            letter-spacing: 5px;
+            font-family: monospace;
+        }
+
+        /* Cancellation Timer */
+        .cancellation-timer {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #e50914;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+        }
+
+        .cancellation-timer i {
+            margin-right: 5px;
+        }
+
+        .cancellation-policy {
+            background: rgba(229, 9, 20, 0.1);
+            border: 1px solid #e50914;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .cancellation-policy strong {
+            color: #e50914;
+        }
+
+        /* Ticket Details */
+        .ticket-details {
+            background: #0f1217;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid #2a3138;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #2a3138;
+        }
+
+        .detail-header i {
+            font-size: 30px;
+            color: #e50914;
+            font-style: normal;
+        }
+
+        .detail-header h2 {
+            font-size: 24px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-label {
+            color: #999;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .detail-value.movie-title {
+            color: #e50914;
+            font-size: 24px;
+        }
+
+        .detail-value.seats {
+            color: #4CAF50;
+            font-size: 20px;
+            word-break: break-word;
+        }
+
+        .detail-value.total {
+            color: #e50914;
+            font-size: 28px;
+        }
+
+        /* Payment Method Section */
+        .payment-section {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #2a3138;
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2a3138;
+        }
+
+        .payment-header i {
+            font-size: 28px;
+            color: #e50914;
+            font-style: normal;
+        }
+
+        .payment-header h3 {
+            font-size: 22px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .payment-option {
+            flex: 1;
+            min-width: 200px;
+            background: #0f1217;
+            border: 2px solid #2a3138;
+            border-radius: 16px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-option:hover {
+            transform: translateY(-5px);
+            border-color: #e50914;
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.2);
+        }
+
+        .payment-option.selected {
+            border-color: #e50914;
+            background: rgba(229, 9, 20, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-option.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: #e50914;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .payment-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2a3138, #1a1e24);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .payment-option.selected .payment-icon {
+            background: linear-gradient(135deg, #e50914, #ff4d4d);
+        }
+
+        .payment-details {
+            text-align: center;
+        }
+
+        .payment-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .payment-description {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .payment-badge {
+            background: rgba(229, 9, 20, 0.2);
+            color: #e50914;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Cash Payment Info */
+        .cash-info {
+            background: #1a1e24;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .cash-info.show {
+            display: block;
+        }
+
+        .cash-info p {
+            color: #999;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cash-info i {
+            color: #e50914;
+            font-size: 20px;
+        }
+
+        /* GCash Info */
+        .gcash-info {
+            background: #1a1e24;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .gcash-info.show {
+            display: block;
+        }
+
+        .gcash-qr {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(145deg, #fff, #ddd);
+            margin: 0 auto;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: #0a0c0f;
+        }
+
+        .gcash-number {
+            background: #0f1217;
+            border: 1px solid #2a3138;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .gcash-number span {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e50914;
+            letter-spacing: 2px;
+        }
+
+        .copy-btn {
+            background: #2a3138;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #e50914;
+        }
+
+        .gcash-steps {
+            list-style: none;
+            padding: 0;
+        }
+
+        .gcash-steps li {
+            color: #999;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gcash-steps li:before {
+            content: '•';
+            color: #e50914;
+            font-size: 20px;
+        }
+
+        /* Card Info */
+        .card-info {
+            background: #1a1e24;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .card-info.show {
+            display: block;
+        }
+
+        .card-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card-input {
+            background: #0f1217;
+            border: 1px solid #2a3138;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .card-input:focus {
+            outline: none;
+            border-color: #e50914;
+        }
+
+        .card-input::placeholder {
+            color: #666;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #e50914;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff0f1a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6);
+        }
+
+        .btn-primary:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #2a3138;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #3a434b;
+            transform: translateY(-3px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff4757;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.6);
+        }
+
+        .btn-print {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #5fba67;
+            transform: translateY(-3px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #2a3138;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #dc3545, #ff4757);
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .modal-text {
+            text-align: center;
+            color: #999;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-warning {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid #dc3545;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #ff4757;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .modal-btn-cancel {
+            background: #2a3138;
+            color: white;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #3a434b;
+        }
+
+        .modal-btn-confirm {
+            background: #dc3545;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #ff4757;
+        }
+
+        /* Cancellation Confirmation */
+        .cancellation-confirmation {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid #dc3545;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .cancellation-confirmation.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .cancellation-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #dc3545, #ff4757);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .cancellation-title {
+            font-size: 32px;
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .cancellation-message {
+            color: #999;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .refund-info {
+            background: #1a1e24;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .refund-amount {
+            font-size: 28px;
+            color: #4CAF50;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        /* Info Message */
+        .info-message {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #2a3138;
+        }
+
+        .info-message p {
+            margin-bottom: 5px;
+        }
+
+        .info-message i {
+            color: #e50914;
+            font-style: normal;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+
+        /* Print Styles */
+        @media print {
+            .header, .footer, .top-bar, .action-buttons, .payment-section, .cancellation-timer, .btn {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                width: 100%;
+            }
+
+            .confirmation-card {
+                background: white;
+                color: black;
+                border: 2px solid #333;
+                box-shadow: none;
+            }
+
+            .detail-value {
+                color: black !important;
+            }
+
+            .reference-number {
+                color: #e50914 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Logo and Top Text -->
+    <div class="header">
+        <div class="top-bar">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'50\' viewBox=\'0 0 150 50\'%3E%3Crect width=\'150\' height=\'50\' fill=\'%23e50914\'/%3E%3Ctext x=\'20\' y=\'35\' font-family=\'Arial\' font-size=\'24\' fill=\'white\' font-weight=\'bold\'%3ECINEMAX%3C/text%3E%3C/svg%3E'">
+            </div>
+            <div class="top-text">
+                <span onclick="window.location.href='/'">MOVIES</span>
+                <span onclick="window.location.href='/showtimes'">SHOWTIMES</span>
+                <span>COMING SOON</span>
+                <span>CONTACT</span>
+                <span onclick="window.location.href='/signin'">SIGN IN</span>
+            </div>
+        </div>
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1920\' height=\'300\' viewBox=\'0 0 1920 300\'%3E%3Crect width=\'1920\' height=\'300\' fill=\'%23222\'/%3E%3Ctext x=\'800\' y=\'160\' font-family=\'Arial\' font-size=\'40\' fill=\'%23555\'%3ECinema Header%3C/text%3E%3C/svg%3E'">
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="confirmation-wrapper">
+            <div class="confirmation-card">
+                <!-- Success Icon -->
+                <div class="success-icon">
+                    <span class="checkmark">✓</span>
+                </div>
+
+                <h1>Booking Confirmed!</h1>
+                <div class="subtitle">Your tickets have been booked successfully</div>
+
+                <!-- Booking Reference with Cancellation Timer -->
+                <div class="reference-section">
+                    <div class="cancellation-timer" id="cancellationTimer">
+                        <i>⏰</i> <span id="timer">15:00</span> to cancel
+                    </div>
+                    <div class="reference-label">Booking Reference</div>
+                    <div class="reference-number">{{ booking_ref }}</div>
+
+                    <div class="cancellation-policy">
+                        <strong>⚠️ Cancellation Policy:</strong> Free cancellation within 15 minutes of booking.
+                        After that, a 10% cancellation fee applies. Cancellations must be made at least 2 hours before showtime.
+                    </div>
+                </div>
+
+                <!-- Cancellation Confirmation (Hidden by default) -->
+                <div class="cancellation-confirmation" id="cancellationConfirmation">
+                    <div class="cancellation-icon">✓</div>
+                    <div class="cancellation-title">Booking Cancelled</div>
+                    <div class="cancellation-message">Your booking has been successfully cancelled.</div>
+                    <div class="refund-info">
+                        <div>Refund Status:</div>
+                        <div class="refund-amount" id="refundAmount">₱{{ (total|float * 0.9)|round(2) }}</div>
+                        <div style="color: #999; font-size: 14px; margin-top: 10px;">
+                            (10% cancellation fee: ₱{{ (total|float * 0.1)|round(2) }})
+                        </div>
+                        <div style="color: #999; font-size: 14px; margin-top: 15px;">
+                            Refund will be processed within 3-5 business days.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Details -->
+                <div class="ticket-details" id="ticketDetails">
+                    <div class="detail-header">
+                        <i>🎬</i>
+                        <h2>Ticket Details</h2>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Movie</span>
+                            <span class="detail-value movie-title">{{ movie_title }}</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Date</span>
+                            <span class="detail-value">{{ show_date }}</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Showtime</span>
+                            <span class="detail-value">{{ showtime }}</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Screen</span>
+                            <span class="detail-value">Screen 1</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Selected Seats</span>
+                            <span class="detail-value seats">{{ seats }}</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Number of Tickets</span>
+                            <span class="detail-value">{{ tickets }}</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Price per Ticket</span>
+                            <span class="detail-value">₱350.00</span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Total Amount</span>
+                            <span class="detail-value total">₱{{ total }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div class="payment-section" id="paymentSection">
+                    <div class="payment-header">
+                        <i>💳</i>
+                        <h3>Select Payment Method</h3>
+                    </div>
+
+                    <div class="payment-options">
+                        <!-- Cash Option -->
+                        <div class="payment-option" id="cashOption" onclick="selectPayment('cash')">
+                            <div class="payment-icon">💵</div>
+                            <div class="payment-details">
+                                <div class="payment-name">Cash</div>
+                                <div class="payment-description">Pay at the counter</div>
+                            </div>
+                            <div class="payment-badge">OVER THE COUNTER</div>
+                        </div>
+
+                        <!-- Card Option -->
+                        <div class="payment-option" id="cardOption" onclick="selectPayment('card')">
+                            <div class="payment-icon">💳</div>
+                            <div class="payment-details">
+                                <div class="payment-name">Credit/Debit Card</div>
+                                <div class="payment-description">Visa, Mastercard, JCB</div>
+                            </div>
+                            <div class="payment-badge">SECURE PAYMENT</div>
+                        </div>
+
+                        <!-- GCash Option -->
+                        <div class="payment-option" id="gcashOption" onclick="selectPayment('gcash')">
+                            <div class="payment-icon">📱</div>
+                            <div class="payment-details">
+                                <div class="payment-name">GCash</div>
+                                <div class="payment-description">Pay via GCash app</div>
+                            </div>
+                            <div class="payment-badge">INSTANT</div>
+                        </div>
+                    </div>
+
+                    <!-- Cash Payment Info -->
+                    <div class="cash-info" id="cashInfo">
+                        <p><i>📍</i> Please proceed to the cinema counter to complete your payment</p>
+                        <p><i>⏰</i> Payment must be completed at least 30 minutes before showtime</p>
+                        <p><i>💰</i> Present your booking reference: <strong>{{ booking_ref }}</strong></p>
+                        <p><i>ℹ️</i> Your seats will be held for 30 minutes pending payment</p>
+                    </div>
+
+                    <!-- Card Payment Info -->
+                    <div class="card-info" id="cardInfo">
+                        <form id="cardForm" class="card-form">
+                            <input type="text" class="card-input" placeholder="Card Number" maxlength="19">
+                            <input type="text" class="card-input" placeholder="Cardholder Name">
+                            <div class="form-row">
+                                <input type="text" class="card-input" placeholder="MM/YY" maxlength="5">
+                                <input type="text" class="card-input" placeholder="CVV" maxlength="3">
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- GCash Payment Info -->
+                    <div class="gcash-info" id="gcashInfo">
+                        <div class="gcash-qr">
+                            <div class="qr-placeholder">📱</div>
+                        </div>
+                        <div class="gcash-number">
+                            <span>0917 123 4567</span>
+                            <button class="copy-btn" onclick="copyGCashNumber()">Copy</button>
+                        </div>
+                        <ul class="gcash-steps">
+                            <li>Open GCash app and click "Pay QR"</li>
+                            <li>Scan the QR code or enter number 0917 123 4567</li>
+                            <li>Enter amount: ₱{{ total }}</li>
+                            <li>Input your MPIN to confirm payment</li>
+                            <li>Keep the reference number for verification</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons" id="actionButtons">
+                    <button class="btn btn-primary" id="payButton" onclick="processPayment()" disabled>
+                        <span>💳</span> Proceed to Payment
+                    </button>
+                    <button class="btn btn-danger" id="cancelButton" onclick="showCancellationModal()">
+                        <span>✖</span> Cancel Booking
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/movie/{{ movie_id }}'">
+                        <span>🎬</span> Movie Details
+                    </button>
+                    <button class="btn btn-print" onclick="window.print()">
+                        <span>🖨️</span> Print Tickets
+                    </button>
+                </div>
+
+                <!-- Important Information -->
+                <div class="info-message">
+                    <p><i>⏰</i> Please arrive 15 minutes before showtime</p>
+                    <p><i>📍</i> Screen 1 · Main Theater</p>
+                    <p><i>📧</i> A confirmation email has been sent to your registered email address</p>
+                    <p><i>🎫</i> Show this confirmation at the counter or use the self-service kiosk</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation Modal -->
+    <div class="modal" id="cancellationModal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <h2 class="modal-title">Cancel Booking?</h2>
+            <p class="modal-text">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+
+            <div class="modal-warning" id="modalWarning">
+                <strong>Free cancellation</strong> within the next <span id="modalTimer">15:00</span>.<br>
+                After that, a 10% cancellation fee will apply.
+            </div>
+
+            <div class="refund-info" style="margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Total Amount:</span>
+                    <span>₱{{ total }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; color: #dc3545;">
+                    <span>Cancellation Fee:</span>
+                    <span id="cancellationFee">₱{{ (total|float * 0.1)|round(2) }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: 600; border-top: 1px solid #2a3138; padding-top: 10px;">
+                    <span>Refund Amount:</span>
+                    <span style="color: #4CAF50;" id="refundModalAmount">₱{{ (total|float * 0.9)|round(2) }}</span>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeCancellationModal()">No, Keep Booking</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmCancellation()">Yes, Cancel Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1920\' height=\'200\' viewBox=\'0 0 1920 200\'%3E%3Crect width=\'1920\' height=\'200\' fill=\'%23111\'/%3E%3Ctext x=\'800\' y=\'120\' fill=\'%23666\' font-size=\'30\'%3EFooter%3C/text%3E%3C/svg%3E'">
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+        Cinemax 2025 All rights reserved
+    </div>
+
+    <script>
+        let selectedPayment = null;
+        let cancellationTimer;
+        let timeLeft = 900; // 15 minutes in seconds
+        let bookingCancelled = false;
+
+        // Animation on load
+        window.onload = function() {
+            const card = document.querySelector('.confirmation-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+
+            startCancellationTimer();
+        };
+
+        // Start cancellation timer
+        function startCancellationTimer() {
+            cancellationTimer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(cancellationTimer);
+                    document.getElementById('cancellationTimer').innerHTML = '<i>⚠️</i> Cancellation fee applies';
+                    document.getElementById('modalWarning').innerHTML = '<strong>10% cancellation fee</strong> will apply if you cancel now.';
+                    return;
+                }
+
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                const timerString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timer').textContent = timerString;
+                document.getElementById('modalTimer').textContent = timerString;
+
+                // Update fee display based on time
+                if (timeLeft > 0) {
+                    const total = {{ total|float }};
+                    const fee = timeLeft > 0 ? total * 0.1 : 0;
+                    document.getElementById('cancellationFee').textContent = `₱${fee.toFixed(2)}`;
+                    document.getElementById('refundModalAmount').textContent = `₱${(total - fee).toFixed(2)}`;
+                }
+            }, 1000);
+        }
+
+        // Select payment method
+        function selectPayment(method) {
+            if (bookingCancelled) {
+                alert('This booking has been cancelled. Please make a new booking.');
+                return;
+            }
+
+            selectedPayment = method;
+
+            // Remove selected class from all options
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Hide all payment infos
+            document.querySelectorAll('.cash-info, .card-info, .gcash-info').forEach(info => {
+                info.classList.remove('show');
+            });
+
+            // Add selected class to chosen option
+            document.getElementById(method + 'Option').classList.add('selected');
+
+            // Show corresponding payment info
+            document.getElementById(method + 'Info').classList.add('show');
+
+            // Enable pay button
+            document.getElementById('payButton').disabled = false;
+        }
+
+        // Process payment
+        function processPayment() {
+            if (bookingCancelled) {
+                alert('This booking has been cancelled. Please make a new booking.');
+                return;
+            }
+
+            if (!selectedPayment) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            switch(selectedPayment) {
+                case 'cash':
+                    alert('Please proceed to the counter to complete your cash payment.\nYour booking reference: {{ booking_ref }}');
+                    // Redirect to tickets or home
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                    break;
+
+                case 'card':
+                    // Validate card form
+                    alert('Processing card payment...\nThis is a demo. In production, you would integrate with a payment gateway.');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                    break;
+
+                case 'gcash':
+                    alert('Please complete payment using GCash app.\nReference: {{ booking_ref }}\nAmount: ₱{{ total }}');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                    break;
+            }
+        }
+
+        // Show cancellation modal
+        function showCancellationModal() {
+            if (bookingCancelled) {
+                alert('This booking has already been cancelled.');
+                return;
+            }
+            document.getElementById('cancellationModal').classList.add('show');
+        }
+
+        // Close cancellation modal
+        function closeCancellationModal() {
+            document.getElementById('cancellationModal').classList.remove('show');
+        }
+
+        // Confirm cancellation
+        function confirmCancellation() {
+            bookingCancelled = true;
+
+            // Clear timer
+            clearInterval(cancellationTimer);
+
+            // Hide modal
+            closeCancellationModal();
+
+            // Hide payment section and action buttons
+            document.getElementById('paymentSection').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+
+            // Hide ticket details
+            document.getElementById('ticketDetails').style.display = 'none';
+
+            // Show cancellation confirmation
+            document.getElementById('cancellationConfirmation').classList.add('show');
+
+            // Update timer display
+            document.getElementById('cancellationTimer').innerHTML = '<i>❌</i> Booking Cancelled';
+
+            // Calculate refund based on time
+            const total = {{ total|float }};
+            let refundAmount;
+            let feeAmount;
+
+            if (timeLeft > 0) {
+                // Within free cancellation period
+                refundAmount = total;
+                feeAmount = 0;
+                document.getElementById('refundAmount').textContent = `₱${refundAmount.toFixed(2)}`;
+            } else {
+                // After free cancellation period
+                refundAmount = total * 0.9;
+                feeAmount = total * 0.1;
+                document.getElementById('refundAmount').textContent = `₱${refundAmount.toFixed(2)}`;
+            }
+
+            // You would typically send a cancellation request to the server here
+            console.log('Booking cancelled:', {
+                booking_ref: '{{ booking_ref }}',
+                refund_amount: refundAmount,
+                fee_amount: feeAmount,
+                cancelled_within_free_period: timeLeft > 0
+            });
+
+            // Simulate API call
+            setTimeout(() => {
+                alert('Booking has been successfully cancelled. Refund will be processed within 3-5 business days.');
+            }, 500);
+        }
+
+        // Copy GCash number
+        function copyGCashNumber() {
+            const gcashNumber = '0917 123 4567';
+            navigator.clipboard.writeText(gcashNumber).then(() => {
+                alert('GCash number copied to clipboard!');
+            });
+        }
+
+        // Format card number input
+        document.querySelector('.card-input[placeholder="Card Number"]')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let matches = value.match(/\d{4,16}/g);
+            let match = matches && matches[0] || '';
+            let parts = [];
+
+            for (let i = 0; i < match.length; i += 4) {
+                parts.push(match.substring(i, i + 4));
+            }
+
+            if (parts.length) {
+                e.target.value = parts.join(' ');
+            } else {
+                e.target.value = value;
+            }
+        });
+
+        // Format expiry date
+        document.querySelector('.card-input[placeholder="MM/YY"]')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\//g, '').replace(/[^0-9]/gi, '');
+            if (value.length >= 2) {
+                e.target.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            } else {
+                e.target.value = value;
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('cancellationModal');
+            if (event.target === modal) {
+                closeCancellationModal();
+            }
+        };
+
+        // Print function
+        function printTickets() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

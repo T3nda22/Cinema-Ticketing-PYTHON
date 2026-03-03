@@ -45,6 +45,7 @@
         .logo {
             height: 50px;
             width: auto;
+            cursor: pointer;
         }
 
         .logo img {
@@ -85,6 +86,20 @@
 
         .top-text span:hover:after {
             width: 100%;
+        }
+
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
         }
 
         /* Hero text overlay - positioned in middle of header */
@@ -373,15 +388,15 @@
     <div class="header">
         <!-- Top bar with logo and text -->
         <div class="top-bar">
-            <div class="logo">
+            <div class="logo" onclick="location.href='{{ url_for('index') }}'">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
             </div>
             <div class="top-text">
-                <span>MOVIES</span>
-                <span>SHOWTIMES</span>
-                <span>COMING SOON</span>
-                <span>CONTACT</span>
-                <span>SIGN IN</span>
+                <span class="active" onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
+                <span onclick="location.href='{{ url_for('showtimes') }}'">SHOWTIMES</span>
+                <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
+                <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
+                <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
             </div>
         </div>
 
@@ -403,7 +418,7 @@
         <!-- Now Showing Section -->
 <div class="section-title">
     <h2>Now Showing</h2>
-    <span class="view-all">view all ></span>
+    <span class="view-all" onclick="location.href='{{ url_for('all_movies') }}'">view all ></span>
 </div>
 
 <div class="movies-grid">
@@ -423,7 +438,7 @@
     <!-- The Shining -->
     <a href="{{ url_for('movie_details', movie_id=2) }}" style="text-decoration: none; color: inherit;">
         <div class="movie-card">
-            <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop" alt="The Shining">
+            <img src="{{ url_for('static', filename='images/cover2.jpg') }}" alt="The Shining">
             <div class="movie-info">
                 <h3>The Shining</h3>
                 <div class="rating">★★★★★ 8.4</div>
@@ -435,7 +450,7 @@
     <!-- Beauty and the Beast -->
     <a href="{{ url_for('movie_details', movie_id=3) }}" style="text-decoration: none; color: inherit;">
         <div class="movie-card">
-            <img src="https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?w=400&h=600&fit=crop" alt="Beauty and the Beast">
+            <img src="{{ url_for('static', filename='images/cover3.jpeg') }}" alt="Beauty and the Beast">
             <div class="movie-info">
                 <h3>Beauty and the Beast</h3>
                 <div class="rating">★★★★★ 7.7</div>
@@ -447,7 +462,7 @@
     <!-- Step Brothers -->
     <a href="{{ url_for('movie_details', movie_id=4) }}" style="text-decoration: none; color: inherit;">
         <div class="movie-card">
-            <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop" alt="Step Brothers">
+            <img src="{{ url_for('static', filename='images/cover4.jpg') }}" alt="Step Brothers">
             <div class="movie-info">
                 <h3>Step Brothers</h3>
                 <div class="rating">★★★★★ 6.9</div>
@@ -459,7 +474,7 @@
     <!-- AFTER -->
     <a href="{{ url_for('movie_details', movie_id=5) }}" style="text-decoration: none; color: inherit;">
         <div class="movie-card">
-            <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=400&h=600&fit=crop" alt="AFTER">
+            <img src="{{ url_for('static', filename='images/cover5.jpg') }}" alt="AFTER">
             <div class="movie-info">
                 <h3>AFTER</h3>
                 <div class="rating">★★★★★ 7.0</div>
@@ -479,7 +494,7 @@
 
             <div class="coming-soon-grid">
                 <!-- SMILE Card -->
-                <div class="coming-card">
+                <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=6) }}'" style="cursor: pointer;">
                     <div class="tagline">ONCE YOU SEE IT IT'S TOO LATE</div>
                     <div class="movie-title">SMILE</div>
                     <div class="subtitle">IN CINEMAS</div>
@@ -487,7 +502,7 @@
                 </div>
 
                 <!-- Second Card -->
-                <div class="coming-card">
+                <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=7) }}'" style="cursor: pointer;">
                     <div class="tagline">THEY WILL NEVER LET GO</div>
                     <div class="movie-title">SMILE</div>
                     <div class="subtitle">ON THE THEATRES</div>
@@ -495,7 +510,7 @@
                 </div>
 
                 <!-- Mirrors Card -->
-                <div class="coming-card">
+                <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=8) }}'" style="cursor: pointer;">
                     <div class="tagline">'THE HILLS HAVE EYES'</div>
                     <div class="movie-title">MIRRORS</div>
                     <div class="cast">KIEFFER SUTHERLAND</div>
@@ -520,7 +535,19 @@
 
     <!-- Copyright -->
     <div class="copyright">
-        Cinemax 20255 All rights reserved
+        Cinemax 2025 All rights reserved
     </div>
+
+    <script>
+        // Add smooth navigation
+        document.querySelectorAll('.top-text span').forEach(span => {
+            span.addEventListener('click', function(e) {
+                // Remove active class from all spans
+                document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
+                // Add active class to clicked span
+                this.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>
