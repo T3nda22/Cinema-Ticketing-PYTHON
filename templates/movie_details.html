@@ -44,6 +44,7 @@
         .logo {
             height: 50px;
             width: auto;
+            cursor: pointer;
         }
 
         .logo img {
@@ -69,6 +70,20 @@
 
         .top-text span:hover {
             color: #e50914;
+        }
+
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
         }
 
         .top-text span:after {
@@ -436,21 +451,31 @@
             font-size: 14px;
             border-top: 1px solid #222;
         }
+
+        /* Fallback Image Style */
+        .movie-poster img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: linear-gradient(145deg, #2a3138, #1a1e24);
+            min-height: 450px;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
         <div class="top-bar">
-            <div class="logo">
+            <div class="logo" onclick="location.href='{{ url_for('index') }}'">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
             </div>
             <div class="top-text">
-                <span onclick="window.location.href='/'">MOVIES</span>
-                <span>SHOWTIMES</span>
-                <span>COMING SOON</span>
-                <span>CONTACT</span>
-                <span>SIGN IN</span>
+                <span onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
+                <span class="active" onclick="location.href='{{ url_for('showtimes') }}'">SHOWTIMES</span>
+                <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
+                <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
+                <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
             </div>
         </div>
         <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
@@ -460,12 +485,13 @@
     <div class="content">
         <!-- Back Navigation -->
         <div class="back-nav">
-            <a href="/">Back to Movies</a>
+            <a href="{{ url_for('index') }}">Back to Movies</a>
         </div>
 
         <!-- Movie Details -->
         <div class="movie-details-container">
             <div class="movie-poster">
+                <!-- FIXED: Using direct path from database since it already includes /static/ -->
                 <img src="{{ movie.poster }}" alt="{{ movie.title }}">
             </div>
             <div class="movie-info">
@@ -513,7 +539,7 @@
                 <div class="showtime-card" onclick="selectShowtime(this, '{{ showtime.show_time }}')">
                     <div class="showtime">{{ showtime.show_time }}</div>
                     <div class="showtime-type">Standard</div>
-                    <div class="price">${{ "%.2f"|format(showtime.price) }}</div>
+                    <div class="price">₱{{ "%.2f"|format(showtime.price) }}</div>
                     <div class="available">▼ 85 seats available</div>
                 </div>
                 {% endfor %}
@@ -528,12 +554,12 @@
                     <button class="ticket-btn" onclick="changeTickets(1)" id="increaseBtn">+</button>
                 </div>
                 <div class="ticket-price">
-                    Total: <span id="totalPrice">$30.00</span>
+                    Total: <span id="totalPrice">₱{{ "%.2f"|format(15.00 * 2) }}</span>
                 </div>
             </div>
 
             <!-- Continue Button -->
-            <button class="continue-btn" onclick="continueToSeats()" id="continueBtn">Continue to Seat Selection</button>
+            <button class="continue-btn" onclick="continueToSeats()" id="continueBtn" disabled>Continue to Seat Selection</button>
         </div>
     </div>
 
@@ -557,6 +583,14 @@
         window.onload = function() {
             updateTotalPrice();
             updateContinueButton();
+
+            // Add smooth navigation for top text
+            document.querySelectorAll('.top-text span').forEach(span => {
+                span.addEventListener('click', function(e) {
+                    document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
         };
 
         // Date selection
@@ -595,7 +629,7 @@
         // Update total price
         function updateTotalPrice() {
             const total = ticketCount * pricePerTicket;
-            document.getElementById('totalPrice').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('totalPrice').textContent = `₱${total.toFixed(2)}`;
         }
 
         // Update continue button state

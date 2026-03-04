@@ -59,22 +59,22 @@ def init_db():
         if count == 0:
             print("Inserting sample movies...")
             movies_data = [
-                ('Us', 7.1, '2h 16m', '/static/images/cover1.jpg', 'JORDAN PEELE', 'WRITER/DIRECTOR OF GET OUT', '6m',
+                ('Us', 7.1, '2h 16m', 'images/cover1.jpg', 'JORDAN PEELE', 'WRITER/DIRECTOR OF GET OUT', '6m',
                  'A family\'s serene beach vacation turns to chaos when doppelgängers begin to terrorize them.'),
                 ('The Shining', 8.4, '2h 26m',
-                 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop',
+                 'images/cover2.jpg',
                  'STANLEY KUBRICK', 'MASTER OF HORROR', '6m',
                  'A family heads to an isolated hotel for the winter where a sinister presence influences the father into violence.'),
                 ('Beauty and the Beast', 7.7, '2h 9m',
-                 'https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?w=400&h=600&fit=crop',
+                 'images/cover3.jpeg',
                  'BILL CONDON', 'DISNEY\'S LIVE ACTION', '6m',
                  'A selfish prince is cursed to become a monster for the rest of his life unless he learns to fall in love with a beautiful young woman he keeps prisoner.'),
                 ('Step Brothers', 6.9, '1h 38m',
-                 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&h=600&fit=crop',
+                 'images/cover4.jpg',
                  'ADAM MCKAY', 'COMEDY CLASSIC', '9m',
                  'Two aimless middle-aged losers still living at home are forced against their will to become roommates when their parents marry.'),
                 ('AFTER', 7.0, '1h 45m',
-                 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=400&h=600&fit=crop',
+                 'images/cover5.jpg',
                  'JENNIE GAGE', 'BASED ON THE NOVEL', '8m',
                  'A young woman falls for a guy with a dark secret and the two embark on a rocky relationship.')
             ]
@@ -436,6 +436,31 @@ def forgot_password():
 def logout():
     # TODO: Clear session
     return redirect(url_for('index'))
+
+
+@app.route('/update-posters')
+def update_posters():
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        # Update Us to use local image
+        cursor.execute("""
+            UPDATE movies 
+            SET poster = 'images/cover1.jpg' 
+            WHERE id = 1
+        """)
+
+        # Update other movies to use local images (if you want)
+        # cursor.execute("UPDATE movies SET poster = 'images/cover2.jpg' WHERE id = 2")
+        # cursor.execute("UPDATE movies SET poster = 'images/cover3.jpeg' WHERE id = 3")
+        # cursor.execute("UPDATE movies SET poster = 'images/cover4.jpg' WHERE id = 4")
+        # cursor.execute("UPDATE movies SET poster = 'images/cover5.jpg' WHERE id = 5")
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return "Poster paths updated! <a href='/'>Go to home page</a>"
+    return "Database connection failed"
 
 
 if __name__ == '__main__':
