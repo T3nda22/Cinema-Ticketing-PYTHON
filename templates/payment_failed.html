@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinemax - Payment Failed</title>
+    <style>
+        body {
+            width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            flex: 1;
+            padding: 40px 80px 60px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .failed-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 30px;
+            padding: 60px;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid #2a3138;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .failed-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #dc3545, #ff4757);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #dc3545;
+        }
+
+        .booking-ref {
+            background: #1a1e24;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px dashed #dc3545;
+        }
+
+        .ref-number {
+            font-size: 32px;
+            color: #dc3545;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .btn {
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .btn-secondary {
+            background: #2a3138;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="failed-card">
+            <div class="failed-icon">✗</div>
+            <h1>Payment Failed</h1>
+            <p style="color: #999; font-size: 18px; margin-bottom: 30px;">
+                Your payment could not be processed. Please try again.
+            </p>
+
+            <div class="booking-ref">
+                <div style="color: #999; margin-bottom: 10px;">Booking Reference</div>
+                <div class="ref-number">{{ booking_ref }}</div>
+            </div>
+
+            <p style="color: #999; margin-bottom: 30px;">
+                You can try again or choose a different payment method.
+            </p>
+
+            <a href="javascript:history.back()" class="btn">Try Again</a>
+            <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -396,7 +396,16 @@
                 <span onclick="location.href='{{ url_for('showtimes') }}'">SHOWTIMES</span>
                 <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
                 <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
-                <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+
+                <!-- Authentication-aware top bar items -->
+                {% if session.user_id %}
+                    <!-- User is logged in -->
+                    <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
+                {% else %}
+                    <!-- User is not logged in -->
+                    <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+                {% endif %}
             </div>
         </div>
 
@@ -416,74 +425,74 @@
         <div class="divider"></div>
 
         <!-- Now Showing Section -->
-<div class="section-title">
-    <h2>Now Showing</h2>
-    <span class="view-all" onclick="location.href='{{ url_for('all_movies') }}'">view all ></span>
-</div>
-
-<div class="movies-grid">
-    <!-- US -->
-    <a href="{{ url_for('movie_details', movie_id=1) }}" style="text-decoration: none; color: inherit;">
-        <div class="movie-card">
-            <img src="{{ url_for('static', filename='images/cover1.jpg') }}" alt="Us">
-            <div class="movie-info">
-                <h3>US</h3>
-                <div class="rating">★★★★★ 7.1</div>
-                <div class="duration">2h 16m</div>
-            </div>
-            <div class="movie-tag">NOW</div>
+        <div class="section-title">
+            <h2>Now Showing</h2>
+            <span class="view-all" onclick="location.href='{{ url_for('all_movies') }}'">view all ></span>
         </div>
-    </a>
 
-    <!-- The Shining -->
-    <a href="{{ url_for('movie_details', movie_id=2) }}" style="text-decoration: none; color: inherit;">
-        <div class="movie-card">
-            <img src="{{ url_for('static', filename='images/cover2.jpg') }}" alt="The Shining">
-            <div class="movie-info">
-                <h3>The Shining</h3>
-                <div class="rating">★★★★★ 8.4</div>
-                <div class="duration">2h 26m</div>
-            </div>
-        </div>
-    </a>
+        <div class="movies-grid">
+            <!-- US -->
+            <a href="{{ url_for('movie_details', movie_id=1) }}" style="text-decoration: none; color: inherit;">
+                <div class="movie-card">
+                    <img src="{{ url_for('static', filename='images/cover1.jpg') }}" alt="Us">
+                    <div class="movie-info">
+                        <h3>US</h3>
+                        <div class="rating">★★★★★ 7.1</div>
+                        <div class="duration">2h 16m</div>
+                    </div>
+                    <div class="movie-tag">NOW</div>
+                </div>
+            </a>
 
-    <!-- Beauty and the Beast -->
-    <a href="{{ url_for('movie_details', movie_id=3) }}" style="text-decoration: none; color: inherit;">
-        <div class="movie-card">
-            <img src="{{ url_for('static', filename='images/cover3.jpeg') }}" alt="Beauty and the Beast">
-            <div class="movie-info">
-                <h3>Beauty and the Beast</h3>
-                <div class="rating">★★★★★ 7.7</div>
-                <div class="duration">2h 9m</div>
-            </div>
-        </div>
-    </a>
+            <!-- The Shining -->
+            <a href="{{ url_for('movie_details', movie_id=2) }}" style="text-decoration: none; color: inherit;">
+                <div class="movie-card">
+                    <img src="{{ url_for('static', filename='images/cover2.jpg') }}" alt="The Shining">
+                    <div class="movie-info">
+                        <h3>The Shining</h3>
+                        <div class="rating">★★★★★ 8.4</div>
+                        <div class="duration">2h 26m</div>
+                    </div>
+                </div>
+            </a>
 
-    <!-- Step Brothers -->
-    <a href="{{ url_for('movie_details', movie_id=4) }}" style="text-decoration: none; color: inherit;">
-        <div class="movie-card">
-            <img src="{{ url_for('static', filename='images/cover4.jpg') }}" alt="Step Brothers">
-            <div class="movie-info">
-                <h3>Step Brothers</h3>
-                <div class="rating">★★★★★ 6.9</div>
-                <div class="duration">1h 38m</div>
-            </div>
-        </div>
-    </a>
+            <!-- Beauty and the Beast -->
+            <a href="{{ url_for('movie_details', movie_id=3) }}" style="text-decoration: none; color: inherit;">
+                <div class="movie-card">
+                    <img src="{{ url_for('static', filename='images/cover3.jpeg') }}" alt="Beauty and the Beast">
+                    <div class="movie-info">
+                        <h3>Beauty and the Beast</h3>
+                        <div class="rating">★★★★★ 7.7</div>
+                        <div class="duration">2h 9m</div>
+                    </div>
+                </div>
+            </a>
 
-    <!-- AFTER -->
-    <a href="{{ url_for('movie_details', movie_id=5) }}" style="text-decoration: none; color: inherit;">
-        <div class="movie-card">
-            <img src="{{ url_for('static', filename='images/cover5.jpg') }}" alt="AFTER">
-            <div class="movie-info">
-                <h3>AFTER</h3>
-                <div class="rating">★★★★★ 7.0</div>
-                <div class="duration">1h 45m</div>
-            </div>
-            <div class="movie-tag">NEW</div>
+            <!-- Step Brothers -->
+            <a href="{{ url_for('movie_details', movie_id=4) }}" style="text-decoration: none; color: inherit;">
+                <div class="movie-card">
+                    <img src="{{ url_for('static', filename='images/cover4.jpg') }}" alt="Step Brothers">
+                    <div class="movie-info">
+                        <h3>Step Brothers</h3>
+                        <div class="rating">★★★★★ 6.9</div>
+                        <div class="duration">1h 38m</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- AFTER -->
+            <a href="{{ url_for('movie_details', movie_id=5) }}" style="text-decoration: none; color: inherit;">
+                <div class="movie-card">
+                    <img src="{{ url_for('static', filename='images/cover5.jpg') }}" alt="AFTER">
+                    <div class="movie-info">
+                        <h3>AFTER</h3>
+                        <div class="rating">★★★★★ 7.0</div>
+                        <div class="duration">1h 45m</div>
+                    </div>
+                    <div class="movie-tag">NEW</div>
+                </div>
+            </a>
         </div>
-    </a>
-</div>
 
         <!-- Coming Soon Section -->
         <div class="coming-soon">
@@ -539,15 +548,17 @@
     </div>
 
     <script>
-        // Add smooth navigation
+        // Add smooth navigation and active class management
         document.querySelectorAll('.top-text span').forEach(span => {
             span.addEventListener('click', function(e) {
                 // Remove active class from all spans
                 document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
-                // Add active class to clicked span
+                // Add active class to clicked span (only if it's not LOGOUT or PROFILE maybe)
                 this.classList.add('active');
             });
         });
+
+        // Ensure MOVIES is active on page load (already set in HTML)
     </script>
 </body>
 </html>

@@ -491,7 +491,6 @@
         <!-- Movie Details -->
         <div class="movie-details-container">
             <div class="movie-poster">
-                <!-- FIXED: Using direct path from database since it already includes /static/ -->
                 <img src="{{ movie.poster }}" alt="{{ movie.title }}">
             </div>
             <div class="movie-info">
@@ -536,7 +535,7 @@
             <!-- Showtimes Grid -->
             <div class="showtimes-grid">
                 {% for showtime in showtimes %}
-                <div class="showtime-card" onclick="selectShowtime(this, '{{ showtime.show_time }}')">
+                <div class="showtime-card" onclick="selectShowtime(this, '{{ showtime.show_time }}', {{ showtime.price }})">
                     <div class="showtime">{{ showtime.show_time }}</div>
                     <div class="showtime-type">Standard</div>
                     <div class="price">₱{{ "%.2f"|format(showtime.price) }}</div>
@@ -575,8 +574,8 @@
         // Variables to store selected options
         let selectedDate = 'Today';
         let selectedShowtime = '';
+        let selectedPrice = 15.00;
         let ticketCount = 2;
-        const pricePerTicket = 15.00;
         const movieId = {{ movie.id }};
 
         // Initialize
@@ -603,12 +602,14 @@
         }
 
         // Showtime selection
-        function selectShowtime(element, showtime) {
+        function selectShowtime(element, showtime, price) {
             document.querySelectorAll('.showtime-card').forEach(card => {
                 card.classList.remove('selected');
             });
             element.classList.add('selected');
             selectedShowtime = showtime;
+            selectedPrice = price;
+            updateTotalPrice();
             updateContinueButton();
         }
 
@@ -628,7 +629,7 @@
 
         // Update total price
         function updateTotalPrice() {
-            const total = ticketCount * pricePerTicket;
+            const total = ticketCount * selectedPrice;
             document.getElementById('totalPrice').textContent = `₱${total.toFixed(2)}`;
         }
 
@@ -650,7 +651,7 @@
             }
 
             // Redirect to seat selection page with parameters
-            window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}`;
+            window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}&price=${selectedPrice}`;
         }
     </script>
 </body>

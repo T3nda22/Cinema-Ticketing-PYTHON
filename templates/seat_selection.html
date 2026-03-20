@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinemax · seat layout A–H (exact)</title>
+    <title>Cinemax · Select Seats - {{ movie.title }}</title>
     <style>
         * {
             margin: 0;
@@ -12,17 +12,17 @@
         }
 
         body {
-            max-width: 1920px;
+            width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* header / top bar */
+        /* Header */
         .header {
             width: 100%;
             position: relative;
@@ -38,24 +38,33 @@
             align-items: center;
             padding: 20px 80px;
             z-index: 10;
-            background: linear-gradient(180deg, #000000cc 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            cursor: pointer;
         }
 
         .logo img {
-            height: 50px;
+            height: 100%;
+            width: auto;
             display: block;
         }
 
         .top-text {
             display: flex;
             gap: 40px;
+            color: white;
+            font-size: 16px;
             font-weight: 500;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .top-text span {
             cursor: pointer;
-            transition: color 0.2s;
+            transition: color 0.3s ease;
             position: relative;
         }
 
@@ -63,7 +72,21 @@
             color: #e50914;
         }
 
-        .top-text span::after {
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
+        }
+
+        .top-text span:after {
             content: '';
             position: absolute;
             bottom: -5px;
@@ -71,28 +94,28 @@
             width: 0;
             height: 2px;
             background: #e50914;
-            transition: width 0.2s;
+            transition: width 0.3s ease;
         }
 
-        .top-text span:hover::after {
+        .top-text span:hover:after {
             width: 100%;
         }
 
-        .header-img {
+        .header img {
             width: 100%;
             height: 300px;
             object-fit: cover;
             display: block;
-            background: #1e2429;
         }
 
-        /* main content */
+        /* Main Content */
         .content {
             flex: 1;
             padding: 40px 80px 60px;
-            background: linear-gradient(180deg, #0a0c0f, #13181d);
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
         }
 
+        /* Back Navigation */
         .back-nav {
             margin-bottom: 30px;
         }
@@ -103,21 +126,21 @@
             font-size: 16px;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            transition: color 0.3s ease;
         }
 
         .back-nav a:hover {
             color: #e50914;
         }
 
-        .back-nav a::before {
+        .back-nav a:before {
             content: '←';
-            font-size: 22px;
-            line-height: 1;
-            margin-right: 4px;
+            font-size: 20px;
+            margin-right: 5px;
         }
 
-        /* movie bar */
+        /* Movie Info Bar */
         .movie-info-bar {
             display: flex;
             justify-content: space-between;
@@ -138,6 +161,7 @@
         .movie-title {
             font-size: 28px;
             font-weight: 600;
+            color: #fff;
         }
 
         .movie-details {
@@ -145,6 +169,7 @@
             gap: 30px;
             color: #aaa;
             font-size: 16px;
+            flex-wrap: wrap;
         }
 
         .movie-details span {
@@ -167,7 +192,16 @@
             font-size: 22px;
         }
 
-        /* legend */
+        .ticket-badge {
+            background: #e50914;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-left: 20px;
+        }
+
+        /* Legend */
         .seat-legend {
             display: flex;
             gap: 60px;
@@ -209,6 +243,7 @@
             background: #3f444b;
             opacity: 0.9;
         }
+
         .legend-box.taken::after {
             content: '✕';
             position: absolute;
@@ -220,7 +255,7 @@
             color: #ff8a8a;
         }
 
-        /* screen */
+        /* Screen */
         .screen-wrapper {
             text-align: center;
             margin: 30px 0 40px;
@@ -243,7 +278,7 @@
             margin-top: 12px;
         }
 
-        /* seating grid – EXACT rows A..H */
+        /* Seating Grid - EXACT rows A..H */
         .seating-wrapper {
             display: flex;
             justify-content: center;
@@ -297,7 +332,6 @@
             box-shadow: 0 2px 4px #00000050;
         }
 
-        /* taken seats – only X, no number */
         .seat.taken {
             background: #4a515a;
             border-color: #6d6d6d;
@@ -306,6 +340,7 @@
             color: transparent;
             position: relative;
         }
+
         .seat.taken::after {
             content: '✕';
             position: absolute;
@@ -339,7 +374,7 @@
             pointer-events: none;
         }
 
-        /* ticket limit */
+        /* Ticket Limit Message */
         .ticket-limit {
             text-align: center;
             color: #ffc107;
@@ -348,6 +383,7 @@
             margin: 20px 0 10px;
         }
 
+        /* Confirm Button */
         .confirm-section {
             display: flex;
             justify-content: center;
@@ -393,84 +429,85 @@
             font-size: 26px;
         }
 
+        /* Footer */
         .footer {
+            width: 100%;
             margin-top: auto;
+            position: relative;
         }
+
         .footer img {
             width: 100%;
             height: 200px;
             object-fit: cover;
             display: block;
-            background: #161c22;
         }
+
         .copyright {
-            background: black;
-            color: #777;
+            background: #000;
+            color: #666;
             text-align: center;
-            padding: 18px;
-            font-size: 15px;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
         }
     </style>
 </head>
 <body>
-    <!-- header with top bar -->
+    <!-- Header -->
     <div class="header">
         <div class="top-bar">
-            <div class="logo">
-                <img src="#" alt="CINEMAX" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'50\' viewBox=\'0 0 150 50\'%3E%3Crect width=\'150\' height=\'50\' fill=\'%23e50914\'/%3E%3Ctext x=\'22\' y=\'35\' font-family=\'Arial\' font-size=\'28\' fill=\'white\' font-weight=\'bold\'%3ECINEMAX%3C/text%3E%3C/svg%3E';">
+            <div class="logo" onclick="location.href='/'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CINEMAX Logo">
             </div>
             <div class="top-text">
-                <span>MOVIES</span>
-                <span>SHOWTIMES</span>
-                <span>COMING SOON</span>
-                <span>CONTACT</span>
-                <span>SIGN IN</span>
+                <span onclick="location.href='/'">MOVIES</span>
+                <span class="active" onclick="location.href='/showtimes'">SHOWTIMES</span>
+                <span onclick="location.href='/coming-soon'">COMING SOON</span>
+                <span onclick="location.href='/contact'">CONTACT</span>
+                <span onclick="location.href='/signin'">SIGN IN</span>
             </div>
         </div>
-        <img class="header-img" src="#" alt="cinema header" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1920\' height=\'300\' viewBox=\'0 0 1920 300\'%3E%3Crect width=\'1920\' height=\'300\' fill=\'%231f2a36\'/%3E%3Ctext x=\'700\' y=\'170\' font-family=\'Arial\' font-size=\'38\' fill=\'%23ffffff30\'%3ECINEMAX · SELECT SEATS%3C/text%3E%3C/svg%3E';">
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
     </div>
 
-    <!-- content -->
+    <!-- Content -->
     <div class="content">
         <div class="back-nav">
-            <a href="#">← Back to Movie Details</a>
+            <a href="#" onclick="goBack()">← Back to Movie Details</a>
         </div>
 
-        <!-- movie info (static example) -->
+        <!-- Movie Info with Ticket Count -->
         <div class="movie-info-bar">
             <div class="movie-title-section">
-                <div class="movie-title">DUNE: PART TWO</div>
+                <div class="movie-title">{{ movie.title }}</div>
                 <div class="movie-details">
-                    <span><i>📅</i> 12 APR 2025</span>
-                    <span><i>⏰</i> 19:30</span>
+                    <span><i>📅</i> {{ show_date }}</span>
+                    <span><i>⏰</i> {{ showtime }}</span>
                     <span><i>📍</i> SCREEN 1</span>
-                    <span><i>🎟️</i> 3 tickets</span>
+                    <span><i>🎟️</i> {{ tickets }} tickets <span class="ticket-badge">Limit: {{ tickets }}</span></span>
                 </div>
             </div>
-            <div class="price-info">$15.00</div>
+            <div class="price-info">₱{{ "%.2f"|format(15.00) }}</div>
         </div>
 
-        <!-- CINEMAX title -->
-        <div style="text-align: center; margin-bottom: 10px;">
-            <h1 style="font-size: 54px; font-weight: 800; letter-spacing: 6px; color: #e50914;">CINEMAX</h1>
-        </div>
-
-        <!-- legend -->
+        <!-- Legend -->
         <div class="seat-legend">
             <div class="legend-item"><span class="legend-box your-seat"></span>Your Seat</div>
             <div class="legend-item"><span class="legend-box available"></span>Available</div>
             <div class="legend-item"><span class="legend-box taken"></span>Taken</div>
         </div>
 
-        <!-- screen -->
+        <!-- Screen -->
         <div class="screen-wrapper">
             <div class="screen-curve"></div>
             <div class="screen-text">SCREEN</div>
         </div>
 
-        <div class="ticket-limit">⚠️ Please select exactly 3 seat(s)</div>
+        <!-- Ticket Limit Message -->
+        <div class="ticket-limit" id="ticketLimitMessage">⚠️ Please select exactly {{ tickets }} seat(s)</div>
 
-        <!-- SEATING LAYOUT — fully compliant with A..H specification -->
+        <!-- SEATING LAYOUT — fully compliant with original A..H specification -->
         <div class="seating-wrapper">
             <div class="seat-grid">
                 <!-- ROW A : 1–17, with gaps (1-5) (6-12) (13-17) -->
@@ -478,38 +515,52 @@
                     <div class="row-label">A</div>
                     <div class="seats" style="gap: 8px;">
                         <!-- block 1–5 -->
-                        <div class="seat available" onclick="toggleSeat(this)">1</div>
-                        <div class="seat available" onclick="toggleSeat(this)">2</div>
-                        <div class="seat available" onclick="toggleSeat(this)">3</div>
-                        <div class="seat available" onclick="toggleSeat(this)">4</div>
-                        <div class="seat available" onclick="toggleSeat(this)">5</div>
-                        <!-- natural gap (visual spacer) we keep same gap, but it's continuous; the gap is perceived because numbers jump -->
-                        <div class="seat available" onclick="toggleSeat(this)">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A1">1</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A2">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A3">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A4">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A5">5</div>
+                        <!-- block 6-12 -->
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A12">12</div>
                         <!-- block 13–17 -->
-                        <div class="seat available" onclick="toggleSeat(this)">13</div>
-                        <div class="seat available" onclick="toggleSeat(this)">14</div>
-                        <div class="seat available" onclick="toggleSeat(this)">15</div>
-                        <div class="seat available" onclick="toggleSeat(this)">16</div>
-                        <div class="seat available" onclick="toggleSeat(this)">17</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A13">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A14">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A15">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A16">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A17">17</div>
                     </div>
                 </div>
 
-                <!-- ROW B (same as A) 1–17, following same spacing logic -->
+                <!-- ROW B 1–17 -->
                 <div class="row">
                     <div class="row-label">B</div>
                     <div class="seats">
                         <!-- 1-5 -->
-                        <div class="seat available" onclick="toggleSeat(this)">1</div><div class="seat available" onclick="toggleSeat(this)">2</div><div class="seat available" onclick="toggleSeat(this)">3</div><div class="seat available" onclick="toggleSeat(this)">4</div><div class="seat available" onclick="toggleSeat(this)">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B1">1</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B2">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B3">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B4">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B5">5</div>
                         <!-- 6-12 -->
-                        <div class="seat available" onclick="toggleSeat(this)">6</div><div class="seat available" onclick="toggleSeat(this)">7</div><div class="seat available" onclick="toggleSeat(this)">8</div><div class="seat available" onclick="toggleSeat(this)">9</div><div class="seat available" onclick="toggleSeat(this)">10</div><div class="seat available" onclick="toggleSeat(this)">11</div><div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B12">12</div>
                         <!-- 13-17 -->
-                        <div class="seat available" onclick="toggleSeat(this)">13</div><div class="seat available" onclick="toggleSeat(this)">14</div><div class="seat available" onclick="toggleSeat(this)">15</div><div class="seat available" onclick="toggleSeat(this)">16</div><div class="seat available" onclick="toggleSeat(this)">17</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B13">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B14">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B15">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B16">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B17">17</div>
                     </div>
                 </div>
 
@@ -517,9 +568,23 @@
                 <div class="row">
                     <div class="row-label">C</div>
                     <div class="seats">
-                        <div class="seat available" onclick="toggleSeat(this)">1</div><div class="seat available" onclick="toggleSeat(this)">2</div><div class="seat available" onclick="toggleSeat(this)">3</div><div class="seat available" onclick="toggleSeat(this)">4</div><div class="seat available" onclick="toggleSeat(this)">5</div>
-                        <div class="seat available" onclick="toggleSeat(this)">6</div><div class="seat available" onclick="toggleSeat(this)">7</div><div class="seat available" onclick="toggleSeat(this)">8</div><div class="seat available" onclick="toggleSeat(this)">9</div><div class="seat available" onclick="toggleSeat(this)">10</div><div class="seat available" onclick="toggleSeat(this)">11</div><div class="seat available" onclick="toggleSeat(this)">12</div>
-                        <div class="seat available" onclick="toggleSeat(this)">13</div><div class="seat available" onclick="toggleSeat(this)">14</div><div class="seat available" onclick="toggleSeat(this)">15</div><div class="seat available" onclick="toggleSeat(this)">16</div><div class="seat available" onclick="toggleSeat(this)">17</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C1">1</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C2">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C3">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C4">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C5">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C12">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C13">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C14">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C15">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C16">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C17">17</div>
                     </div>
                 </div>
 
@@ -527,9 +592,23 @@
                 <div class="row">
                     <div class="row-label">D</div>
                     <div class="seats">
-                        <div class="seat available" onclick="toggleSeat(this)">1</div><div class="seat available" onclick="toggleSeat(this)">2</div><div class="seat available" onclick="toggleSeat(this)">3</div><div class="seat available" onclick="toggleSeat(this)">4</div><div class="seat available" onclick="toggleSeat(this)">5</div>
-                        <div class="seat available" onclick="toggleSeat(this)">6</div><div class="seat available" onclick="toggleSeat(this)">7</div><div class="seat available" onclick="toggleSeat(this)">8</div><div class="seat available" onclick="toggleSeat(this)">9</div><div class="seat available" onclick="toggleSeat(this)">10</div><div class="seat available" onclick="toggleSeat(this)">11</div><div class="seat available" onclick="toggleSeat(this)">12</div>
-                        <div class="seat available" onclick="toggleSeat(this)">13</div><div class="seat available" onclick="toggleSeat(this)">14</div><div class="seat available" onclick="toggleSeat(this)">15</div><div class="seat available" onclick="toggleSeat(this)">16</div><div class="seat available" onclick="toggleSeat(this)">17</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D1">1</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D2">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D3">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D4">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D5">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D12">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D13">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D14">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D15">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D16">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D17">17</div>
                     </div>
                 </div>
 
@@ -537,9 +616,23 @@
                 <div class="row">
                     <div class="row-label">E</div>
                     <div class="seats">
-                        <div class="seat available" onclick="toggleSeat(this)">1</div><div class="seat available" onclick="toggleSeat(this)">2</div><div class="seat available" onclick="toggleSeat(this)">3</div><div class="seat available" onclick="toggleSeat(this)">4</div><div class="seat available" onclick="toggleSeat(this)">5</div>
-                        <div class="seat available" onclick="toggleSeat(this)">6</div><div class="seat available" onclick="toggleSeat(this)">7</div><div class="seat available" onclick="toggleSeat(this)">8</div><div class="seat available" onclick="toggleSeat(this)">9</div><div class="seat available" onclick="toggleSeat(this)">10</div><div class="seat available" onclick="toggleSeat(this)">11</div><div class="seat available" onclick="toggleSeat(this)">12</div>
-                        <div class="seat available" onclick="toggleSeat(this)">13</div><div class="seat available" onclick="toggleSeat(this)">14</div><div class="seat available" onclick="toggleSeat(this)">15</div><div class="seat available" onclick="toggleSeat(this)">16</div><div class="seat available" onclick="toggleSeat(this)">17</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E1">1</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E2">2</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E3">3</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E4">4</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E5">5</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E12">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E13">13</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E14">14</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E15">15</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E16">16</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E17">17</div>
                     </div>
                 </div>
 
@@ -549,33 +642,33 @@
                     <div class="seats">
                         <!-- left gap: 5 empty seats to simulate 1-5 missing -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
-                        <!-- middle block 6–12 (all available, but you can mark taken as needed) -->
-                        <div class="seat available" onclick="toggleSeat(this)">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <!-- middle block 6–12 -->
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F12">12</div>
                         <!-- right gap: 5 empty seats for 13-17 -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
 
-                <!-- ROW G : only 6–12, but with some taken/missing according to original PNG (sparse) -->
+                <!-- ROW G : only 6–12, but with some taken/missing -->
                 <div class="row">
                     <div class="row-label">G</div>
                     <div class="seats">
                         <!-- left 5 empties -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                         <!-- 6 available, 7 empty, 8 available, 9 available, 10 empty, 11 available, 12 available -->
-                        <div class="seat available" onclick="toggleSeat(this)">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G6">6</div>
                         <div class="seat empty"></div>    <!-- 7 missing (empty) -->
-                        <div class="seat available" onclick="toggleSeat(this)">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G9">9</div>
                         <div class="seat empty"></div>    <!-- 10 missing -->
-                        <div class="seat available" onclick="toggleSeat(this)">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G12">12</div>
                         <!-- right 5 empties -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
@@ -586,84 +679,158 @@
                     <div class="row-label">H</div>
                     <div class="seats">
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
-                        <div class="seat available" onclick="toggleSeat(this)">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)">12</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H6">6</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H7">7</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H8">8</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H9">9</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H10">10</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H11">11</div>
+                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H12">12</div>
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- confirm button & info -->
+        <!-- Confirm Button & Info -->
         <div class="confirm-section">
-            <button class="confirm-btn" id="confirmBtn" disabled>Confirm Seats</button>
+            <button class="confirm-btn" id="confirmBtn" onclick="confirmSeats()" disabled>Confirm Seats</button>
         </div>
         <div class="selected-info" id="selectedInfo">
-            Selected Seats: <span id="selectedCount">0</span> / 3
+            Selected Seats: <span id="selectedCount">0</span> / {{ tickets }}
         </div>
     </div>
 
-    <!-- footer -->
+    <!-- Footer -->
     <div class="footer">
-        <img src="#" alt="footer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'1920\' height=\'200\' viewBox=\'0 0 1920 200\'%3E%3Crect width=\'1920\' height=\'200\' fill=\'%23171f28\'/%3E%3Ctext x=\'750\' y=\'120\' fill=\'%23607080\' font-size=\'36\'%3Ecinemax footer%3C/text%3E%3C/svg%3E';">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="footer">
     </div>
-    <div class="copyright">CINEMAX 2025 all rights reserved</div>
+    <div class="copyright">CINEMAX 2025 All rights reserved</div>
 
     <script>
-        (function() {
-            const requiredTickets = 3;
+        // Data from Flask
+        const movieId = {{ movie.id }};
+        const movieTitle = "{{ movie.title }}";
+        const REQUIRED_TICKETS = {{ tickets }};
+        const showtime = "{{ showtime }}";
+        const showDate = "{{ show_date }}";
+        const pricePerTicket = 15.00;
+        const bookedSeats = {{ booked_seats|tojson }};
 
-            function updateCount() {
-                const selected = document.querySelectorAll('.seat.selected');
-                const span = document.getElementById('selectedCount');
-                span.innerText = selected.length;
+        // Global variables
+        let selectedSeats = [];
 
-                const btn = document.getElementById('confirmBtn');
-                if (selected.length === requiredTickets) {
-                    btn.disabled = false;
-                    span.style.color = '#4caf50';
-                } else {
-                    btn.disabled = true;
-                    span.style.color = '#e50914';
+        // Mark booked seats from database
+        function markBookedSeats() {
+            // Get all seat elements
+            document.querySelectorAll('.seat.available, .seat.taken').forEach(seat => {
+                const seatId = seat.getAttribute('data-seat');
+                if (seatId && bookedSeats.includes(seatId)) {
+                    seat.classList.remove('available');
+                    seat.classList.add('taken');
+                    seat.removeAttribute('onclick');
                 }
+            });
+        }
+
+        // Toggle seat selection
+        window.toggleSeat = function(seat) {
+            if (seat.classList.contains('taken') || seat.classList.contains('empty')) return;
+
+            const isSelected = seat.classList.contains('selected');
+
+            if (!isSelected && selectedSeats.length >= REQUIRED_TICKETS) {
+                alert(`You can only select ${REQUIRED_TICKETS} seat(s) based on your ticket purchase. Please deselect a seat first.`);
+                return;
             }
 
-            window.toggleSeat = function(seat) {
-                if (seat.classList.contains('taken') || seat.classList.contains('empty')) return;
+            seat.classList.toggle('selected');
 
-                const selected = document.querySelectorAll('.seat.selected');
-                if (!seat.classList.contains('selected') && selected.length >= requiredTickets) {
-                    alert(`You can only select ${requiredTickets} seat(s).`);
-                    return;
-                }
-
-                seat.classList.toggle('selected');
-                updateCount();
-            };
-
-            window.confirmSeats = function() {
-                const selected = document.querySelectorAll('.seat.selected');
-                if (selected.length !== requiredTickets) {
-                    alert(`Please select exactly ${requiredTickets} seats.`);
-                    return;
-                }
-
-                const seatsList = [];
-                selected.forEach(seat => {
-                    const row = seat.closest('.row').querySelector('.row-label').innerText;
-                    const num = seat.innerText.trim();
-                    if (num) seatsList.push(`${row}${num}`);
+            if (seat.classList.contains('selected')) {
+                selectedSeats.push({
+                    seatId: seat.getAttribute('data-seat'),
+                    seatNumber: seat.textContent,
+                    row: seat.closest('.row').querySelector('.row-label').textContent
                 });
-                alert(`Booking confirmed for: ${seatsList.join(', ')} (demo)`);
-            };
+            } else {
+                const seatId = seat.getAttribute('data-seat');
+                selectedSeats = selectedSeats.filter(s => s.seatId !== seatId);
+            }
 
-            updateCount();
-        })();
+            updateSelectionUI();
+        };
+
+        // Update selection UI
+        function updateSelectionUI() {
+            const count = selectedSeats.length;
+            document.getElementById('selectedCount').textContent = count;
+
+            const messageEl = document.getElementById('ticketLimitMessage');
+            const confirmBtn = document.getElementById('confirmBtn');
+
+            if (count === REQUIRED_TICKETS) {
+                messageEl.innerHTML = `✅ You have selected ${count} of ${REQUIRED_TICKETS} seats — ready to confirm`;
+                messageEl.style.color = '#4caf50';
+                confirmBtn.disabled = false;
+                document.getElementById('selectedCount').style.color = '#4caf50';
+            } else {
+                messageEl.innerHTML = `⚠️ Please select exactly ${REQUIRED_TICKETS} seat(s) (you have selected ${count})`;
+                messageEl.style.color = '#ffc107';
+                confirmBtn.disabled = true;
+                document.getElementById('selectedCount').style.color = '#e50914';
+            }
+        }
+
+        // Confirm seats and go to booking confirmation
+        window.confirmSeats = function() {
+            if (selectedSeats.length !== REQUIRED_TICKETS) {
+                alert(`Please select exactly ${REQUIRED_TICKETS} seats.`);
+                return;
+            }
+
+            // Create form data for POST request
+            const formData = new FormData();
+            formData.append('movie_id', movieId);
+            formData.append('movie_title', movieTitle);
+            formData.append('showtime', showtime);
+            formData.append('show_date', showDate);
+            formData.append('seats', selectedSeats.map(s => s.seatId).join(', '));
+            formData.append('tickets', REQUIRED_TICKETS);
+            formData.append('total', (REQUIRED_TICKETS * pricePerTicket).toFixed(2));
+
+            // Submit form via POST to /confirm-booking
+            fetch('/confirm-booking', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(html => {
+                // Replace current page with the response (booking confirmation)
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error processing your booking. Please try again.');
+            });
+        };
+
+        // Go back to movie details
+        window.goBack = function() {
+            window.location.href = `/movie/${movieId}`;
+        };
+
+        // Initialize on load
+        window.onload = function() {
+            markBookedSeats();
+            updateSelectionUI();
+        };
     </script>
 </body>
 </html>

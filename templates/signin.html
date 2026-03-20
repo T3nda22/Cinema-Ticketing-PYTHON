@@ -136,6 +136,7 @@
             padding: 60px 50px;
             background: linear-gradient(145deg, #1e2429, #14181c);
             position: relative;
+            display: block;
         }
 
         .login-panel::before {
@@ -153,6 +154,7 @@
             padding: 60px 50px;
             background: #1a1e24;
             position: relative;
+            display: block;
         }
 
         .signup-panel::before {
@@ -213,6 +215,17 @@
 
         .form-group input::placeholder {
             color: #4a4f55;
+        }
+
+        .form-group input.error {
+            border-color: #dc3545;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
         /* Password Strength (for signup) */
@@ -299,6 +312,13 @@
             box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
         }
 
+        .auth-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         /* Divider */
         .divider {
             display: flex;
@@ -371,6 +391,7 @@
             text-decoration: none;
             font-weight: 600;
             margin-left: 5px;
+            cursor: pointer;
         }
 
         .switch-panel a:hover {
@@ -394,6 +415,73 @@
             color: #e50914;
         }
 
+        /* Message Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .alert-error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .alert-info {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid #007bff;
+            color: #007bff;
+        }
+
+        .close-alert {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .close-alert:hover {
+            opacity: 1;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Terms */
         .terms {
             font-size: 12px;
@@ -409,6 +497,79 @@
 
         .terms a:hover {
             text-decoration: underline;
+        }
+
+        /* Admin Quick Access Modal */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1e24;
+            padding: 40px;
+            border-radius: 24px;
+            z-index: 1000;
+            border: 2px solid #e50914;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            min-width: 300px;
+        }
+
+        .admin-modal h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .admin-modal button {
+            width: 100%;
+            margin-bottom: 10px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-modal button:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-modal button.employee-btn {
+            background: #2a3138;
+        }
+
+        .admin-modal button.employee-btn:hover {
+            background: #3a434b;
+        }
+
+        .admin-modal .close-btn {
+            background: transparent;
+            border: 1px solid #666;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .admin-modal .close-btn:hover {
+            background: #333;
+            transform: none;
+        }
+
+        .admin-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
         }
 
         /* Footer */
@@ -464,6 +625,16 @@
     </style>
 </head>
 <body>
+    <!-- Admin Quick Access Modal -->
+    <div class="admin-overlay" id="adminOverlay" onclick="closeAdminModal()"></div>
+    <div class="admin-modal" id="adminModal">
+        <h3>🔐 Quick Access</h3>
+        <button onclick="quickLogin('admin@cinemax.com', 'Admin@123')">Login as Admin</button>
+        <button class="employee-btn" onclick="quickLogin('employee1@cinemax.com', 'Employee@123')">Login as Employee 1</button>
+        <button class="employee-btn" onclick="quickLogin('employee2@cinemax.com', 'Employee@123')">Login as Employee 2</button>
+        <button class="close-btn" onclick="closeAdminModal()">Close</button>
+    </div>
+
     <!-- Header with Logo and Top Text -->
     <div class="header">
         <div class="top-bar">
@@ -473,8 +644,8 @@
             <div class="top-text">
                 <span onclick="location.href='/'">MOVIES</span>
                 <span onclick="location.href='/showtimes'">SHOWTIMES</span>
-                <span>COMING SOON</span>
-                <span>CONTACT</span>
+                <span onclick="location.href='/coming-soon'">COMING SOON</span>
+                <span onclick="location.href='/contact'">CONTACT</span>
                 <span class="active" onclick="location.href='/signin'">SIGN IN</span>
             </div>
         </div>
@@ -487,18 +658,32 @@
     <div class="content">
         <div class="auth-container">
             <!-- Login Panel -->
-            <div class="login-panel">
+            <div class="login-panel" id="loginPanel">
                 <h2 class="panel-title">Login</h2>
 
-                <form class="auth-form" method="POST" action="/login">
+                <!-- Alert Message for Login -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if 'login' in category %}
+                                <div class="alert alert-{{ category.split('-')[0] }}">
+                                    <span>{{ message }}</span>
+                                    <span class="close-alert" onclick="this.parentElement.remove()">&times;</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form class="auth-form" id="loginForm" method="POST" action="/login">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        <input type="email" id="login-email" name="email" placeholder="Enter your email" required>
                     </div>
 
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
                     </div>
 
                     <div class="form-group checkbox-group">
@@ -510,7 +695,9 @@
                         <a href="/forgot-password">Forgot password?</a>
                     </div>
 
-                    <button type="submit" class="auth-btn">Login</button>
+                    <button type="submit" class="auth-btn" id="loginBtn">
+                        <span>Login</span>
+                    </button>
                 </form>
 
                 <div class="divider">
@@ -520,18 +707,18 @@
                 </div>
 
                 <div class="social-login">
-                    <button class="social-btn">
+                    <button class="social-btn" onclick="socialLogin('facebook')">
                         <span class="social-icon">📘</span>
                         Facebook
                     </button>
-                    <button class="social-btn">
+                    <button class="social-btn" onclick="socialLogin('google')">
                         <span class="social-icon">📧</span>
                         Google
                     </button>
                 </div>
 
                 <div class="switch-panel">
-                    Don't have an account? <a href="#" onclick="switchToSignup()">Sign Up</a>
+                    Don't have an account? <a onclick="switchToSignup()">Sign Up</a>
                 </div>
             </div>
 
@@ -539,7 +726,21 @@
             <div class="signup-panel" id="signupPanel">
                 <h2 class="panel-title">Sign Up</h2>
 
-                <form class="auth-form" method="POST" action="/signup">
+                <!-- Alert Message for Signup -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if 'signup' in category %}
+                                <div class="alert alert-{{ category.split('-')[0] }}">
+                                    <span>{{ message }}</span>
+                                    <span class="close-alert" onclick="this.parentElement.remove()">&times;</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form class="auth-form" id="signupForm" method="POST" action="/signup">
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" id="username" name="username" placeholder="Choose a username" required>
@@ -554,11 +755,11 @@
                         <label for="signup-password">Password</label>
                         <input type="password" id="signup-password" name="password" placeholder="Create a password" required>
                         <div class="password-strength">
-                            <div class="strength-bar"></div>
-                            <div class="strength-bar"></div>
-                            <div class="strength-bar"></div>
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
                         </div>
-                        <div class="strength-text">Use at least 8 characters with letters and numbers</div>
+                        <div class="strength-text" id="strengthText">Use at least 8 characters with letters and numbers</div>
                     </div>
 
                     <div class="form-group">
@@ -571,7 +772,9 @@
                         <label for="terms">I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a></label>
                     </div>
 
-                    <button type="submit" class="auth-btn">Sign Up</button>
+                    <button type="submit" class="auth-btn" id="signupBtn">
+                        <span>Sign Up</span>
+                    </button>
                 </form>
 
                 <div class="divider">
@@ -581,18 +784,18 @@
                 </div>
 
                 <div class="social-login">
-                    <button class="social-btn">
+                    <button class="social-btn" onclick="socialLogin('facebook')">
                         <span class="social-icon">📘</span>
                         Facebook
                     </button>
-                    <button class="social-btn">
+                    <button class="social-btn" onclick="socialLogin('google')">
                         <span class="social-icon">📧</span>
                         Google
                     </button>
                 </div>
 
                 <div class="switch-panel">
-                    Already have an account? <a href="#" onclick="switchToLogin()">Log in</a>
+                    Already have an account? <a onclick="switchToLogin()">Log in</a>
                 </div>
             </div>
         </div>
@@ -609,59 +812,95 @@
     </div>
 
     <script>
+        // Get URL parameters to check if we should show signup panel
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('signup') === 'true') {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('signupPanel').style.display = 'block';
+        }
+
+        // Check for registration success message
+        if (urlParams.get('registered') === 'true') {
+            showAlert('login', 'success', 'Registration successful! Please login.');
+        }
+
+        // Admin Quick Access - Double click on logo to open
+        document.querySelector('.logo').addEventListener('dblclick', function() {
+            document.getElementById('adminModal').style.display = 'block';
+            document.getElementById('adminOverlay').style.display = 'block';
+        });
+
+        // Or with Ctrl+Shift+A
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                document.getElementById('adminModal').style.display = 'block';
+                document.getElementById('adminOverlay').style.display = 'block';
+            }
+        });
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminOverlay').style.display = 'none';
+        }
+
+        function quickLogin(email, password) {
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = password;
+            closeAdminModal();
+            // Auto submit the form
+            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+
         // Switch to Sign Up panel
         function switchToSignup() {
-            document.querySelector('.login-panel').style.display = 'none';
-            document.querySelector('.signup-panel').style.display = 'block';
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('signupPanel').style.display = 'block';
+            history.pushState({}, '', '?signup=true');
         }
 
         // Switch to Login panel
         function switchToLogin() {
-            document.querySelector('.login-panel').style.display = 'block';
-            document.querySelector('.signup-panel').style.display = 'none';
+            document.getElementById('loginPanel').style.display = 'block';
+            document.getElementById('signupPanel').style.display = 'none';
+            history.pushState({}, '', '/signin');
+        }
+
+        // Email validation function
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
 
         // Password strength indicator
         document.getElementById('signup-password')?.addEventListener('input', function(e) {
             const password = e.target.value;
-            const bars = document.querySelectorAll('.strength-bar');
-            const strengthText = document.querySelector('.strength-text');
+            const bar1 = document.getElementById('bar1');
+            const bar2 = document.getElementById('bar2');
+            const bar3 = document.getElementById('bar3');
+            const strengthText = document.getElementById('strengthText');
 
-            // Remove all active classes
-            bars.forEach(bar => bar.classList.remove('active'));
+            bar1.classList.remove('active');
+            bar2.classList.remove('active');
+            bar3.classList.remove('active');
 
             if (password.length === 0) {
                 strengthText.textContent = 'Use at least 8 characters with letters and numbers';
                 return;
             }
 
-            // Check strength
             let strength = 0;
-
-            // Length check
             if (password.length >= 8) strength++;
-
-            // Contains letter and number
             if (/[a-zA-Z]/.test(password) && /[0-9]/.test(password)) strength++;
-
-            // Contains special character
             if (/[^a-zA-Z0-9]/.test(password)) strength++;
 
-            // Update bars
-            for (let i = 0; i < strength; i++) {
-                bars[i].classList.add('active');
-            }
+            if (strength >= 1) bar1.classList.add('active');
+            if (strength >= 2) bar2.classList.add('active');
+            if (strength >= 3) bar3.classList.add('active');
 
-            // Update text
-            if (strength === 0) {
-                strengthText.textContent = 'Weak password';
-            } else if (strength === 1) {
-                strengthText.textContent = 'Fair password';
-            } else if (strength === 2) {
-                strengthText.textContent = 'Good password';
-            } else if (strength === 3) {
-                strengthText.textContent = 'Strong password';
-            }
+            if (strength === 0) strengthText.textContent = 'Weak password';
+            else if (strength === 1) strengthText.textContent = 'Fair password';
+            else if (strength === 2) strengthText.textContent = 'Good password';
+            else if (strength === 3) strengthText.textContent = 'Strong password';
         });
 
         // Password confirmation validation
@@ -670,67 +909,216 @@
             const confirm = e.target.value;
 
             if (confirm.length > 0) {
-                if (password === confirm) {
-                    this.style.borderColor = '#4dff4d';
-                } else {
-                    this.style.borderColor = '#ff4d4d';
-                }
+                this.style.borderColor = (password === confirm) ? '#4dff4d' : '#ff4d4d';
             } else {
                 this.style.borderColor = '#2a3138';
             }
         });
 
-        // Form submission for signup
-        document.querySelector('.signup-panel form')?.addEventListener('submit', function(e) {
+        // Handle signup form submission
+        document.getElementById('signupForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('confirm-password').value;
+            const terms = document.getElementById('terms').checked;
+
+            // Validate email format
+            if (!isValidEmail(email)) {
+                showAlert('signup', 'error', 'Please enter a valid email address!');
+                document.getElementById('signup-email').classList.add('error');
+                setTimeout(() => {
+                    document.getElementById('signup-email').classList.remove('error');
+                }, 500);
+                return;
+            }
 
             if (password !== confirm) {
-                alert('Passwords do not match!');
+                showAlert('signup', 'error', 'Passwords do not match!');
+                document.getElementById('confirm-password').classList.add('error');
+                setTimeout(() => {
+                    document.getElementById('confirm-password').classList.remove('error');
+                }, 500);
                 return;
             }
 
             if (password.length < 8) {
-                alert('Password must be at least 8 characters long!');
+                showAlert('signup', 'error', 'Password must be at least 8 characters long!');
+                document.getElementById('signup-password').classList.add('error');
+                setTimeout(() => {
+                    document.getElementById('signup-password').classList.remove('error');
+                }, 500);
                 return;
             }
 
-            // Submit the form (you can modify this to use fetch/AJAX)
-            this.submit();
+            if (!terms) {
+                showAlert('signup', 'error', 'You must agree to the Terms of Service!');
+                return;
+            }
+
+            const btn = document.getElementById('signupBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Creating Account...';
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'username': username,
+                        'email': email,
+                        'password': password,
+                        'confirm_password': confirm,
+                        'terms': terms ? 'on' : ''
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('signup', 'success', 'Account created successfully! Redirecting to login...');
+                    setTimeout(() => {
+                        window.location.href = '/signin?registered=true';
+                    }, 2000);
+                } else {
+                    showAlert('signup', 'error', data.message || 'Registration failed. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Sign Up';
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert('signup', 'error', 'An error occurred. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = 'Sign Up';
+            }
         });
 
-        // Handle login form
-        document.querySelector('.login-panel form')?.addEventListener('submit', function(e) {
+        // Handle login form submission with specific error messages
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const remember = document.getElementById('remember').checked;
 
             if (!email || !password) {
-                alert('Please fill in all fields!');
+                showAlert('login', 'error', 'Please fill in all fields!');
                 return;
             }
 
-            // Submit the form (you can modify this to use fetch/AJAX)
-            this.submit();
+            // Validate email format
+            if (!isValidEmail(email)) {
+                showAlert('login', 'error', 'Please enter a valid email address!');
+                document.getElementById('login-email').classList.add('error');
+                setTimeout(() => {
+                    document.getElementById('login-email').classList.remove('error');
+                }, 500);
+                return;
+            }
+
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'email': email,
+                        'password': password,
+                        'remember': remember ? 'on' : ''
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('login', 'success', 'Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/';
+                    }, 1500);
+                } else {
+                    // Specific error messages based on error type
+                    if (data.error_type === 'email_not_found') {
+                        showAlert('login', 'error', 'Email does not exist. Please check your email or sign up.');
+                        document.getElementById('login-email').classList.add('error');
+                        setTimeout(() => {
+                            document.getElementById('login-email').classList.remove('error');
+                        }, 500);
+                    }
+                    else if (data.error_type === 'wrong_password') {
+                        showAlert('login', 'error', 'Wrong password. Please try again.');
+                        document.getElementById('login-password').classList.add('error');
+                        setTimeout(() => {
+                            document.getElementById('login-password').classList.remove('error');
+                        }, 500);
+                    }
+                    else {
+                        showAlert('login', 'error', data.message || 'Invalid credentials. Please try again.');
+                    }
+
+                    btn.disabled = false;
+                    btn.innerHTML = 'Login';
+
+                    // Shake the form
+                    document.getElementById('loginForm').classList.add('error');
+                    setTimeout(() => {
+                        document.getElementById('loginForm').classList.remove('error');
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('login', 'error', 'An error occurred. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = 'Login';
+            }
         });
 
-        // Add click handlers for navigation
-        document.querySelectorAll('.top-text span').forEach(span => {
-            span.addEventListener('click', function(e) {
-                const text = this.textContent;
-                if (text === 'SIGN IN') {
-                    // Already on sign in page
-                    return;
-                } else if (text === 'MOVIES') {
-                    window.location.href = '/';
-                } else if (text === 'SHOWTIMES') {
-                    window.location.href = '/showtimes';
-                }
+        // Show alert message
+        function showAlert(panel, type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <span>${message}</span>
+                <span class="close-alert" onclick="this.parentElement.remove()">&times;</span>
+            `;
+
+            const panelElement = panel === 'login' ?
+                document.querySelector('.login-panel') :
+                document.querySelector('.signup-panel');
+
+            const existingAlerts = panelElement.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            const form = panelElement.querySelector('.auth-form');
+            panelElement.insertBefore(alertDiv, form);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 500);
+            }, 5000);
+        }
+
+        // Social login
+        function socialLogin(provider) {
+            showAlert('login', 'info', `${provider} login coming soon!`);
+        }
+
+        // Auto-hide existing alerts after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
             });
-        });
+        }, 5000);
     </script>
 </body>
 </html>
