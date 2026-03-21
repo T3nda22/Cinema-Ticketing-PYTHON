@@ -488,7 +488,7 @@
                     <span><i>🎟️</i> {{ tickets }} tickets <span class="ticket-badge">Limit: {{ tickets }}</span></span>
                 </div>
             </div>
-            <div class="price-info">₱{{ "%.2f"|format(15.00) }}</div>
+            <div class="price-info">₱{{ "%.2f"|format(price) }} each</div>
         </div>
 
         <!-- Legend -->
@@ -714,7 +714,7 @@
         const REQUIRED_TICKETS = {{ tickets }};
         const showtime = "{{ showtime }}";
         const showDate = "{{ show_date }}";
-        const pricePerTicket = 15.00;
+        const pricePerTicket = {{ price }};
         const bookedSeats = {{ booked_seats|tojson }};
 
         // Global variables

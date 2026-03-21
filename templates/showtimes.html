@@ -12,7 +12,8 @@
         }
 
         body {
-            width: 1920px;
+            width: 100%;
+            max-width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -45,6 +46,7 @@
         .logo {
             height: 50px;
             width: auto;
+            cursor: pointer;
         }
 
         .logo img {
@@ -60,6 +62,7 @@
             font-size: 16px;
             font-weight: 500;
             letter-spacing: 1px;
+            flex-wrap: wrap;
         }
 
         .top-text span {
@@ -101,6 +104,22 @@
             width: 100%;
         }
 
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
+        }
+
         /* Page Title */
         .page-title {
             padding: 40px 80px 20px;
@@ -126,6 +145,7 @@
             gap: 15px;
             margin: 30px 80px;
             flex-wrap: wrap;
+            overflow-x: auto;
         }
 
         .date-card {
@@ -182,34 +202,26 @@
             background: #14181c;
         }
 
-        /* Cinema Filter */
-        .cinema-filter {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 40px;
-            padding: 20px 0;
-            border-bottom: 1px solid #2a3138;
+        /* Loading Spinner */
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            color: #e50914;
         }
 
-        .cinema-btn {
-            background: transparent;
-            border: 1px solid #2a3138;
-            color: #fff;
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px;
+            background: #1a1e24;
+            border-radius: 16px;
+            margin: 40px 0;
         }
 
-        .cinema-btn:hover {
-            border-color: #e50914;
-            background: rgba(229, 9, 20, 0.1);
-        }
-
-        .cinema-btn.active {
-            background: #e50914;
-            border-color: #e50914;
+        .empty-state p {
+            font-size: 18px;
+            color: #999;
+            margin-bottom: 20px;
         }
 
         /* Showtime Sections */
@@ -225,6 +237,13 @@
             padding: 25px;
             margin-bottom: 25px;
             border-left: 4px solid #e50914;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .movie-header:hover {
+            transform: translateX(5px);
+            background: #1e2429;
         }
 
         .movie-poster {
@@ -257,16 +276,13 @@
             color: #999;
             font-size: 16px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .movie-meta span {
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .movie-meta i {
-            color: #e50914;
         }
 
         .movie-rating {
@@ -392,10 +408,44 @@
             font-size: 16px;
             margin-bottom: 20px;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
 
         .back-btn:hover {
             color: #e50914;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 0 20px 40px;
+            }
+            .page-title {
+                padding: 30px 20px;
+            }
+            .date-selector {
+                margin: 20px;
+            }
+            .movie-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .movie-poster {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+            .movie-poster img {
+                width: 100%;
+                height: auto;
+            }
+            .top-bar {
+                padding: 15px 20px;
+            }
+            .top-text {
+                gap: 15px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -403,338 +453,47 @@
     <!-- Header with Logo and Top Text -->
     <div class="header">
         <div class="top-bar">
-            <div class="logo">
-                <a href="{{ url_for('index') }}">
-                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
-                </a>
+            <div class="logo" onclick="location.href='{{ url_for('index') }}'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
             </div>
             <div class="top-text">
                 <span onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
                 <span class="active" onclick="location.href='{{ url_for('showtimes') }}'">SHOWTIMES</span>
-                <span>COMING SOON</span>
-                <span>CONTACT</span>
-                <span>SIGN IN</span>
+                <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
+                <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
+
+                <!-- Authentication-aware top bar items -->
+                {% if session.user_id or session.predefined_user %}
+                    <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    {% if session.role in ['admin', 'manager', 'employee'] %}
+                        <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                            {{ session.role|upper }} DASHBOARD
+                        </span>
+                    {% endif %}
+                    <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
+                {% else %}
+                    <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Page Title -->
     <div class="page-title">
-        <a href="{{ url_for('index') }}" class="back-btn">← Back to Movies</a>
+        <div class="back-btn" onclick="history.back()">← Back to Movies</div>
         <h1>Showtimes</h1>
-        <p>Today's movie schedules at Cinemax</p>
+        <p>Movie schedules at Cinemax</p>
     </div>
 
     <!-- Date Selector -->
-    <div class="date-selector">
-        <div class="date-card active">
-            <div class="day">TODAY</div>
-            <div class="date">15</div>
-            <div class="month">MAR</div>
-        </div>
-        <div class="date-card">
-            <div class="day">TOMORROW</div>
-            <div class="date">16</div>
-            <div class="month">MAR</div>
-        </div>
-        <div class="date-card">
-            <div class="day">WED</div>
-            <div class="date">17</div>
-            <div class="month">MAR</div>
-        </div>
-        <div class="date-card">
-            <div class="day">THU</div>
-            <div class="date">18</div>
-            <div class="month">MAR</div>
-        </div>
-        <div class="date-card">
-            <div class="day">FRI</div>
-            <div class="date">19</div>
-            <div class="month">MAR</div>
-        </div>
-        <div class="date-card">
-            <div class="day">SAT</div>
-            <div class="date">20</div>
-            <div class="month">MAR</div>
-        </div>
-        <div class="date-card">
-            <div class="day">SUN</div>
-            <div class="date">21</div>
-            <div class="month">MAR</div>
-        </div>
+    <div class="date-selector" id="dateSelector">
+        <!-- Dates will be populated dynamically -->
+        <div class="loading-spinner" style="grid-column: 1/-1;">Loading dates...</div>
     </div>
 
     <!-- Main Content -->
-    <div class="content">
-        <!-- Cinema Filter -->
-        <div class="cinema-filter">
-            <button class="cinema-btn active">All Cinemas</button>
-            <button class="cinema-btn">Cinemax Mall</button>
-            <button class="cinema-btn">Cinemax Plaza</button>
-            <button class="cinema-btn">Cinemax Downtown</button>
-            <button class="cinema-btn">Cinemax IMAX</button>
-        </div>
-
-        <!-- Showtimes Sections -->
-        <div class="showtime-section">
-            <!-- US -->
-            <div class="movie-header">
-                <div class="movie-poster">
-                    <img src="{{ url_for('static', filename='images/cover1.jpg') }}" alt="Us">
-                </div>
-                <div class="movie-info">
-                    <h2>US</h2>
-                    <div class="movie-meta">
-                        <span>⭐ 7.1</span>
-                        <span>⏱ 2h 16m</span>
-                        <span>🎬 Horror/Thriller</span>
-                    </div>
-                    <div class="movie-rating">★★★★★</div>
-                </div>
-            </div>
-
-            <div class="cinema-showtimes">
-                <div class="cinema-name">
-                    Cinemax Mall 🏢
-                    <span>Screen 1</span>
-                </div>
-                <div class="showtimes-grid">
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='10:30 AM', tickets=1) }}'">
-                        <span class="time">10:30 AM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='1:45 PM', tickets=1) }}'">
-                        <span class="time">1:45 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='4:30 PM', tickets=1) }}'">
-                        <span class="time">4:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='7:15 PM', tickets=1) }}'">
-                        <span class="time">7:15 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='10:00 PM', tickets=1) }}'">
-                        <span class="time">10:00 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="cinema-showtimes">
-                <div class="cinema-name">
-                    Cinemax IMAX 🎥
-                    <span>Screen 5</span>
-                </div>
-                <div class="showtimes-grid">
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='11:00 AM', tickets=1) }}'">
-                        <span class="time">11:00 AM</span>
-                        <span class="format">IMAX</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='2:30 PM', tickets=1) }}'">
-                        <span class="time">2:30 PM</span>
-                        <span class="format">IMAX</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='6:00 PM', tickets=1) }}'">
-                        <span class="time">6:00 PM</span>
-                        <span class="format">IMAX</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=1, showtime='9:30 PM', tickets=1) }}'">
-                        <span class="time">9:30 PM</span>
-                        <span class="format">IMAX</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- The Shining -->
-        <div class="showtime-section">
-            <div class="movie-header">
-                <div class="movie-poster">
-                    <img src="{{ url_for('static', filename='images/cover2.jpg') }}" alt="The Shining">
-                </div>
-                <div class="movie-info">
-                    <h2>The Shining</h2>
-                    <div class="movie-meta">
-                        <span>⭐ 8.4</span>
-                        <span>⏱ 2h 26m</span>
-                        <span>🎬 Horror/Thriller</span>
-                    </div>
-                    <div class="movie-rating">★★★★★</div>
-                </div>
-            </div>
-
-            <div class="cinema-showtimes">
-                <div class="cinema-name">
-                    Cinemax Plaza 🏢
-                    <span>Screen 3</span>
-                </div>
-                <div class="showtimes-grid">
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=2, showtime='11:15 AM', tickets=1) }}'">
-                        <span class="time">11:15 AM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=2, showtime='2:45 PM', tickets=1) }}'">
-                        <span class="time">2:45 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=2, showtime='6:30 PM', tickets=1) }}'">
-                        <span class="time">6:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=2, showtime='9:45 PM', tickets=1) }}'">
-                        <span class="time">9:45 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Beauty and the Beast -->
-        <div class="showtime-section">
-            <div class="movie-header">
-                <div class="movie-poster">
-                    <img src="{{ url_for('static', filename='images/cover3.jpeg') }}" alt="Beauty and the Beast">
-                </div>
-                <div class="movie-info">
-                    <h2>Beauty and the Beast</h2>
-                    <div class="movie-meta">
-                        <span>⭐ 7.7</span>
-                        <span>⏱ 2h 9m</span>
-                        <span>🎬 Family/Romance</span>
-                    </div>
-                    <div class="movie-rating">★★★★★</div>
-                </div>
-            </div>
-
-            <div class="cinema-showtimes">
-                <div class="cinema-name">
-                    Cinemax Downtown 🏢
-                    <span>Screen 2</span>
-                </div>
-                <div class="showtimes-grid">
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=3, showtime='10:00 AM', tickets=1) }}'">
-                        <span class="time">10:00 AM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=3, showtime='12:30 PM', tickets=1) }}'">
-                        <span class="time">12:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=3, showtime='3:15 PM', tickets=1) }}'">
-                        <span class="time">3:15 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=3, showtime='6:00 PM', tickets=1) }}'">
-                        <span class="time">6:00 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=3, showtime='8:30 PM', tickets=1) }}'">
-                        <span class="time">8:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Step Brothers -->
-        <div class="showtime-section">
-            <div class="movie-header">
-                <div class="movie-poster">
-                    <img src="{{ url_for('static', filename='images/cover4.jpg') }}" alt="Step Brothers">
-                </div>
-                <div class="movie-info">
-                    <h2>Step Brothers</h2>
-                    <div class="movie-meta">
-                        <span>⭐ 6.9</span>
-                        <span>⏱ 1h 38m</span>
-                        <span>🎬 Comedy</span>
-                    </div>
-                    <div class="movie-rating">★★★★★</div>
-                </div>
-            </div>
-
-            <div class="cinema-showtimes">
-                <div class="cinema-name">
-                    Cinemax Mall 🏢
-                    <span>Screen 4</span>
-                </div>
-                <div class="showtimes-grid">
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=4, showtime='11:30 AM', tickets=1) }}'">
-                        <span class="time">11:30 AM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=4, showtime='2:00 PM', tickets=1) }}'">
-                        <span class="time">2:00 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=4, showtime='4:30 PM', tickets=1) }}'">
-                        <span class="time">4:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=4, showtime='7:00 PM', tickets=1) }}'">
-                        <span class="time">7:00 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=4, showtime='9:30 PM', tickets=1) }}'">
-                        <span class="time">9:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- AFTER -->
-        <div class="showtime-section">
-            <div class="movie-header">
-                <div class="movie-poster">
-                    <img src="{{ url_for('static', filename='images/cover5.jpg') }}" alt="AFTER">
-                </div>
-                <div class="movie-info">
-                    <h2>AFTER</h2>
-                    <div class="movie-meta">
-                        <span>⭐ 7.0</span>
-                        <span>⏱ 1h 45m</span>
-                        <span>🎬 Romance/Drama</span>
-                    </div>
-                    <div class="movie-rating">★★★★★</div>
-                </div>
-            </div>
-
-            <div class="cinema-showtimes">
-                <div class="cinema-name">
-                    Cinemax Plaza 🏢
-                    <span>Screen 6</span>
-                </div>
-                <div class="showtimes-grid">
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=5, showtime='12:15 PM', tickets=1) }}'">
-                        <span class="time">12:15 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=5, showtime='3:45 PM', tickets=1) }}'">
-                        <span class="time">3:45 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=5, showtime='6:30 PM', tickets=1) }}'">
-                        <span class="time">6:30 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                    <button class="time-btn" onclick="location.href='{{ url_for('seat_selection', movie_id=5, showtime='9:00 PM', tickets=1) }}'">
-                        <span class="time">9:00 PM</span>
-                        <span class="format">2D</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="content" id="showtimesContent">
+        <div class="loading-spinner">Loading showtimes...</div>
     </div>
 
     <!-- Footer -->
@@ -748,25 +507,230 @@
     </div>
 
     <script>
-        // Add active class to date cards on click
-        document.querySelectorAll('.date-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.date-card').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-                // Here you would typically load showtimes for the selected date
-                console.log('Loading showtimes for:', this.querySelector('.date').textContent, this.querySelector('.month').textContent);
-            });
-        });
+        let currentDate = null;
+        let allMovies = [];
 
-        // Add active class to cinema filter buttons on click
-        document.querySelectorAll('.cinema-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.cinema-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                // Here you would typically filter showtimes by cinema
-                console.log('Filtering by:', this.textContent);
+        // Generate next 7 days
+        function generateDates() {
+            const dates = [];
+            const today = new Date();
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date);
+            }
+            return dates;
+        }
+
+        // Format date to YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Format date for display
+        function formatDisplayDate(date) {
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+            const dayOfWeek = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+
+            let dayLabel = dayOfWeek;
+            if (date.toDateString() === new Date().toDateString()) {
+                dayLabel = 'TODAY';
+            } else if (date.toDateString() === new Date(Date.now() + 86400000).toDateString()) {
+                dayLabel = 'TOMORROW';
+            }
+
+            return { dayLabel, day, month };
+        }
+
+        // Render date selector
+        function renderDateSelector(selectedDate) {
+            const dates = generateDates();
+            const dateSelector = document.getElementById('dateSelector');
+
+            dateSelector.innerHTML = dates.map(date => {
+                const { dayLabel, day, month } = formatDisplayDate(date);
+                const dateStr = formatDate(date);
+                const isActive = dateStr === selectedDate;
+
+                return `
+                    <div class="date-card ${isActive ? 'active' : ''}" onclick="selectDate('${dateStr}')">
+                        <div class="day">${dayLabel}</div>
+                        <div class="date">${day}</div>
+                        <div class="month">${month}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Select date and load showtimes
+        async function selectDate(dateStr) {
+            currentDate = dateStr;
+            renderDateSelector(dateStr);
+            await loadShowtimes(dateStr);
+        }
+
+        // Load showtimes for selected date
+        async function loadShowtimes(date) {
+            const content = document.getElementById('showtimesContent');
+            content.innerHTML = '<div class="loading-spinner">Loading showtimes...</div>';
+
+            try {
+                const response = await fetch(`/api/showtimes?date=${date}`);
+                const data = await response.json();
+
+                if (data.success && data.showtimes && data.showtimes.length > 0) {
+                    renderShowtimes(data.showtimes);
+                } else {
+                    content.innerHTML = `
+                        <div class="empty-state">
+                            <p>🎬 No showtimes available for this date</p>
+                            <p style="font-size: 14px;">Please check another date or check back later</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading showtimes:', error);
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <p>❌ Error loading showtimes</p>
+                        <p style="font-size: 14px;">Please try again later</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render showtimes grouped by movie
+        function renderShowtimes(showtimes) {
+            // Group by movie
+            const moviesMap = new Map();
+
+            showtimes.forEach(showtime => {
+                if (!moviesMap.has(showtime.movie_id)) {
+                    moviesMap.set(showtime.movie_id, {
+                        id: showtime.movie_id,
+                        title: showtime.movie_title,
+                        rating: showtime.movie_rating || 'N/A',
+                        duration: showtime.movie_duration || 'TBA',
+                        poster: showtime.movie_poster || '/static/images/default-poster.jpg',
+                        showtimes: []
+                    });
+                }
+                moviesMap.get(showtime.movie_id).showtimes.push(showtime);
             });
-        });
+
+            const content = document.getElementById('showtimesContent');
+
+            if (moviesMap.size === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <p>🎬 No movies with showtimes available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group showtimes by cinema
+            function groupByCinema(showtimes) {
+                const cinemaMap = new Map();
+                showtimes.forEach(showtime => {
+                    if (!cinemaMap.has(showtime.cinema_name)) {
+                        cinemaMap.set(showtime.cinema_name, {
+                            name: showtime.cinema_name,
+                            times: []
+                        });
+                    }
+                    cinemaMap.get(showtime.cinema_name).times.push(showtime);
+                });
+                return cinemaMap;
+            }
+
+            let html = '';
+            let sectionCount = 0;
+
+            for (const [movieId, movie] of moviesMap) {
+                const groupedShowtimes = groupByCinema(movie.showtimes);
+
+                html += `
+                    <div class="showtime-section">
+                        <div class="movie-header" onclick="location.href='/movie/${movieId}'">
+                            <div class="movie-poster">
+                                <img src="${movie.poster}" alt="${movie.title}" onerror="this.src='/static/images/default-poster.jpg'">
+                            </div>
+                            <div class="movie-info">
+                                <h2>${escapeHtml(movie.title)}</h2>
+                                <div class="movie-meta">
+                                    <span>⭐ ${movie.rating}</span>
+                                    <span>⏱ ${movie.duration}</span>
+                                </div>
+                                <div class="movie-rating">★★★★★</div>
+                            </div>
+                        </div>
+                `;
+
+                for (const [cinemaName, cinema] of groupedShowtimes) {
+                    html += `
+                        <div class="cinema-showtimes">
+                            <div class="cinema-name">
+                                ${escapeHtml(cinemaName)} 🏢
+                                <span>Multiple Screens</span>
+                            </div>
+                            <div class="showtimes-grid">
+                    `;
+
+                    cinema.times.forEach(showtime => {
+                        html += `
+                            <button class="time-btn" onclick="location.href='/movie/${movieId}/seats?showtime=${encodeURIComponent(showtime.show_time)}&tickets=1&date=${encodeURIComponent(currentDate)}&price=${showtime.price}'">
+                                <span class="time">${escapeHtml(showtime.show_time)}</span>
+                                <span class="format">${showtime.format || '2D'}</span>
+                            </button>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+
+                // Add divider between movies
+                sectionCount++;
+                if (sectionCount < moviesMap.size) {
+                    html += `<div class="divider"></div>`;
+                }
+            }
+
+            content.innerHTML = html;
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize page
+        async function init() {
+            const today = new Date();
+            const todayStr = formatDate(today);
+            currentDate = todayStr;
+            renderDateSelector(todayStr);
+            await loadShowtimes(todayStr);
+        }
+
+        // Start the app
+        init();
     </script>
 </body>
 </html>

@@ -12,7 +12,8 @@
         }
 
         body {
-            width: 1920px;
+            width: 100%;
+            max-width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -60,6 +61,7 @@
             font-size: 16px;
             font-weight: 500;
             letter-spacing: 1px;
+            flex-wrap: wrap;
         }
 
         .top-text span {
@@ -99,6 +101,22 @@
 
         .top-text span:hover:after {
             width: 100%;
+        }
+
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
         }
 
         .header img {
@@ -145,6 +163,7 @@
             display: flex;
             gap: 50px;
             margin-bottom: 60px;
+            flex-wrap: wrap;
         }
 
         .movie-poster {
@@ -174,6 +193,7 @@
             display: flex;
             gap: 30px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .meta-item {
@@ -253,6 +273,7 @@
             display: flex;
             gap: 20px;
             margin-bottom: 40px;
+            flex-wrap: wrap;
         }
 
         .date-card {
@@ -260,13 +281,23 @@
             padding: 15px 30px;
             border-radius: 12px;
             text-align: center;
-            cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            min-width: 100px;
         }
 
-        .date-card:hover {
+        .date-card.available {
+            cursor: pointer;
+        }
+
+        .date-card.available:hover {
             background: #2a3138;
+            transform: translateY(-2px);
+        }
+
+        .date-card.unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .date-card.active {
@@ -275,13 +306,22 @@
         }
 
         .date-day {
-            font-size: 20px;
+            font-size: 14px;
             color: #e50914;
+            text-transform: uppercase;
+            font-weight: 600;
         }
 
         .date-number {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .no-shows-badge {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
         }
 
         .showtimes-grid {
@@ -330,11 +370,27 @@
             font-size: 20px;
             font-weight: 600;
             margin: 10px 0;
+            color: #4caf50;
         }
 
         .available {
-            color: #4CAF50;
-            font-size: 14px;
+            color: #ff9800;
+            font-size: 12px;
+        }
+
+        .no-showtimes {
+            text-align: center;
+            padding: 60px;
+            background: #1a1e24;
+            border-radius: 16px;
+            color: #999;
+            margin: 40px 0;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            color: #e50914;
         }
 
         /* Ticket Selector */
@@ -346,6 +402,7 @@
             padding: 30px;
             background: #1a1e24;
             border-radius: 16px;
+            flex-wrap: wrap;
         }
 
         .ticket-label {
@@ -452,14 +509,43 @@
             border-top: 1px solid #222;
         }
 
-        /* Fallback Image Style */
-        .movie-poster img {
-            width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            background: linear-gradient(145deg, #2a3138, #1a1e24);
-            min-height: 450px;
-            object-fit: cover;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            .movie-details-container {
+                flex-direction: column;
+            }
+            .movie-poster {
+                flex: 0 0 auto;
+                max-width: 250px;
+                margin: 0 auto;
+            }
+            .movie-title {
+                font-size: 32px;
+            }
+            .ticket-selector {
+                flex-direction: column;
+                text-align: center;
+            }
+            .ticket-price {
+                margin-left: 0;
+            }
+            .top-bar {
+                padding: 15px 20px;
+            }
+            .top-text {
+                gap: 15px;
+                font-size: 12px;
+            }
+            .date-card {
+                padding: 10px 20px;
+                min-width: 80px;
+            }
+            .date-number {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -472,10 +558,21 @@
             </div>
             <div class="top-text">
                 <span onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
-                <span class="active" onclick="location.href='{{ url_for('showtimes') }}'">SHOWTIMES</span>
                 <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
                 <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
-                <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+
+                <!-- Authentication-aware top bar items -->
+                {% if session.user_id or session.predefined_user %}
+                    <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    {% if session.role in ['admin', 'manager', 'employee'] %}
+                        <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                            {{ session.role|upper }} DASHBOARD
+                        </span>
+                    {% endif %}
+                    <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
+                {% else %}
+                    <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+                {% endif %}
             </div>
         </div>
         <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
@@ -491,24 +588,32 @@
         <!-- Movie Details -->
         <div class="movie-details-container">
             <div class="movie-poster">
-                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+                <img src="{{ movie.poster or url_for('static', filename='images/default-poster.jpg') }}" alt="{{ movie.title }}">
             </div>
             <div class="movie-info">
                 <h1 class="movie-title">{{ movie.title }}</h1>
                 <div class="movie-meta">
-                    <span class="meta-item"><i>⭐</i> {{ movie.rating }}</span>
-                    <span class="meta-item"><i>⏱️</i> {{ movie.duration }}</span>
+                    <span class="meta-item"><i>⭐</i> {{ movie.rating or 'N/A' }}</span>
+                    <span class="meta-item"><i>⏱️</i> {{ movie.duration or 'TBA' }}</span>
                 </div>
+                {% if movie.director %}
                 <div class="director-info">
                     <div class="director-name">{{ movie.director }}</div>
+                    {% if movie.director_sub %}
                     <div class="director-sub">{{ movie.director_sub }}</div>
+                    {% endif %}
                 </div>
+                {% endif %}
+                {% if movie.description %}
                 <div class="description">
                     {{ movie.description }}
                 </div>
+                {% endif %}
+                {% if movie.revenue %}
                 <div class="revenue">
                     Worldwide Revenue: ${{ movie.revenue }}
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -517,43 +622,25 @@
             <h2 class="section-title">Select Showtime</h2>
 
             <!-- Date Selector -->
-            <div class="date-selector">
-                <div class="date-card active" onclick="selectDate(this, 'Today')">
-                    <div class="date-day">TODAY</div>
-                    <div class="date-number">MAR 15</div>
-                </div>
-                <div class="date-card" onclick="selectDate(this, 'Tomorrow')">
-                    <div class="date-day">TOMORROW</div>
-                    <div class="date-number">MAR 16</div>
-                </div>
-                <div class="date-card" onclick="selectDate(this, 'Mar 17')">
-                    <div class="date-day">MONDAY</div>
-                    <div class="date-number">MAR 17</div>
-                </div>
+            <div class="date-selector" id="dateSelector">
+                <div class="loading-spinner" style="grid-column: 1/-1; padding: 20px;">Loading dates...</div>
             </div>
 
             <!-- Showtimes Grid -->
-            <div class="showtimes-grid">
-                {% for showtime in showtimes %}
-                <div class="showtime-card" onclick="selectShowtime(this, '{{ showtime.show_time }}', {{ showtime.price }})">
-                    <div class="showtime">{{ showtime.show_time }}</div>
-                    <div class="showtime-type">Standard</div>
-                    <div class="price">₱{{ "%.2f"|format(showtime.price) }}</div>
-                    <div class="available">▼ 85 seats available</div>
-                </div>
-                {% endfor %}
+            <div id="showtimesGrid" class="showtimes-grid">
+                <div class="loading-spinner">Loading showtimes...</div>
             </div>
 
             <!-- Ticket Selector -->
-            <div class="ticket-selector">
+            <div class="ticket-selector" id="ticketSelector" style="display: none;">
                 <span class="ticket-label">Number of Tickets:</span>
                 <div class="ticket-controls">
-                    <button class="ticket-btn" onclick="changeTickets(-1)" id="decreaseBtn">-</button>
-                    <span class="ticket-count" id="ticketCount">2</span>
+                    <button class="ticket-btn" onclick="changeTickets(-1)" id="decreaseBtn" disabled>-</button>
+                    <span class="ticket-count" id="ticketCount">1</span>
                     <button class="ticket-btn" onclick="changeTickets(1)" id="increaseBtn">+</button>
                 </div>
                 <div class="ticket-price">
-                    Total: <span id="totalPrice">₱{{ "%.2f"|format(15.00 * 2) }}</span>
+                    Total: <span id="totalPrice">₱0.00</span>
                 </div>
             </div>
 
@@ -571,46 +658,183 @@
     </div>
 
     <script>
-        // Variables to store selected options
-        let selectedDate = 'Today';
-        let selectedShowtime = '';
-        let selectedPrice = 15.00;
-        let ticketCount = 2;
+        // Variables
+        let selectedDate = null;
+        let selectedShowtime = null;
+        let selectedPrice = 0;
+        let ticketCount = 1;
+        let allShowtimes = [];
         const movieId = {{ movie.id }};
 
-        // Initialize
-        window.onload = function() {
-            updateTotalPrice();
-            updateContinueButton();
-
-            // Add smooth navigation for top text
-            document.querySelectorAll('.top-text span').forEach(span => {
-                span.addEventListener('click', function(e) {
-                    document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        };
-
-        // Date selection
-        function selectDate(element, date) {
-            document.querySelectorAll('.date-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            element.classList.add('active');
-            selectedDate = date;
+        // Generate next 7 days
+        function generateDates() {
+            const dates = [];
+            const today = new Date();
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date);
+            }
+            return dates;
         }
 
-        // Showtime selection
-        function selectShowtime(element, showtime, price) {
+        // Format date to YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Format date for display
+        function formatDisplayDate(date) {
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+            const dayOfWeek = days[date.getDay()];
+            const day = date.getDate();
+            const month = months[date.getMonth()];
+
+            let dayLabel = dayOfWeek;
+            if (date.toDateString() === new Date().toDateString()) {
+                dayLabel = 'TODAY';
+            } else if (date.toDateString() === new Date(Date.now() + 86400000).toDateString()) {
+                dayLabel = 'TOMORROW';
+            }
+
+            return { dayLabel, day, month };
+        }
+
+        // Render date selector
+        function renderDateSelector() {
+            const dates = generateDates();
+            const dateSelector = document.getElementById('dateSelector');
+
+            if (allShowtimes.length === 0) {
+                dateSelector.innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">No showtimes available for this movie</div>';
+                return;
+            }
+
+            dateSelector.innerHTML = dates.map(date => {
+                const { dayLabel, day, month } = formatDisplayDate(date);
+                const dateStr = formatDate(date);
+                const hasShowtimes = allShowtimes.some(st => st.show_date === dateStr);
+                const isActive = hasShowtimes && selectedDate === dateStr;
+
+                return `
+                    <div class="date-card ${hasShowtimes ? 'available' : 'unavailable'} ${isActive ? 'active' : ''}"
+                         onclick="${hasShowtimes ? `selectDate('${dateStr}')` : ''}">
+                        <div class="date-day">${dayLabel}</div>
+                        <div class="date-number">${month} ${day}</div>
+                        ${!hasShowtimes ? '<div class="no-shows-badge">No shows</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Select date
+        async function selectDate(dateStr) {
+            if (!allShowtimes.some(st => st.show_date === dateStr)) {
+                return; // Don't allow selecting dates without showtimes
+            }
+
+            selectedDate = dateStr;
+            renderDateSelector();
+            await loadShowtimesForDate(dateStr);
+        }
+
+        // Load showtimes for selected date
+        async function loadShowtimesForDate(date) {
+            const showtimesGrid = document.getElementById('showtimesGrid');
+            showtimesGrid.innerHTML = '<div class="loading-spinner">Loading showtimes...</div>';
+
+            // Hide ticket selector when loading new date
+            document.getElementById('ticketSelector').style.display = 'none';
+            document.getElementById('continueBtn').disabled = true;
+            selectedShowtime = null;
+            selectedPrice = 0;
+
+            try {
+                const response = await fetch(`/api/showtimes?date=${date}&movie_id=${movieId}`);
+                const data = await response.json();
+
+                if (data.success && data.showtimes && data.showtimes.length > 0) {
+                    renderShowtimes(data.showtimes);
+                } else {
+                    showtimesGrid.innerHTML = `
+                        <div class="no-showtimes" style="grid-column: 1/-1;">
+                            <p>🎬 No showtimes available for this date</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Please select another date</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading showtimes:', error);
+                showtimesGrid.innerHTML = `
+                    <div class="no-showtimes" style="grid-column: 1/-1;">
+                        <p>❌ Error loading showtimes</p>
+                        <p style="font-size: 14px;">Please try again later</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render showtimes
+        function renderShowtimes(showtimesList) {
+            const showtimesGrid = document.getElementById('showtimesGrid');
+
+            if (showtimesList.length === 0) {
+                showtimesGrid.innerHTML = `
+                    <div class="no-showtimes" style="grid-column: 1/-1;">
+                        <p>No showtimes available for this date</p>
+                    </div>
+                `;
+                return;
+            }
+
+            showtimesGrid.innerHTML = showtimesList.map(showtime => `
+                <div class="showtime-card" data-showtime-id="${showtime.id}" data-showtime-time="${showtime.show_time}" data-showtime-price="${showtime.price}">
+                    <div class="showtime">${showtime.show_time}</div>
+                    <div class="showtime-type">Standard 2D</div>
+                    <div class="price">₱${parseFloat(showtime.price).toFixed(2)}</div>
+                    <div class="available">▼ Available</div>
+                </div>
+            `).join('');
+
+            // Add click event listeners to showtime cards
+            document.querySelectorAll('.showtime-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    const showtimeId = this.dataset.showtimeId;
+                    const showtime = this.dataset.showtimeTime;
+                    const price = parseFloat(this.dataset.showtimePrice);
+                    selectShowtime(showtimeId, showtime, price, this);
+                });
+            });
+        }
+
+        // Select showtime
+        function selectShowtime(showtimeId, showtime, price, element) {
+            // Remove selected class from all cards
             document.querySelectorAll('.showtime-card').forEach(card => {
                 card.classList.remove('selected');
             });
+
+            // Add selected class to clicked card
             element.classList.add('selected');
+
             selectedShowtime = showtime;
             selectedPrice = price;
-            updateTotalPrice();
+
+            // Show ticket selector
+            document.getElementById('ticketSelector').style.display = 'flex';
             updateContinueButton();
+
+            // Reset ticket count
+            ticketCount = 1;
+            document.getElementById('ticketCount').textContent = ticketCount;
+            document.getElementById('decreaseBtn').disabled = true;
+            document.getElementById('increaseBtn').disabled = false;
+            updateTotalPrice();
         }
 
         // Ticket count control
@@ -636,7 +860,7 @@
         // Update continue button state
         function updateContinueButton() {
             const continueBtn = document.getElementById('continueBtn');
-            if (selectedShowtime) {
+            if (selectedShowtime && selectedDate) {
                 continueBtn.disabled = false;
             } else {
                 continueBtn.disabled = true;
@@ -649,10 +873,60 @@
                 alert('Please select a showtime first!');
                 return;
             }
+            if (!selectedDate) {
+                alert('Please select a date first!');
+                return;
+            }
 
             // Redirect to seat selection page with parameters
             window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}&price=${selectedPrice}`;
         }
+
+        // Initialize page - load all showtimes first to populate dates
+        async function init() {
+            try {
+                const response = await fetch(`/api/showtimes?movie_id=${movieId}`);
+                const data = await response.json();
+
+                if (data.success && data.showtimes) {
+                    allShowtimes = data.showtimes;
+                    renderDateSelector();
+
+                    // Auto-select first available date
+                    const datesWithShowtimes = [...new Set(allShowtimes.map(st => st.show_date))];
+                    if (datesWithShowtimes.length > 0) {
+                        await selectDate(datesWithShowtimes[0]);
+                    } else {
+                        document.getElementById('showtimesGrid').innerHTML = `
+                            <div class="no-showtimes" style="grid-column: 1/-1;">
+                                <p>🎬 No showtimes available for this movie</p>
+                                <p style="font-size: 14px; margin-top: 10px;">Please check back later</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    document.getElementById('dateSelector').innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>';
+                }
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                document.getElementById('dateSelector').innerHTML = `
+                    <div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>
+                `;
+            }
+        }
+
+        // Add smooth navigation for top text
+        document.querySelectorAll('.top-text span').forEach(span => {
+            span.addEventListener('click', function(e) {
+                if (!this.classList.contains('admin-link')) {
+                    document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize
+        init();
     </script>
 </body>
 </html>

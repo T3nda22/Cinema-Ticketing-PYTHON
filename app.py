@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from paymongo import Paymongo
+from datetime import datetime, date
+
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-this-in-production'  # Change this in production
@@ -268,17 +270,24 @@ def get_movie_by_id(movie_id):
     return None
 
 
-def get_showtimes_for_movie(movie_id):
-    """Fetch showtimes for a specific movie"""
+def get_showtimes_for_movie(movie_id, show_date=None):
+    """Fetch showtimes for a specific movie, optionally filtered by date"""
     try:
         conn = get_db_connection()
         if conn:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("""
-                SELECT * FROM showtimes 
-                WHERE movie_id = %s 
-                ORDER BY show_time
-            """, (movie_id,))
+            if show_date:
+                cursor.execute("""
+                    SELECT * FROM showtimes 
+                    WHERE movie_id = %s AND show_date = %s
+                    ORDER BY show_time
+                """, (movie_id, show_date))
+            else:
+                cursor.execute("""
+                    SELECT * FROM showtimes 
+                    WHERE movie_id = %s 
+                    ORDER BY show_time
+                """, (movie_id,))
             showtimes = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -711,21 +720,45 @@ def process_payment_completion(source_id, amount, description, booking_ref):
 # Home Routes
 @app.route('/')
 def index():
-    movies = get_all_movies()
-    return render_template('index.html', movies=movies)
+    """Home page with now showing and coming soon movies"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return render_template('index.html', now_showing_movies=[], coming_soon_movies=[])
+
+        cursor = conn.cursor(dictionary=True)
+
+        # Get now showing movies
+        cursor.execute("SELECT * FROM movies WHERE is_now_showing = 1 ORDER BY id DESC")
+        now_showing_movies = cursor.fetchall()
+
+        # Get coming soon movies
+        cursor.execute("SELECT * FROM movies WHERE is_now_showing = 0 ORDER BY id DESC")
+        coming_soon_movies = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return render_template('index.html',
+                               now_showing_movies=now_showing_movies,
+                               coming_soon_movies=coming_soon_movies)
+    except Exception as e:
+        print(f"Error in index route: {e}")
+        return render_template('index.html', now_showing_movies=[], coming_soon_movies=[])
 
 
 @app.route('/movie/<int:movie_id>')
 def movie_details(movie_id):
     movie = get_movie_by_id(movie_id)
-    showtimes = get_showtimes_for_movie(movie_id)
 
     if movie is None:
         return "Movie not found", 404
 
-    return render_template('movie_details.html',
-                           movie=movie,
-                           showtimes=showtimes)
+    # Set default poster if none exists
+    if not movie.get('poster'):
+        movie['poster'] = url_for('static', filename='images/default-poster.jpg')
+
+    return render_template('movie_details.html', movie=movie)
 
 
 @app.route('/movie/<int:movie_id>/seats')
@@ -1125,8 +1158,8 @@ def mark_paid_cash():
 # Navigation Routes
 @app.route('/showtimes')
 def showtimes():
-    movies = get_all_movies()
-    return render_template('showtimes.html', movies=movies)
+    """Showtimes page"""
+    return render_template('showtimes.html')
 
 
 @app.route('/coming-soon')
@@ -1479,6 +1512,603 @@ def employee_dashboard():
     """Employee dashboard"""
     return render_template('employee_dashboard.html', user=session)
 
+
+# ==================== ADMIN DASHBOARD API ROUTES ====================
+
+@app.route('/admin/stats')
+@admin_required
+def admin_stats():
+    """Get dashboard statistics"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+
+        # Total sales (from paid bookings)
+        cursor.execute("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE payment_status = 'paid'")
+        total_sales = cursor.fetchone()['total']
+
+        # Total movies
+        cursor.execute("SELECT COUNT(*) as count FROM movies")
+        total_movies = cursor.fetchone()['count']
+
+        # Total tickets sold
+        cursor.execute(
+            "SELECT COALESCE(SUM(number_of_tickets), 0) as total FROM bookings WHERE payment_status = 'paid'")
+        total_tickets = cursor.fetchone()['total']
+
+        # Total bookings
+        cursor.execute("SELECT COUNT(*) as count FROM bookings")
+        total_bookings = cursor.fetchone()['count']
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'total_sales': float(total_sales),
+            'total_movies': total_movies,
+            'total_tickets': total_tickets,
+            'total_bookings': total_bookings
+        })
+
+    except Exception as e:
+        print(f"Error in admin_stats: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/movies')
+@admin_required
+def admin_movies():
+    """Get all movies for admin"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM movies ORDER BY id DESC")
+        movies = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'movies': movies
+        })
+
+    except Exception as e:
+        print(f"Error in admin_movies: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/movie/<int:movie_id>', methods=['GET'])
+@admin_required
+def admin_get_movie(movie_id):
+    """Get a single movie for editing"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM movies WHERE id = %s", (movie_id,))
+        movie = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not movie:
+            return jsonify({'success': False, 'message': 'Movie not found'}), 404
+
+        return jsonify({
+            'success': True,
+            'movie': movie
+        })
+
+    except Exception as e:
+        print(f"Error in admin_get_movie: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/movie', methods=['POST'])
+@admin_required
+def admin_add_movie():
+    """Add a new movie"""
+    try:
+        data = request.get_json()
+
+        title = data.get('title')
+        rating = data.get('rating')
+        duration = data.get('duration')
+        poster = data.get('poster')
+        director = data.get('director')
+        description = data.get('description')
+        is_now_showing = data.get('is_now_showing', '1')
+
+        if not title:
+            return jsonify({'success': False, 'message': 'Movie title is required'}), 400
+
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO movies (title, rating, duration, poster, director, description, is_now_showing)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (title, rating, duration, poster, director, description, is_now_showing))
+
+        conn.commit()
+        movie_id = cursor.lastrowid
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Movie added successfully',
+            'movie_id': movie_id
+        })
+
+    except Exception as e:
+        print(f"Error in admin_add_movie: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/movie/<int:movie_id>', methods=['PUT'])
+@admin_required
+def admin_update_movie(movie_id):
+    """Update an existing movie"""
+    try:
+        data = request.get_json()
+
+        title = data.get('title')
+        rating = data.get('rating')
+        duration = data.get('duration')
+        poster = data.get('poster')
+        director = data.get('director')
+        description = data.get('description')
+        is_now_showing = data.get('is_now_showing', '1')
+
+        if not title:
+            return jsonify({'success': False, 'message': 'Movie title is required'}), 400
+
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE movies 
+            SET title = %s, rating = %s, duration = %s, poster = %s, 
+                director = %s, description = %s, is_now_showing = %s
+            WHERE id = %s
+        """, (title, rating, duration, poster, director, description, is_now_showing, movie_id))
+
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Movie not found'}), 404
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Movie updated successfully'
+        })
+
+    except Exception as e:
+        print(f"Error in admin_update_movie: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/movie/<int:movie_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_movie(movie_id):
+    """Delete a movie"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+
+        # Check if movie has bookings
+        cursor.execute("SELECT COUNT(*) as count FROM bookings WHERE movie_id = %s", (movie_id,))
+        booking_count = cursor.fetchone()[0]
+
+        if booking_count > 0:
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': f'Cannot delete movie with {booking_count} existing bookings. Please cancel bookings first.'
+            }), 400
+
+        cursor.execute("DELETE FROM movies WHERE id = %s", (movie_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Movie not found'}), 404
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Movie deleted successfully'
+        })
+
+    except Exception as e:
+        print(f"Error in admin_delete_movie: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/bookings')
+@admin_required
+def admin_bookings():
+    """Get all bookings for admin"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT * FROM bookings 
+            ORDER BY booking_date DESC
+        """)
+        bookings = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'bookings': bookings
+        })
+
+    except Exception as e:
+        print(f"Error in admin_bookings: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/analytics')
+@admin_required
+def admin_analytics():
+    """Get analytics data"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+
+        # Today's sales
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as total 
+            FROM bookings 
+            WHERE payment_status = 'paid' AND DATE(paid_at) = CURDATE()
+        """)
+        today_sales = cursor.fetchone()['total']
+
+        # This week's sales
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as total 
+            FROM bookings 
+            WHERE payment_status = 'paid' AND YEARWEEK(paid_at) = YEARWEEK(CURDATE())
+        """)
+        week_sales = cursor.fetchone()['total']
+
+        # This month's sales
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0) as total 
+            FROM bookings 
+            WHERE payment_status = 'paid' AND MONTH(paid_at) = MONTH(CURDATE()) 
+            AND YEAR(paid_at) = YEAR(CURDATE())
+        """)
+        month_sales = cursor.fetchone()['total']
+
+        # Average ticket price
+        cursor.execute("""
+            SELECT COALESCE(AVG(total_amount / number_of_tickets), 0) as avg_price 
+            FROM bookings 
+            WHERE payment_status = 'paid' AND number_of_tickets > 0
+        """)
+        avg_ticket_price = cursor.fetchone()['avg_price']
+
+        # Most popular movie
+        cursor.execute("""
+            SELECT movie_title, COUNT(*) as booking_count 
+            FROM bookings 
+            WHERE payment_status = 'paid'
+            GROUP BY movie_title 
+            ORDER BY booking_count DESC 
+            LIMIT 1
+        """)
+        popular_movie = cursor.fetchone()
+        most_popular_movie = popular_movie['movie_title'] if popular_movie else 'No data'
+
+        # Peak showtime
+        cursor.execute("""
+            SELECT showtime, COUNT(*) as booking_count 
+            FROM bookings 
+            WHERE payment_status = 'paid'
+            GROUP BY showtime 
+            ORDER BY booking_count DESC 
+            LIMIT 1
+        """)
+        peak = cursor.fetchone()
+        peak_time = peak['showtime'] if peak else 'No data'
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'today_sales': float(today_sales),
+            'week_sales': float(week_sales),
+            'month_sales': float(month_sales),
+            'avg_ticket_price': f"{float(avg_ticket_price):.2f}",
+            'most_popular_movie': most_popular_movie,
+            'peak_time': peak_time
+        })
+
+    except Exception as e:
+        print(f"Error in admin_analytics: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+# ==================== SHOWTIME MANAGEMENT ROUTES ====================
+
+@app.route('/admin/showtimes', methods=['GET'])
+@admin_required
+def admin_showtimes():
+    """Get all showtimes for admin"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT s.*, m.title as movie_title 
+            FROM showtimes s
+            JOIN movies m ON s.movie_id = m.id
+            ORDER BY s.show_date DESC, s.show_time ASC
+        """)
+        showtimes = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'showtimes': showtimes
+        })
+
+    except Exception as e:
+        print(f"Error in admin_showtimes: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/showtimes', methods=['POST'])
+@admin_required
+def admin_add_showtimes():
+    """Add multiple showtimes for a movie"""
+    try:
+        data = request.get_json()
+
+        movie_id = data.get('movie_id')
+        show_date = data.get('show_date')
+        show_times = data.get('show_times', [])
+        price = data.get('price', 350)
+
+        if not movie_id:
+            return jsonify({'success': False, 'message': 'Movie ID is required'}), 400
+        if not show_date:
+            return jsonify({'success': False, 'message': 'Show date is required'}), 400
+        if not show_times:
+            return jsonify({'success': False, 'message': 'At least one show time is required'}), 400
+
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+        added_count = 0
+        skipped_count = 0
+
+        for show_time in show_times:
+            # Check if showtime already exists
+            cursor.execute("""
+                SELECT id FROM showtimes 
+                WHERE movie_id = %s AND show_date = %s AND show_time = %s
+            """, (movie_id, show_date, show_time))
+
+            if not cursor.fetchone():
+                cursor.execute("""
+                    INSERT INTO showtimes (movie_id, show_time, show_date, price)
+                    VALUES (%s, %s, %s, %s)
+                """, (movie_id, show_time, show_date, price))
+                added_count += 1
+            else:
+                skipped_count += 1
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        if added_count > 0:
+            message = f'{added_count} showtimes added successfully'
+            if skipped_count > 0:
+                message += f' ({skipped_count} skipped - already exist)'
+            return jsonify({
+                'success': True,
+                'message': message,
+                'added': added_count,
+                'skipped': skipped_count
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'No new showtimes were added (they may already exist)'
+            }), 400
+
+    except Exception as e:
+        print(f"Error in admin_add_showtimes: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/showtime/<int:showtime_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_showtime(showtime_id):
+    """Delete a showtime"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+
+        # Check if showtime has any bookings
+        cursor.execute("""
+            SELECT COUNT(*) as count FROM bookings 
+            WHERE movie_id = (SELECT movie_id FROM showtimes WHERE id = %s)
+            AND showtime = (SELECT show_time FROM showtimes WHERE id = %s)
+            AND show_date = (SELECT show_date FROM showtimes WHERE id = %s)
+        """, (showtime_id, showtime_id, showtime_id))
+
+        booking_count = cursor.fetchone()[0]
+
+        if booking_count > 0:
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': f'Cannot delete showtime with {booking_count} existing bookings'
+            }), 400
+
+        cursor.execute("DELETE FROM showtimes WHERE id = %s", (showtime_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Showtime not found'}), 404
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Showtime deleted successfully'
+        })
+
+    except Exception as e:
+        print(f"Error in admin_delete_showtime: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+# ==================== API ROUTES ====================
+
+@app.route('/api/showtimes')
+def api_showtimes():
+    """API endpoint to get showtimes for a specific date or movie"""
+    try:
+        date_param = request.args.get('date')
+        movie_id = request.args.get('movie_id')
+
+        print(f"=== API SHOWTIMES CALL ===")
+        print(f"Date parameter: {date_param}")
+        print(f"Movie ID parameter: {movie_id}")
+
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor(dictionary=True)
+
+        # Build query based on parameters
+        query = """
+            SELECT 
+                s.id,
+                s.movie_id,
+                s.show_time,
+                s.show_date,
+                s.price,
+                m.title as movie_title,
+                m.rating as movie_rating,
+                m.duration as movie_duration,
+                m.poster as movie_poster,
+                m.description as movie_description,
+                'Cinemax Mall' as cinema_name,
+                '2D' as format
+            FROM showtimes s
+            JOIN movies m ON s.movie_id = m.id
+            WHERE 1=1
+        """
+        params = []
+
+        if date_param:
+            query += " AND s.show_date = %s"
+            params.append(date_param)
+            print(f"Filtering by date: {date_param}")
+
+        if movie_id:
+            query += " AND s.movie_id = %s"
+            params.append(movie_id)
+            print(f"Filtering by movie_id: {movie_id}")
+
+        query += " ORDER BY s.show_date ASC, s.show_time ASC"
+
+        print(f"Executing query: {query}")
+        print(f"With params: {params}")
+
+        cursor.execute(query, params)
+        showtimes = cursor.fetchall()
+
+        # Format the dates to YYYY-MM-DD string
+        for st in showtimes:
+            if st['show_date']:
+                # Check if it's a date object by checking for strftime method
+                if hasattr(st['show_date'], 'strftime'):
+                    # It's a date/datetime object
+                    st['show_date'] = st['show_date'].strftime('%Y-%m-%d')
+                else:
+                    # It's already a string, extract the first 10 characters (YYYY-MM-DD)
+                    st['show_date'] = str(st['show_date'])[:10]
+
+        print(f"Query returned {len(showtimes)} showtimes")
+        for st in showtimes:
+            print(f"  Result: ID={st['id']}, Date={st['show_date']}, Time={st['show_time']}, Price={st['price']}")
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'showtimes': showtimes,
+            'date': date_param,
+            'movie_id': movie_id,
+            'count': len(showtimes)
+        })
+
+    except Exception as e:
+        print(f"Error in api_showtimes: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # User Profile Route (protected)
 @app.route('/profile')

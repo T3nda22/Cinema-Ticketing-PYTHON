@@ -12,12 +12,13 @@
         }
 
         body {
-            width: 1920px;
+            width: 100%;
+            max-width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             color: white;
-            min-height: 3000px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
@@ -61,6 +62,7 @@
             font-size: 16px;
             font-weight: 500;
             letter-spacing: 1px;
+            flex-wrap: wrap;
         }
 
         .top-text span {
@@ -100,6 +102,23 @@
             width: 100%;
             height: 2px;
             background: #e50914;
+        }
+
+        /* Admin Dashboard Link */
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
         }
 
         /* Hero text overlay - positioned in middle of header */
@@ -205,12 +224,16 @@
             background: #1a1e24;
             border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
 
         .movie-card:hover {
             transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .movie-card img {
@@ -224,20 +247,23 @@
         }
 
         .movie-info h3 {
-            font-size: 22px;
+            font-size: 20px;
             margin-bottom: 8px;
             color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .movie-info .rating {
             color: #ffd700;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 5px;
         }
 
         .movie-info .duration {
             color: #999;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .movie-tag {
@@ -251,6 +277,10 @@
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
+        }
+
+        .movie-tag.coming {
+            background: #ff9800;
         }
 
         /* Coming Soon Section */
@@ -297,6 +327,13 @@
             border: 1px solid #2a3138;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .coming-card:hover {
+            transform: translateY(-5px);
+            border-color: #e50914;
         }
 
         .coming-card::before {
@@ -319,37 +356,98 @@
         }
 
         .coming-card .movie-title {
-            font-size: 48px;
+            font-size: 32px;
             font-weight: 800;
             margin-bottom: 20px;
             line-height: 1.2;
             color: white;
-            text-transform: uppercase;
         }
 
-        .coming-card .subtitle {
-            font-size: 18px;
+        .coming-card .director {
+            font-size: 14px;
             color: #999;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
         .coming-card .release {
             color: #e50914;
-            font-size: 20px;
-            font-weight: 600;
-            text-transform: uppercase;
-            border-top: 1px solid #2a3138;
-            padding-top: 30px;
-        }
-
-        .coming-card.small .movie-title {
-            font-size: 32px;
-        }
-
-        .coming-card .cast {
-            color: #666;
             font-size: 16px;
+            font-weight: 600;
+            border-top: 1px solid #2a3138;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            background: #1a1e24;
+            border-radius: 16px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state p {
+            font-size: 18px;
             margin-bottom: 20px;
+        }
+
+        .empty-state .add-movie-hint {
+            color: #e50914;
+            font-size: 14px;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            color: #e50914;
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .movies-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .movies-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .coming-soon-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .content {
+                padding: 40px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .movies-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .coming-soon-grid {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .top-bar {
+                padding: 15px 20px;
+            }
+            .top-text {
+                gap: 15px;
+                font-size: 12px;
+            }
+            .hero-overlay h1 {
+                font-size: 32px;
+            }
+            .hero-overlay p {
+                font-size: 14px;
+            }
         }
 
         /* Footer */
@@ -393,14 +491,18 @@
             </div>
             <div class="top-text">
                 <span class="active" onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
-                <span onclick="location.href='{{ url_for('showtimes') }}'">SHOWTIMES</span>
                 <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
                 <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
 
                 <!-- Authentication-aware top bar items -->
-                {% if session.user_id %}
+                {% if session.user_id or session.predefined_user %}
                     <!-- User is logged in -->
                     <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    {% if session.role in ['admin', 'manager', 'employee'] %}
+                        <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                            {{ session.role|upper }} DASHBOARD
+                        </span>
+                    {% endif %}
                     <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
                 {% else %}
                     <!-- User is not logged in -->
@@ -412,7 +514,7 @@
         <!-- Hero text overlay - centered in the middle of header -->
         <div class="hero-overlay">
             <h1>Experience Movies<br>Like Never Before</h1>
-            <p>Book Tickets, manage showtimes, and track sales—all in one place.</p>
+            <p>Book Tickets and enjoy the ultimate cinematic experience.</p>
         </div>
 
         <!-- Header Image (Chair Header.png) -->
@@ -430,106 +532,57 @@
             <span class="view-all" onclick="location.href='{{ url_for('all_movies') }}'">view all ></span>
         </div>
 
-        <div class="movies-grid">
-            <!-- US -->
-            <a href="{{ url_for('movie_details', movie_id=1) }}" style="text-decoration: none; color: inherit;">
-                <div class="movie-card">
-                    <img src="{{ url_for('static', filename='images/cover1.jpg') }}" alt="Us">
-                    <div class="movie-info">
-                        <h3>US</h3>
-                        <div class="rating">★★★★★ 7.1</div>
-                        <div class="duration">2h 16m</div>
-                    </div>
-                    <div class="movie-tag">NOW</div>
+        <div class="movies-grid" id="nowShowingGrid">
+            {% if now_showing_movies %}
+                {% for movie in now_showing_movies %}
+                    <a href="{{ url_for('movie_details', movie_id=movie.id) }}" class="movie-card">
+                        <img src="{{ movie.poster or url_for('static', filename='images/default-poster.jpg') }}" alt="{{ movie.title }}">
+                        <div class="movie-info">
+                            <h3>{{ movie.title }}</h3>
+                            <div class="rating">★★★★★ {{ movie.rating or 'N/A' }}</div>
+                            <div class="duration">{{ movie.duration or 'TBA' }}</div>
+                        </div>
+                        <div class="movie-tag">NOW</div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>🎬 No movies currently showing</p>
+                    <div class="add-movie-hint">Check back soon for new releases!</div>
                 </div>
-            </a>
-
-            <!-- The Shining -->
-            <a href="{{ url_for('movie_details', movie_id=2) }}" style="text-decoration: none; color: inherit;">
-                <div class="movie-card">
-                    <img src="{{ url_for('static', filename='images/cover2.jpg') }}" alt="The Shining">
-                    <div class="movie-info">
-                        <h3>The Shining</h3>
-                        <div class="rating">★★★★★ 8.4</div>
-                        <div class="duration">2h 26m</div>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Beauty and the Beast -->
-            <a href="{{ url_for('movie_details', movie_id=3) }}" style="text-decoration: none; color: inherit;">
-                <div class="movie-card">
-                    <img src="{{ url_for('static', filename='images/cover3.jpeg') }}" alt="Beauty and the Beast">
-                    <div class="movie-info">
-                        <h3>Beauty and the Beast</h3>
-                        <div class="rating">★★★★★ 7.7</div>
-                        <div class="duration">2h 9m</div>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Step Brothers -->
-            <a href="{{ url_for('movie_details', movie_id=4) }}" style="text-decoration: none; color: inherit;">
-                <div class="movie-card">
-                    <img src="{{ url_for('static', filename='images/cover4.jpg') }}" alt="Step Brothers">
-                    <div class="movie-info">
-                        <h3>Step Brothers</h3>
-                        <div class="rating">★★★★★ 6.9</div>
-                        <div class="duration">1h 38m</div>
-                    </div>
-                </div>
-            </a>
-
-            <!-- AFTER -->
-            <a href="{{ url_for('movie_details', movie_id=5) }}" style="text-decoration: none; color: inherit;">
-                <div class="movie-card">
-                    <img src="{{ url_for('static', filename='images/cover5.jpg') }}" alt="AFTER">
-                    <div class="movie-info">
-                        <h3>AFTER</h3>
-                        <div class="rating">★★★★★ 7.0</div>
-                        <div class="duration">1h 45m</div>
-                    </div>
-                    <div class="movie-tag">NEW</div>
-                </div>
-            </a>
+            {% endif %}
         </div>
 
         <!-- Coming Soon Section -->
         <div class="coming-soon">
             <div style="display: flex; align-items: center; margin-bottom: 40px;">
                 <h3>Coming Soon</h3>
-                <span class="horror-fest">Horror Fest</span>
+                <span class="horror-fest">Upcoming Releases</span>
             </div>
 
-            <div class="coming-soon-grid">
-                <!-- SMILE Card -->
-                <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=6) }}'" style="cursor: pointer;">
-                    <div class="tagline">ONCE YOU SEE IT IT'S TOO LATE</div>
-                    <div class="movie-title">SMILE</div>
-                    <div class="subtitle">IN CINEMAS</div>
-                    <div class="release">SEPTEMBER 26</div>
-                </div>
-
-                <!-- Second Card -->
-                <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=7) }}'" style="cursor: pointer;">
-                    <div class="tagline">THEY WILL NEVER LET GO</div>
-                    <div class="movie-title">SMILE</div>
-                    <div class="subtitle">ON THE THEATRES</div>
-                    <div class="release">COMING SOON</div>
-                </div>
-
-                <!-- Mirrors Card -->
-                <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=8) }}'" style="cursor: pointer;">
-                    <div class="tagline">'THE HILLS HAVE EYES'</div>
-                    <div class="movie-title">MIRRORS</div>
-                    <div class="cast">KIEFFER SUTHERLAND</div>
-                    <div class="release">SEPTEMBER</div>
-                </div>
+            <div class="coming-soon-grid" id="comingSoonGrid">
+                {% if coming_soon_movies %}
+                    {% for movie in coming_soon_movies %}
+                        <div class="coming-card" onclick="location.href='{{ url_for('movie_details', movie_id=movie.id) }}'">
+                            <div class="tagline">{{ movie.tagline or 'COMING SOON' }}</div>
+                            <div class="movie-title">{{ movie.title }}</div>
+                            {% if movie.director %}
+                                <div class="director">Directed by {{ movie.director }}</div>
+                            {% endif %}
+                            <div class="release">{{ movie.release_date or 'Coming Soon' }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>🎬 No upcoming movies announced</p>
+                        <div class="add-movie-hint">Stay tuned for exciting new releases!</div>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <!-- Additional text from design -->
-        <div style="display: flex; gap: 60px; margin: 60px 0; color: #666; font-size: 18px; justify-content: center;">
+        <div style="display: flex; gap: 60px; margin: 60px 0; color: #666; font-size: 18px; justify-content: center; flex-wrap: wrap;">
             <span>MFT</span>
             <span>WHAT HAPPENS NEXT?</span>
             <span>DO NOT MISS</span>
@@ -551,14 +604,66 @@
         // Add smooth navigation and active class management
         document.querySelectorAll('.top-text span').forEach(span => {
             span.addEventListener('click', function(e) {
-                // Remove active class from all spans
-                document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
-                // Add active class to clicked span (only if it's not LOGOUT or PROFILE maybe)
-                this.classList.add('active');
+                // Don't remove active class if clicking on admin link or logout
+                if (!this.classList.contains('admin-link')) {
+                    document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                }
             });
         });
 
-        // Ensure MOVIES is active on page load (already set in HTML)
+        // Optional: Add smooth scroll to top when clicking logo
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.addEventListener('click', function(e) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Dynamic movie count display
+        const nowShowingCount = document.querySelectorAll('#nowShowingGrid .movie-card:not(.empty-state)').length;
+        const comingSoonCount = document.querySelectorAll('#comingSoonGrid .coming-card:not(.empty-state)').length;
+
+        if (nowShowingCount > 0) {
+            console.log(`${nowShowingCount} movies now showing`);
+        }
+        if (comingSoonCount > 0) {
+            console.log(`${comingSoonCount} movies coming soon`);
+        }
+
+        // Add hover effect for movie cards
+        document.querySelectorAll('.movie-card, .coming-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+            });
+        });
+
+        // Lazy load images
+        const images = document.querySelectorAll('img');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    observer.unobserve(img);
+                }
+            });
+        });
+
+        images.forEach(img => {
+            if (img.src.includes('default-poster')) {
+                // Skip default poster
+                return;
+            }
+            if (!img.complete) {
+                img.dataset.src = img.src;
+                img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%231a1e24" width="100" height="100"/%3E%3C/svg%3E';
+                imageObserver.observe(img);
+            }
+        });
     </script>
 </body>
 </html>

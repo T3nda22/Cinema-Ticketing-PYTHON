@@ -12,7 +12,8 @@
         }
 
         body {
-            width: 1920px;
+            width: 100%;
+            max-width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -512,7 +513,7 @@
             z-index: 1000;
             border: 2px solid #e50914;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            min-width: 300px;
+            min-width: 320px;
         }
 
         .admin-modal h3 {
@@ -520,6 +521,15 @@
             margin-bottom: 20px;
             font-size: 24px;
             text-align: center;
+        }
+
+        .admin-modal .admin-note {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #2a3138;
         }
 
         .admin-modal button {
@@ -547,6 +557,15 @@
 
         .admin-modal button.employee-btn:hover {
             background: #3a434b;
+        }
+
+        .admin-modal button.manager-btn {
+            background: #ff9800;
+            color: #1a1e24;
+        }
+
+        .admin-modal button.manager-btn:hover {
+            background: #ffb74d;
         }
 
         .admin-modal .close-btn {
@@ -596,6 +615,10 @@
 
         /* Responsive */
         @media (max-width: 1200px) {
+            .content {
+                padding: 40px 20px;
+            }
+
             .auth-container {
                 flex-direction: column;
             }
@@ -621,6 +644,15 @@
                 width: 100%;
                 height: 4px;
             }
+
+            .top-bar {
+                padding: 15px 30px;
+            }
+
+            .top-text {
+                gap: 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -629,9 +661,13 @@
     <div class="admin-overlay" id="adminOverlay" onclick="closeAdminModal()"></div>
     <div class="admin-modal" id="adminModal">
         <h3>🔐 Quick Access</h3>
-        <button onclick="quickLogin('admin@cinemax.com', 'Admin@123')">Login as Admin</button>
-        <button class="employee-btn" onclick="quickLogin('employee1@cinemax.com', 'Employee@123')">Login as Employee 1</button>
-        <button class="employee-btn" onclick="quickLogin('employee2@cinemax.com', 'Employee@123')">Login as Employee 2</button>
+        <button onclick="quickLogin('admin@cinemax.com', 'Admin@123')">👑 Login as Admin</button>
+        <button class="manager-btn" onclick="quickLogin('manager@cinemax.com', 'Manager@123')">📊 Login as Manager</button>
+        <button class="employee-btn" onclick="quickLogin('employee1@cinemax.com', 'Employee@123')">🎫 Login as Employee 1</button>
+        <button class="employee-btn" onclick="quickLogin('employee2@cinemax.com', 'Employee@123')">🎟️ Login as Employee 2</button>
+        <div class="admin-note">
+            💡 Tip: Double-click the logo or press Ctrl+Shift+A to open this menu
+        </div>
         <button class="close-btn" onclick="closeAdminModal()">Close</button>
     </div>
 
@@ -677,7 +713,7 @@
 
                 <form class="auth-form" id="loginForm" method="POST" action="/login">
                     <div class="form-group">
-                        <label for="email">Email</label>
+                        <label for="email">Email Address</label>
                         <input type="email" id="login-email" name="email" placeholder="Enter your email" required>
                     </div>
 
@@ -747,7 +783,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="signup-email">Email</label>
+                        <label for="signup-email">Email Address</label>
                         <input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
                     </div>
 
@@ -825,18 +861,25 @@
         }
 
         // Admin Quick Access - Double click on logo to open
-        document.querySelector('.logo').addEventListener('dblclick', function() {
-            document.getElementById('adminModal').style.display = 'block';
-            document.getElementById('adminOverlay').style.display = 'block';
-        });
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.addEventListener('dblclick', function() {
+                openAdminModal();
+            });
+        }
 
         // Or with Ctrl+Shift+A
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                document.getElementById('adminModal').style.display = 'block';
-                document.getElementById('adminOverlay').style.display = 'block';
+                e.preventDefault();
+                openAdminModal();
             }
         });
+
+        function openAdminModal() {
+            document.getElementById('adminModal').style.display = 'block';
+            document.getElementById('adminOverlay').style.display = 'block';
+        }
 
         function closeAdminModal() {
             document.getElementById('adminModal').style.display = 'none';
@@ -872,214 +915,226 @@
         }
 
         // Password strength indicator
-        document.getElementById('signup-password')?.addEventListener('input', function(e) {
-            const password = e.target.value;
-            const bar1 = document.getElementById('bar1');
-            const bar2 = document.getElementById('bar2');
-            const bar3 = document.getElementById('bar3');
-            const strengthText = document.getElementById('strengthText');
+        const signupPassword = document.getElementById('signup-password');
+        if (signupPassword) {
+            signupPassword.addEventListener('input', function(e) {
+                const password = e.target.value;
+                const bar1 = document.getElementById('bar1');
+                const bar2 = document.getElementById('bar2');
+                const bar3 = document.getElementById('bar3');
+                const strengthText = document.getElementById('strengthText');
 
-            bar1.classList.remove('active');
-            bar2.classList.remove('active');
-            bar3.classList.remove('active');
+                bar1.classList.remove('active');
+                bar2.classList.remove('active');
+                bar3.classList.remove('active');
 
-            if (password.length === 0) {
-                strengthText.textContent = 'Use at least 8 characters with letters and numbers';
-                return;
-            }
+                if (password.length === 0) {
+                    strengthText.textContent = 'Use at least 8 characters with letters and numbers';
+                    return;
+                }
 
-            let strength = 0;
-            if (password.length >= 8) strength++;
-            if (/[a-zA-Z]/.test(password) && /[0-9]/.test(password)) strength++;
-            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+                let strength = 0;
+                if (password.length >= 8) strength++;
+                if (/[a-zA-Z]/.test(password) && /[0-9]/.test(password)) strength++;
+                if (/[^a-zA-Z0-9]/.test(password)) strength++;
 
-            if (strength >= 1) bar1.classList.add('active');
-            if (strength >= 2) bar2.classList.add('active');
-            if (strength >= 3) bar3.classList.add('active');
+                if (strength >= 1) bar1.classList.add('active');
+                if (strength >= 2) bar2.classList.add('active');
+                if (strength >= 3) bar3.classList.add('active');
 
-            if (strength === 0) strengthText.textContent = 'Weak password';
-            else if (strength === 1) strengthText.textContent = 'Fair password';
-            else if (strength === 2) strengthText.textContent = 'Good password';
-            else if (strength === 3) strengthText.textContent = 'Strong password';
-        });
+                if (strength === 0) strengthText.textContent = 'Weak password';
+                else if (strength === 1) strengthText.textContent = 'Fair password';
+                else if (strength === 2) strengthText.textContent = 'Good password';
+                else if (strength === 3) strengthText.textContent = 'Strong password';
+            });
+        }
 
         // Password confirmation validation
-        document.getElementById('confirm-password')?.addEventListener('input', function(e) {
-            const password = document.getElementById('signup-password').value;
-            const confirm = e.target.value;
+        const confirmPassword = document.getElementById('confirm-password');
+        if (confirmPassword) {
+            confirmPassword.addEventListener('input', function(e) {
+                const password = document.getElementById('signup-password').value;
+                const confirm = e.target.value;
 
-            if (confirm.length > 0) {
-                this.style.borderColor = (password === confirm) ? '#4dff4d' : '#ff4d4d';
-            } else {
-                this.style.borderColor = '#2a3138';
-            }
-        });
+                if (confirm.length > 0) {
+                    this.style.borderColor = (password === confirm) ? '#4dff4d' : '#ff4d4d';
+                } else {
+                    this.style.borderColor = '#2a3138';
+                }
+            });
+        }
 
         // Handle signup form submission
-        document.getElementById('signupForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        const signupForm = document.getElementById('signupForm');
+        if (signupForm) {
+            signupForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('confirm-password').value;
-            const terms = document.getElementById('terms').checked;
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirm = document.getElementById('confirm-password').value;
+                const terms = document.getElementById('terms').checked;
 
-            // Validate email format
-            if (!isValidEmail(email)) {
-                showAlert('signup', 'error', 'Please enter a valid email address!');
-                document.getElementById('signup-email').classList.add('error');
-                setTimeout(() => {
-                    document.getElementById('signup-email').classList.remove('error');
-                }, 500);
-                return;
-            }
-
-            if (password !== confirm) {
-                showAlert('signup', 'error', 'Passwords do not match!');
-                document.getElementById('confirm-password').classList.add('error');
-                setTimeout(() => {
-                    document.getElementById('confirm-password').classList.remove('error');
-                }, 500);
-                return;
-            }
-
-            if (password.length < 8) {
-                showAlert('signup', 'error', 'Password must be at least 8 characters long!');
-                document.getElementById('signup-password').classList.add('error');
-                setTimeout(() => {
-                    document.getElementById('signup-password').classList.remove('error');
-                }, 500);
-                return;
-            }
-
-            if (!terms) {
-                showAlert('signup', 'error', 'You must agree to the Terms of Service!');
-                return;
-            }
-
-            const btn = document.getElementById('signupBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Creating Account...';
-
-            try {
-                const response = await fetch('/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        'username': username,
-                        'email': email,
-                        'password': password,
-                        'confirm_password': confirm,
-                        'terms': terms ? 'on' : ''
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert('signup', 'success', 'Account created successfully! Redirecting to login...');
+                // Validate email format
+                if (!isValidEmail(email)) {
+                    showAlert('signup', 'error', 'Please enter a valid email address!');
+                    document.getElementById('signup-email').classList.add('error');
                     setTimeout(() => {
-                        window.location.href = '/signin?registered=true';
-                    }, 2000);
-                } else {
-                    showAlert('signup', 'error', data.message || 'Registration failed. Please try again.');
+                        document.getElementById('signup-email').classList.remove('error');
+                    }, 500);
+                    return;
+                }
+
+                if (password !== confirm) {
+                    showAlert('signup', 'error', 'Passwords do not match!');
+                    document.getElementById('confirm-password').classList.add('error');
+                    setTimeout(() => {
+                        document.getElementById('confirm-password').classList.remove('error');
+                    }, 500);
+                    return;
+                }
+
+                if (password.length < 8) {
+                    showAlert('signup', 'error', 'Password must be at least 8 characters long!');
+                    document.getElementById('signup-password').classList.add('error');
+                    setTimeout(() => {
+                        document.getElementById('signup-password').classList.remove('error');
+                    }, 500);
+                    return;
+                }
+
+                if (!terms) {
+                    showAlert('signup', 'error', 'You must agree to the Terms of Service!');
+                    return;
+                }
+
+                const btn = document.getElementById('signupBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Creating Account...';
+
+                try {
+                    const response = await fetch('/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'username': username,
+                            'email': email,
+                            'password': password,
+                            'confirm_password': confirm,
+                            'terms': terms ? 'on' : ''
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert('signup', 'success', 'Account created successfully! Redirecting to login...');
+                        setTimeout(() => {
+                            window.location.href = '/signin?registered=true';
+                        }, 2000);
+                    } else {
+                        showAlert('signup', 'error', data.message || 'Registration failed. Please try again.');
+                        btn.disabled = false;
+                        btn.innerHTML = 'Sign Up';
+                    }
+                } catch (error) {
+                    console.error('Signup error:', error);
+                    showAlert('signup', 'error', 'An error occurred. Please try again.');
                     btn.disabled = false;
                     btn.innerHTML = 'Sign Up';
                 }
-            } catch (error) {
-                console.error('Signup error:', error);
-                showAlert('signup', 'error', 'An error occurred. Please try again.');
-                btn.disabled = false;
-                btn.innerHTML = 'Sign Up';
-            }
-        });
+            });
+        }
 
         // Handle login form submission with specific error messages
-        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const remember = document.getElementById('remember').checked;
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const remember = document.getElementById('remember').checked;
 
-            if (!email || !password) {
-                showAlert('login', 'error', 'Please fill in all fields!');
-                return;
-            }
+                if (!email || !password) {
+                    showAlert('login', 'error', 'Please fill in all fields!');
+                    return;
+                }
 
-            // Validate email format
-            if (!isValidEmail(email)) {
-                showAlert('login', 'error', 'Please enter a valid email address!');
-                document.getElementById('login-email').classList.add('error');
-                setTimeout(() => {
-                    document.getElementById('login-email').classList.remove('error');
-                }, 500);
-                return;
-            }
-
-            const btn = document.getElementById('loginBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Logging in...';
-
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        'email': email,
-                        'password': password,
-                        'remember': remember ? 'on' : ''
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert('login', 'success', 'Login successful! Redirecting...');
+                // Validate email format
+                if (!isValidEmail(email)) {
+                    showAlert('login', 'error', 'Please enter a valid email address!');
+                    document.getElementById('login-email').classList.add('error');
                     setTimeout(() => {
-                        window.location.href = data.redirect || '/';
-                    }, 1500);
-                } else {
-                    // Specific error messages based on error type
-                    if (data.error_type === 'email_not_found') {
-                        showAlert('login', 'error', 'Email does not exist. Please check your email or sign up.');
-                        document.getElementById('login-email').classList.add('error');
-                        setTimeout(() => {
-                            document.getElementById('login-email').classList.remove('error');
-                        }, 500);
-                    }
-                    else if (data.error_type === 'wrong_password') {
-                        showAlert('login', 'error', 'Wrong password. Please try again.');
-                        document.getElementById('login-password').classList.add('error');
-                        setTimeout(() => {
-                            document.getElementById('login-password').classList.remove('error');
-                        }, 500);
-                    }
-                    else {
-                        showAlert('login', 'error', data.message || 'Invalid credentials. Please try again.');
-                    }
+                        document.getElementById('login-email').classList.remove('error');
+                    }, 500);
+                    return;
+                }
 
+                const btn = document.getElementById('loginBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'email': email,
+                            'password': password,
+                            'remember': remember ? 'on' : ''
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showAlert('login', 'success', 'Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/';
+                        }, 1500);
+                    } else {
+                        // Specific error messages based on error type
+                        if (data.error_type === 'email_not_found') {
+                            showAlert('login', 'error', '❌ Email does not exist. Please check your email or sign up.');
+                            document.getElementById('login-email').classList.add('error');
+                            setTimeout(() => {
+                                document.getElementById('login-email').classList.remove('error');
+                            }, 500);
+                        }
+                        else if (data.error_type === 'wrong_password') {
+                            showAlert('login', 'error', '🔒 Wrong password. Please try again.');
+                            document.getElementById('login-password').classList.add('error');
+                            setTimeout(() => {
+                                document.getElementById('login-password').classList.remove('error');
+                            }, 500);
+                        }
+                        else {
+                            showAlert('login', 'error', data.message || 'Invalid credentials. Please try again.');
+                        }
+
+                        btn.disabled = false;
+                        btn.innerHTML = 'Login';
+
+                        // Shake the form
+                        document.getElementById('loginForm').classList.add('error');
+                        setTimeout(() => {
+                            document.getElementById('loginForm').classList.remove('error');
+                        }, 500);
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showAlert('login', 'error', 'An error occurred. Please try again.');
                     btn.disabled = false;
                     btn.innerHTML = 'Login';
-
-                    // Shake the form
-                    document.getElementById('loginForm').classList.add('error');
-                    setTimeout(() => {
-                        document.getElementById('loginForm').classList.remove('error');
-                    }, 500);
                 }
-            } catch (error) {
-                console.error('Login error:', error);
-                showAlert('login', 'error', 'An error occurred. Please try again.');
-                btn.disabled = false;
-                btn.innerHTML = 'Login';
-            }
-        });
+            });
+        }
 
         // Show alert message
         function showAlert(panel, type, message) {
@@ -1094,17 +1149,25 @@
                 document.querySelector('.login-panel') :
                 document.querySelector('.signup-panel');
 
-            const existingAlerts = panelElement.querySelectorAll('.alert');
-            existingAlerts.forEach(alert => alert.remove());
+            if (panelElement) {
+                const existingAlerts = panelElement.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
 
-            const form = panelElement.querySelector('.auth-form');
-            panelElement.insertBefore(alertDiv, form);
+                const form = panelElement.querySelector('.auth-form');
+                if (form) {
+                    panelElement.insertBefore(alertDiv, form);
+                } else {
+                    panelElement.insertBefore(alertDiv, panelElement.firstChild);
+                }
 
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                alertDiv.style.opacity = '0';
-                setTimeout(() => alertDiv.remove(), 500);
-            }, 5000);
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    alertDiv.style.opacity = '0';
+                    setTimeout(() => {
+                        if (alertDiv.parentElement) alertDiv.remove();
+                    }, 500);
+                }, 5000);
+            }
         }
 
         // Social login
@@ -1116,7 +1179,9 @@
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(alert => {
                 alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500);
+                setTimeout(() => {
+                    if (alert.parentElement) alert.remove();
+                }, 500);
             });
         }, 5000);
     </script>
