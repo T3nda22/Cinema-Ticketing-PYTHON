@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Cinemax - {{ movie.title }}</title>
     <style>
         * {
@@ -45,13 +45,19 @@
         .logo {
             height: 50px;
             width: auto;
+            max-width: 150px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .logo img {
             height: 100%;
             width: auto;
+            max-width: 100%;
             display: block;
+            object-fit: contain;
         }
 
         .top-text {
@@ -68,6 +74,7 @@
             cursor: pointer;
             transition: color 0.3s ease;
             position: relative;
+            white-space: nowrap;
         }
 
         .top-text span:hover {
@@ -146,6 +153,7 @@
             align-items: center;
             gap: 8px;
             transition: color 0.3s ease;
+            padding: 8px 0;
         }
 
         .back-nav a:hover {
@@ -187,6 +195,7 @@
             background: linear-gradient(135deg, #fff, #e50914);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            line-height: 1.2;
         }
 
         .movie-meta {
@@ -274,6 +283,9 @@
             gap: 20px;
             margin-bottom: 40px;
             flex-wrap: wrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px;
         }
 
         .date-card {
@@ -284,6 +296,7 @@
             transition: all 0.3s ease;
             border: 2px solid transparent;
             min-width: 100px;
+            flex-shrink: 0;
         }
 
         .date-card.available {
@@ -430,10 +443,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            touch-action: manipulation;
         }
 
         .ticket-btn:hover:not(:disabled) {
             background: #e50914;
+            transform: scale(1.05);
         }
 
         .ticket-btn:disabled {
@@ -473,12 +488,17 @@
             width: 100%;
             text-transform: uppercase;
             letter-spacing: 2px;
+            touch-action: manipulation;
         }
 
         .continue-btn:hover:not(:disabled) {
             background: #ff0f1a;
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6);
+        }
+
+        .continue-btn:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         .continue-btn:disabled {
@@ -509,43 +529,270 @@
             border-top: 1px solid #222;
         }
 
-        /* Responsive */
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 20;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1100px) {
+            .content {
+                padding: 30px 40px;
+            }
+        }
+
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
             }
+
             .movie-details-container {
                 flex-direction: column;
             }
+
             .movie-poster {
                 flex: 0 0 auto;
                 max-width: 250px;
                 margin: 0 auto;
             }
+
             .movie-title {
                 font-size: 32px;
+                text-align: center;
             }
+
+            .movie-meta {
+                justify-content: center;
+            }
+
+            .director-info {
+                text-align: center;
+            }
+
+            .description {
+                text-align: center;
+                font-size: 16px;
+            }
+
+            .revenue {
+                display: block;
+                text-align: center;
+            }
+
             .ticket-selector {
                 flex-direction: column;
                 text-align: center;
             }
+
             .ticket-price {
                 margin-left: 0;
             }
+
             .top-bar {
-                padding: 15px 20px;
+                padding: 12px 20px;
             }
+
+            .logo {
+                height: 35px;
+                max-width: 100px;
+            }
+
             .top-text {
-                gap: 15px;
+                gap: 20px;
                 font-size: 12px;
             }
+
+            .top-text span {
+                white-space: nowrap;
+            }
+
             .date-card {
                 padding: 10px 20px;
                 min-width: 80px;
             }
+
             .date-number {
                 font-size: 18px;
             }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .showtimes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 15px;
+            }
+
+            .showtime {
+                font-size: 24px;
+            }
+
+            .continue-btn {
+                padding: 15px 40px;
+                font-size: 22px;
+            }
+
+            .header img {
+                height: 200px;
+            }
+
+            .footer img {
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 15px;
+            }
+
+            .logo {
+                height: 28px;
+                max-width: 80px;
+            }
+
+            .top-bar {
+                padding: 10px 15px;
+            }
+
+            .top-text {
+                gap: 12px;
+                font-size: 10px;
+            }
+
+            .movie-title {
+                font-size: 24px;
+            }
+
+            .meta-item {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+
+            .director-name {
+                font-size: 20px;
+            }
+
+            .director-sub {
+                font-size: 14px;
+            }
+
+            .description {
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .showtimes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .showtime-card {
+                padding: 15px;
+            }
+
+            .showtime {
+                font-size: 22px;
+            }
+
+            .ticket-label {
+                font-size: 20px;
+            }
+
+            .ticket-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 24px;
+            }
+
+            .ticket-count {
+                font-size: 28px;
+            }
+
+            .ticket-price {
+                font-size: 20px;
+            }
+
+            .ticket-price span {
+                font-size: 28px;
+            }
+
+            .continue-btn {
+                padding: 12px 30px;
+                font-size: 18px;
+            }
+
+            .header img {
+                height: 150px;
+            }
+
+            .footer img {
+                height: 100px;
+            }
+
+            .date-card {
+                padding: 8px 15px;
+                min-width: 70px;
+            }
+
+            .date-number {
+                font-size: 16px;
+            }
+
+            .date-day {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo {
+                height: 24px;
+                max-width: 70px;
+            }
+
+            .top-text {
+                gap: 8px;
+                font-size: 9px;
+            }
+
+            .movie-title {
+                font-size: 20px;
+            }
+
+            .back-nav a {
+                font-size: 14px;
+            }
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Prevent text selection on tap */
+        .top-text span,
+        .movie-card,
+        .coming-card,
+        .view-all,
+        .showtime-card,
+        .date-card.available {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Touch-friendly improvements */
+        button,
+        .date-card.available,
+        .showtime-card {
+            touch-action: manipulation;
         }
     </style>
 </head>
@@ -574,6 +821,7 @@
                     <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
                 {% endif %}
             </div>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
         </div>
         <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
     </div>
@@ -666,6 +914,47 @@
         let allShowtimes = [];
         const movieId = {{ movie.id }};
 
+        // Mobile menu toggle
+        function initMobileMenu() {
+            const topText = document.querySelector('.top-text');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && topText && mobileMenuBtn) {
+                mobileMenuBtn.style.display = 'block';
+                topText.style.display = 'none';
+
+                mobileMenuBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    if (topText.style.display === 'none' || topText.style.display === '') {
+                        topText.style.display = 'flex';
+                        topText.style.flexDirection = 'column';
+                        topText.style.position = 'absolute';
+                        topText.style.top = '60px';
+                        topText.style.right = '15px';
+                        topText.style.background = 'rgba(0,0,0,0.95)';
+                        topText.style.padding = '15px 20px';
+                        topText.style.borderRadius = '12px';
+                        topText.style.gap = '12px';
+                        topText.style.minWidth = '140px';
+                        topText.style.backdropFilter = 'blur(10px)';
+                        topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                        topText.style.zIndex = '20';
+                    } else {
+                        topText.style.display = 'none';
+                    }
+                };
+
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    const topBar = document.querySelector('.top-bar');
+                    if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                        topText.style.display = 'none';
+                    }
+                });
+            }
+        }
+
         // Generate next 7 days
         function generateDates() {
             const dates = [];
@@ -735,7 +1024,7 @@
         // Select date
         async function selectDate(dateStr) {
             if (!allShowtimes.some(st => st.show_date === dateStr)) {
-                return; // Don't allow selecting dates without showtimes
+                return;
             }
 
             selectedDate = dateStr;
@@ -748,7 +1037,6 @@
             const showtimesGrid = document.getElementById('showtimesGrid');
             showtimesGrid.innerHTML = '<div class="loading-spinner">Loading showtimes...</div>';
 
-            // Hide ticket selector when loading new date
             document.getElementById('ticketSelector').style.display = 'none';
             document.getElementById('continueBtn').disabled = true;
             selectedShowtime = null;
@@ -801,35 +1089,28 @@
                 </div>
             `).join('');
 
-            // Add click event listeners to showtime cards
             document.querySelectorAll('.showtime-card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    const showtimeId = this.dataset.showtimeId;
+                card.addEventListener('click', function() {
                     const showtime = this.dataset.showtimeTime;
                     const price = parseFloat(this.dataset.showtimePrice);
-                    selectShowtime(showtimeId, showtime, price, this);
+                    selectShowtime(showtime, price, this);
                 });
             });
         }
 
         // Select showtime
-        function selectShowtime(showtimeId, showtime, price, element) {
-            // Remove selected class from all cards
+        function selectShowtime(showtime, price, element) {
             document.querySelectorAll('.showtime-card').forEach(card => {
                 card.classList.remove('selected');
             });
 
-            // Add selected class to clicked card
             element.classList.add('selected');
-
             selectedShowtime = showtime;
             selectedPrice = price;
 
-            // Show ticket selector
             document.getElementById('ticketSelector').style.display = 'flex';
             updateContinueButton();
 
-            // Reset ticket count
             ticketCount = 1;
             document.getElementById('ticketCount').textContent = ticketCount;
             document.getElementById('decreaseBtn').disabled = true;
@@ -844,8 +1125,6 @@
                 ticketCount = newCount;
                 document.getElementById('ticketCount').textContent = ticketCount;
                 updateTotalPrice();
-
-                // Enable/disable buttons
                 document.getElementById('decreaseBtn').disabled = ticketCount <= 1;
                 document.getElementById('increaseBtn').disabled = ticketCount >= 10;
             }
@@ -878,11 +1157,10 @@
                 return;
             }
 
-            // Redirect to seat selection page with parameters
             window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}&price=${selectedPrice}`;
         }
 
-        // Initialize page - load all showtimes first to populate dates
+        // Initialize page
         async function init() {
             try {
                 const response = await fetch(`/api/showtimes?movie_id=${movieId}`);
@@ -892,7 +1170,6 @@
                     allShowtimes = data.showtimes;
                     renderDateSelector();
 
-                    // Auto-select first available date
                     const datesWithShowtimes = [...new Set(allShowtimes.map(st => st.show_date))];
                     if (datesWithShowtimes.length > 0) {
                         await selectDate(datesWithShowtimes[0]);
@@ -917,7 +1194,7 @@
 
         // Add smooth navigation for top text
         document.querySelectorAll('.top-text span').forEach(span => {
-            span.addEventListener('click', function(e) {
+            span.addEventListener('click', function() {
                 if (!this.classList.contains('admin-link')) {
                     document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
                     this.classList.add('active');
@@ -925,7 +1202,8 @@
             });
         });
 
-        // Initialize
+        // Initialize mobile menu and page
+        initMobileMenu();
         init();
     </script>
 </body>

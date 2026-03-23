@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Cinemax - Movie Theatre</title>
     <style>
         * {
@@ -46,13 +46,19 @@
         .logo {
             height: 50px;
             width: auto;
+            max-width: 150px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .logo img {
             height: 100%;
             width: auto;
+            max-width: 100%;
             display: block;
+            object-fit: contain;
         }
 
         .top-text {
@@ -69,6 +75,7 @@
             cursor: pointer;
             transition: color 0.3s ease;
             position: relative;
+            white-space: nowrap;
         }
 
         .top-text span:hover {
@@ -398,6 +405,180 @@
             font-size: 14px;
         }
 
+        /* Additional mobile improvements */
+        @media (max-width: 768px) {
+            /* Make buttons and clickable elements larger */
+            .top-text span,
+            .view-all,
+            .movie-card,
+            .coming-card,
+            .logo {
+                cursor: pointer;
+                -webkit-tap-highlight-color: rgba(229, 9, 20, 0.2);
+            }
+
+            /* Improve touch targets */
+            .top-text span {
+                padding: 8px 0;
+                display: inline-block;
+            }
+
+            /* Adjust padding for better mobile layout */
+            .movie-info {
+                padding: 15px;
+            }
+
+            .movie-info h3 {
+                font-size: 16px;
+            }
+
+            /* Improve hero text on small screens */
+            .hero-overlay {
+                top: 60%;
+            }
+
+            .hero-overlay h1 {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            .hero-overlay p {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            /* Better spacing for the additional text */
+            .content > div:last-child {
+                gap: 30px !important;
+                font-size: 12px !important;
+                margin: 40px 0 !important;
+            }
+
+            /* Make empty state more compact */
+            .empty-state {
+                padding: 30px;
+            }
+
+            .empty-state p {
+                font-size: 14px;
+            }
+
+            /* Fix logo size for tablets - make it smaller */
+            .logo {
+                height: 35px;
+                max-width: 100px;
+            }
+
+            /* Make text items smaller to fit */
+            .top-text {
+                gap: 20px;
+                font-size: 12px;
+            }
+
+            .top-text span {
+                white-space: nowrap;
+            }
+        }
+
+        /* For very small phones (under 480px) */
+        @media (max-width: 480px) {
+            .movies-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .top-bar {
+                padding: 10px 15px;
+            }
+
+            /* Fix logo size for small phones - much smaller */
+            .logo {
+                height: 28px;
+                max-width: 80px;
+            }
+
+            .top-text {
+                gap: 12px;
+                font-size: 10px;
+            }
+
+            .top-text span {
+                padding: 5px 0;
+                white-space: nowrap;
+            }
+
+            .section-title h2 {
+                font-size: 24px;
+            }
+
+            .view-all {
+                font-size: 12px;
+            }
+
+            .coming-card {
+                padding: 25px 20px;
+            }
+
+            .coming-card .movie-title {
+                font-size: 24px;
+            }
+
+            .hero-overlay h1 {
+                font-size: 18px;
+            }
+
+            .hero-overlay p {
+                font-size: 10px;
+                padding: 6px 12px;
+            }
+
+            /* Hide some text elements if they don't fit */
+            .horror-fest {
+                font-size: 12px;
+                margin-left: 10px;
+            }
+        }
+
+        /* For extra small phones (under 360px) */
+        @media (max-width: 360px) {
+            .logo {
+                height: 24px;
+                max-width: 70px;
+            }
+
+            .top-bar {
+                padding: 8px 12px;
+            }
+
+            .top-text {
+                gap: 8px;
+                font-size: 9px;
+            }
+
+            .hero-overlay h1 {
+                font-size: 14px;
+            }
+
+            .hero-overlay p {
+                font-size: 8px;
+                padding: 4px 8px;
+            }
+        }
+
+        /* Add smooth scrolling for mobile */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Prevent text selection on tap for better UX */
+        .top-text span,
+        .movie-card,
+        .coming-card,
+        .view-all {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
         /* Loading Spinner */
         .loading-spinner {
             text-align: center;
@@ -443,10 +624,10 @@
                 font-size: 12px;
             }
             .hero-overlay h1 {
-                font-size: 32px;
+                font-size: 28px;
             }
             .hero-overlay p {
-                font-size: 14px;
+                font-size: 12px;
             }
         }
 
@@ -664,6 +845,66 @@
                 imageObserver.observe(img);
             }
         });
+
+        // Mobile menu toggle for very small screens
+        function initMobileMenu() {
+            const topText = document.querySelector('.top-text');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && topText) {
+                // Check if we already added the mobile menu
+                if (!document.querySelector('.mobile-menu-btn')) {
+                    const topBar = document.querySelector('.top-bar');
+                    const menuBtn = document.createElement('div');
+                    menuBtn.className = 'mobile-menu-btn';
+                    menuBtn.innerHTML = '☰';
+                    menuBtn.style.cssText = `
+                        display: none;
+                        font-size: 28px;
+                        color: white;
+                        cursor: pointer;
+                        z-index: 20;
+                        font-weight: bold;
+                    `;
+
+                    if (window.innerWidth <= 768) {
+                        menuBtn.style.display = 'block';
+                        topText.style.display = 'none';
+                        menuBtn.onclick = function() {
+                            if (topText.style.display === 'none' || topText.style.display === '') {
+                                topText.style.display = 'flex';
+                                topText.style.flexDirection = 'column';
+                                topText.style.position = 'absolute';
+                                topText.style.top = '60px';
+                                topText.style.right = '15px';
+                                topText.style.background = 'rgba(0,0,0,0.95)';
+                                topText.style.padding = '15px 20px';
+                                topText.style.borderRadius = '12px';
+                                topText.style.gap = '12px';
+                                topText.style.minWidth = '140px';
+                                topText.style.backdropFilter = 'blur(10px)';
+                                topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                            } else {
+                                topText.style.display = 'none';
+                            }
+                        };
+
+                        topBar.appendChild(menuBtn);
+
+                        // Close menu when clicking outside
+                        document.addEventListener('click', function(e) {
+                            if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                                topText.style.display = 'none';
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        // Run on load and resize
+        initMobileMenu();
+        window.addEventListener('resize', initMobileMenu);
     </script>
 </body>
 </html>
