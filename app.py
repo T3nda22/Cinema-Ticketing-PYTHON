@@ -11,6 +11,10 @@ import base64
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from dotenv import load_dotenv  # ADD THIS
+
+# Load environment variables from .env file
+load_dotenv()  # ADD THIS
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-this-in-production'
@@ -23,9 +27,48 @@ DB_PATH = os.path.join(BASE_DIR, 'db', 'cinemax.db')
 # Ensure the db directory exists
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
-# PayMongo Configuration - USING YOUR ACTUAL KEYS
-PAYMONGO_SECRET_KEY = "sk_test_LiiWAcE6qzxw1c6aone4ebVb"
-PAYMONGO_PUBLIC_KEY = "pk_test_q8oEnqhZ3VfTBb5MF9DZeZLR"
+# PayMongo Configuration - NOW FROM ENVIRONMENT VARIABLES
+PAYMONGO_SECRET_KEY = os.getenv('PAYMONGO_SECRET_KEY', '')
+PAYMONGO_PUBLIC_KEY = os.getenv('PAYMONGO_PUBLIC_KEY', '')
+
+# Optional: Add validation to ensure keys are loaded
+if not PAYMONGO_SECRET_KEY or not PAYMONGO_PUBLIC_KEY:
+    print("⚠️ WARNING: PayMongo API keys not found in .env file!")
+    print("Please create a .env file with PAYMONGO_SECRET_KEY and PAYMONGO_PUBLIC_KEY")
+
+# Cinema Types Configuration
+CINEMA_TYPES = {
+    'regular': {
+        'name': 'regular',
+        'display_name': 'Regular Cinema',
+        'icon': '🎬',
+        'base_price': 350,
+        'seat_layout': {'rows': 10, 'cols': 12, 'total_seats': 120},
+        'features': ['Standard Seating', '7.1 Surround Sound', 'Regular Screen'],
+        'color': 'primary',
+        'badge': 'Standard'
+    },
+    'directors_club': {
+        'name': 'directors_club',
+        'display_name': "Director's Club",
+        'icon': '✨',
+        'base_price': 700,
+        'seat_layout': {'rows': 6, 'cols': 8, 'total_seats': 48},
+        'features': ['Luxury Recliners', 'Dolby Atmos', 'Wait Service', 'Exclusive Lounge Access'],
+        'color': 'warning',
+        'badge': 'Premium'
+    },
+    'imax': {
+        'name': 'imax',
+        'display_name': 'IMAX',
+        'icon': '🎥',
+        'base_price': 875,
+        'seat_layout': {'rows': 12, 'cols': 15, 'total_seats': 180},
+        'features': ['Giant Screen', 'IMAX Laser Projection', '12-Channel Sound', 'Enhanced Experience'],
+        'color': 'danger',
+        'badge': 'IMAX'
+    }
+}
 
 # Predefined Admin and Employee Accounts
 PREDEFINED_ACCOUNTS = {
@@ -72,6 +115,40 @@ def get_db_connection():
         return None
 
 
+def migrate_add_cinema_type():
+    """Add cinema_type columns to showtimes table"""
+    conn = get_db_connection()
+    if conn:
+        cursor = conn.cursor()
+        try:
+            # Check if columns exist and add them
+            cursor.execute("PRAGMA table_info(showtimes)")
+            columns = [col[1] for col in cursor.fetchall()]
+
+            if 'cinema_type' not in columns:
+                cursor.execute("ALTER TABLE showtimes ADD COLUMN cinema_type VARCHAR(50) DEFAULT 'regular'")
+                print("Added cinema_type column to showtimes table")
+
+            if 'base_price' not in columns:
+                cursor.execute("ALTER TABLE showtimes ADD COLUMN base_price DECIMAL(8,2) DEFAULT 350.00")
+                print("Added base_price column to showtimes table")
+
+            # Check bookings table for cinema_type
+            cursor.execute("PRAGMA table_info(bookings)")
+            booking_columns = [col[1] for col in cursor.fetchall()]
+
+            if 'cinema_type' not in booking_columns:
+                cursor.execute("ALTER TABLE bookings ADD COLUMN cinema_type VARCHAR(50) DEFAULT 'regular'")
+                print("Added cinema_type column to bookings table")
+
+            conn.commit()
+        except Exception as e:
+            print(f"Migration error: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
+
 def init_db():
     """Initialize database tables"""
     conn = get_db_connection()
@@ -115,19 +192,21 @@ def init_db():
             )
         """)
 
-        # Showtimes table
+        # Showtimes table with cinema_type
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS showtimes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 movie_id INTEGER NOT NULL,
                 show_time VARCHAR(20) NOT NULL,
                 show_date DATE NOT NULL,
+                cinema_type VARCHAR(50) DEFAULT 'regular',
+                base_price DECIMAL(8,2) DEFAULT 350.00,
                 price DECIMAL(8,2) DEFAULT 350.00,
                 FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
             )
         """)
 
-        # Bookings table
+        # Bookings table with cinema_type
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS bookings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,6 +214,7 @@ def init_db():
                 user_id INTEGER,
                 movie_id INTEGER NOT NULL,
                 movie_title VARCHAR(255) NOT NULL,
+                cinema_type VARCHAR(50) DEFAULT 'regular',
                 showtime VARCHAR(20) NOT NULL,
                 show_date DATE NOT NULL,
                 seats VARCHAR(255) NOT NULL,
@@ -185,34 +265,8 @@ def init_db():
         conn.commit()
         print(f"Database initialized at: {DB_PATH}")
 
-        # Insert sample movies if empty
-        cursor.execute("SELECT COUNT(*) as count FROM movies")
-        movie_count = cursor.fetchone()['count']
-
-        if movie_count == 0:
-            print("Adding sample movies...")
-            sample_movies = [
-                ('The Last Voyage', 8.5, '2h 15min', '', 'Christopher Nolan', 'Visionary Director', '$450M',
-                 'A thrilling adventure across the ocean. Experience the journey of a lifetime.', 1),
-                ('Midnight Express', 7.8, '1h 45min', '', 'David Fincher', 'Master of Suspense', '$120M',
-                 'A gripping thriller set in the night. Every shadow hides a secret.', 1),
-                ('Summer Memories', 9.2, '2h 00min', '', 'Greta Gerwig', 'Award-winning Director', '$80M',
-                 'A heartwarming story of friendship and love that will touch your soul.', 1),
-                ('Cyber Punk 2077', 8.0, '2h 30min', '', 'Denis Villeneuve', 'Sci-fi Visionary', '$350M',
-                 'The future is now in this cyberpunk adventure. Enter a world of technology and chaos.', 0),
-                ('The Last Kingdom', 8.9, '2h 10min', '', 'Ridley Scott', 'Epic Storyteller', '$280M',
-                 'Epic battles and royal intrigue await in this historical masterpiece.', 1),
-                ('GOAT', 9.5, '2h 45min', '', 'Venkat Prabhu', 'Blockbuster Director', '$500M',
-                 'The greatest of all time - an unforgettable cinematic experience.', 1),
-            ]
-
-            for movie in sample_movies:
-                cursor.execute("""
-                    INSERT INTO movies (title, rating, duration, poster, director, director_sub, revenue, description, is_now_showing)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, movie)
-            conn.commit()
-            print("Sample movies added!")
+        # Run migration for existing databases
+        migrate_add_cinema_type()
 
     except Exception as e:
         print(f"Error creating tables: {e}")
@@ -230,7 +284,7 @@ except Exception as e:
 
 
 # ============================================================
-# PAYMONGO PAYMENT FUNCTIONS (REWRITTEN)
+# PAYMONGO PAYMENT FUNCTIONS
 # ============================================================
 
 def create_paymongo_checkout(booking_ref, amount, description, success_url, cancel_url):
@@ -360,6 +414,23 @@ def retrieve_checkout_session(checkout_id):
 # HELPER FUNCTIONS
 # ============================================================
 
+def get_cinema_config(cinema_type):
+    """Get cinema configuration by type"""
+    return CINEMA_TYPES.get(cinema_type, CINEMA_TYPES['regular'])
+
+
+def get_cinema_price(cinema_type):
+    """Get price for cinema type"""
+    config = get_cinema_config(cinema_type)
+    return config['base_price']
+
+
+def get_seat_layout(cinema_type):
+    """Get seat layout for cinema type"""
+    config = get_cinema_config(cinema_type)
+    return config['seat_layout']
+
+
 def get_movie_by_id(movie_id):
     """Fetch a single movie by ID"""
     try:
@@ -376,24 +447,29 @@ def get_movie_by_id(movie_id):
     return None
 
 
-def get_showtimes_for_movie(movie_id, show_date=None):
-    """Fetch showtimes for a specific movie"""
+def get_showtimes_for_movie(movie_id, show_date=None, cinema_type=None):
+    """Fetch showtimes for a specific movie with optional cinema type filter"""
     try:
         conn = get_db_connection()
         if conn:
             cursor = conn.cursor()
+            query = """
+                SELECT * FROM showtimes 
+                WHERE movie_id = ?
+            """
+            params = [movie_id]
+
             if show_date:
-                cursor.execute("""
-                    SELECT * FROM showtimes 
-                    WHERE movie_id = ? AND show_date = ?
-                    ORDER BY show_time
-                """, (movie_id, show_date))
-            else:
-                cursor.execute("""
-                    SELECT * FROM showtimes 
-                    WHERE movie_id = ? 
-                    ORDER BY show_time
-                """, (movie_id,))
+                query += " AND show_date = ?"
+                params.append(show_date)
+
+            if cinema_type:
+                query += " AND cinema_type = ?"
+                params.append(cinema_type)
+
+            query += " ORDER BY show_time"
+
+            cursor.execute(query, params)
             showtimes = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -419,17 +495,17 @@ def get_all_movies():
     return []
 
 
-def get_booked_seats(movie_id, showtime, show_date):
-    """Fetch booked seats for a specific show"""
+def get_booked_seats(movie_id, showtime, show_date, cinema_type):
+    """Fetch booked seats for a specific show and cinema type"""
     try:
         conn = get_db_connection()
         if conn:
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT seats FROM bookings 
-                WHERE movie_id = ? AND showtime = ? AND show_date = ?
+                WHERE movie_id = ? AND showtime = ? AND show_date = ? AND cinema_type = ?
                 AND payment_status IN ('paid', 'confirmed')
-            """, (movie_id, showtime, show_date))
+            """, (movie_id, showtime, show_date, cinema_type))
             bookings = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -474,14 +550,15 @@ def save_booking_to_db(booking_data):
             if user_id:
                 cursor.execute("""
                     INSERT INTO bookings (
-                        booking_reference, user_id, movie_id, movie_title, showtime, show_date, 
+                        booking_reference, user_id, movie_id, movie_title, cinema_type, showtime, show_date, 
                         seats, number_of_tickets, total_amount, payment_status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     booking_data['booking_reference'],
                     user_id,
                     booking_data['movie_id'],
                     booking_data['movie_title'],
+                    booking_data['cinema_type'],
                     booking_data['showtime'],
                     booking_data['show_date'],
                     booking_data['seats'],
@@ -492,13 +569,14 @@ def save_booking_to_db(booking_data):
             else:
                 cursor.execute("""
                     INSERT INTO bookings (
-                        booking_reference, movie_id, movie_title, showtime, show_date, 
+                        booking_reference, movie_id, movie_title, cinema_type, showtime, show_date, 
                         seats, number_of_tickets, total_amount, payment_status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     booking_data['booking_reference'],
                     booking_data['movie_id'],
                     booking_data['movie_title'],
+                    booking_data['cinema_type'],
                     booking_data['showtime'],
                     booking_data['show_date'],
                     booking_data['seats'],
@@ -642,27 +720,65 @@ def movie_details(movie_id):
     return render_template('movie_details.html', movie=movie)
 
 
+@app.route('/movie/<int:movie_id>/cinema-selection')
+def cinema_selection(movie_id):
+    """Select cinema type page"""
+    movie = get_movie_by_id(movie_id)
+    show_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+
+    if movie is None:
+        return "Movie not found", 404
+
+    # Get available cinema types for this movie on this date
+    available_cinemas = []
+    for cinema_key, cinema_config in CINEMA_TYPES.items():
+        showtimes = get_showtimes_for_movie(movie_id, show_date, cinema_key)
+        if showtimes:
+            available_cinemas.append({
+                'type': cinema_key,
+                'config': cinema_config,
+                'showtimes': showtimes
+            })
+
+    return render_template('cinema_selection.html',
+                           movie=movie,
+                           cinema_types=CINEMA_TYPES,
+                           available_cinemas=available_cinemas,
+                           show_date=show_date)
+
+
 @app.route('/movie/<int:movie_id>/seats')
 def seat_selection(movie_id):
+    cinema_type = request.args.get('cinema_type', 'regular')
     showtime = request.args.get('showtime', '7:00 PM')
     tickets = request.args.get('tickets', '2')
-    show_date = request.args.get('date', 'Today')
-    price = request.args.get('price', '350')
+    show_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
 
     movie = get_movie_by_id(movie_id)
 
     if movie is None:
         return "Movie not found", 404
 
-    booked_seats = get_booked_seats(movie_id, showtime, show_date)
+    # Get cinema configuration
+    cinema_config = get_cinema_config(cinema_type)
+    price = cinema_config['base_price']
+
+    # Get booked seats for this cinema type
+    booked_seats = get_booked_seats(movie_id, showtime, show_date, cinema_type)
+
+    # Get seat layout for this cinema type
+    seat_layout = get_seat_layout(cinema_type)
 
     return render_template('seat_selection.html',
                            movie=movie,
+                           cinema_type=cinema_type,
+                           cinema_config=cinema_config,
                            showtime=showtime,
                            tickets=int(tickets),
                            show_date=show_date,
-                           price=float(price),
-                           booked_seats=booked_seats)
+                           price=price,
+                           booked_seats=booked_seats,
+                           seat_layout=seat_layout)
 
 
 @app.route('/confirm-booking', methods=['POST'])
@@ -670,16 +786,18 @@ def confirm_booking():
     try:
         movie_id = request.form.get('movie_id')
         movie_title = request.form.get('movie_title')
+        cinema_type = request.form.get('cinema_type')
         showtime = request.form.get('showtime')
         show_date = request.form.get('show_date')
         seats = request.form.get('seats')
         tickets = request.form.get('tickets')
         total = request.form.get('total')
 
-        if not all([movie_id, movie_title, showtime, show_date, seats, tickets, total]):
+        if not all([movie_id, movie_title, cinema_type, showtime, show_date, seats, tickets, total]):
             missing = []
             if not movie_id: missing.append('movie_id')
             if not movie_title: missing.append('movie_title')
+            if not cinema_type: missing.append('cinema_type')
             if not showtime: missing.append('showtime')
             if not show_date: missing.append('show_date')
             if not seats: missing.append('seats')
@@ -694,10 +812,16 @@ def confirm_booking():
         total = float(total)
         booking_ref = generate_booking_reference()
 
+        cinema_config = get_cinema_config(cinema_type)
+
+        # Calculate price per ticket
+        price_per_ticket = total / tickets if tickets > 0 else cinema_config['base_price']
+
         booking_data = {
             'booking_reference': booking_ref,
             'movie_id': movie_id,
             'movie_title': movie_title,
+            'cinema_type': cinema_type,
             'showtime': showtime,
             'show_date': show_date,
             'seats': seats,
@@ -713,11 +837,14 @@ def confirm_booking():
                 booking_ref=booking_ref,
                 movie_id=movie_id,
                 movie_title=movie_title,
+                cinema_type=cinema_type,
+                cinema_display_name=cinema_config['display_name'],
                 showtime=showtime,
                 show_date=show_date,
                 seats=seats,
                 tickets=tickets,
                 total=total,
+                price_per_ticket=price_per_ticket,
                 paymongo_public_key=PAYMONGO_PUBLIC_KEY
             )
         else:
@@ -1252,13 +1379,14 @@ def logout():
 def admin_dashboard():
     return render_template('admin_dashboard.html',
                            user=session,
-                           predefined_accounts=PREDEFINED_ACCOUNTS)
+                           predefined_accounts=PREDEFINED_ACCOUNTS,
+                           cinema_types=CINEMA_TYPES)
 
 
 @app.route('/manager/dashboard')
 @admin_required
 def manager_dashboard():
-    return render_template('manager_dashboard.html', user=session)
+    return render_template('manager_dashboard.html', user=session, cinema_types=CINEMA_TYPES)
 
 
 @app.route('/employee/dashboard')
@@ -1290,6 +1418,16 @@ def admin_stats():
         cursor.execute("SELECT COUNT(*) as count FROM bookings")
         total_bookings = cursor.fetchone()['count']
 
+        # Sales by cinema type
+        cursor.execute("""
+            SELECT cinema_type, COALESCE(SUM(total_amount), 0) as total 
+            FROM bookings 
+            WHERE payment_status = 'paid'
+            GROUP BY cinema_type
+        """)
+        sales_by_cinema = cursor.fetchall()
+        sales_by_cinema = [dict(row) for row in sales_by_cinema]
+
         cursor.close()
         conn.close()
 
@@ -1298,7 +1436,8 @@ def admin_stats():
             'total_sales': float(total_sales),
             'total_movies': total_movies,
             'total_tickets': total_tickets,
-            'total_bookings': total_bookings
+            'total_bookings': total_bookings,
+            'sales_by_cinema': sales_by_cinema
         })
 
     except Exception as e:
@@ -1632,7 +1771,11 @@ def admin_add_showtimes():
         movie_id = data.get('movie_id')
         show_date = data.get('show_date')
         show_times = data.get('show_times', [])
-        price = data.get('price', 350)
+        cinema_type = data.get('cinema_type', 'regular')
+
+        # Get price based on cinema type
+        cinema_config = get_cinema_config(cinema_type)
+        price = cinema_config['base_price']
 
         if not movie_id:
             return jsonify({'success': False, 'message': 'Movie ID is required'}), 400
@@ -1652,14 +1795,14 @@ def admin_add_showtimes():
         for show_time in show_times:
             cursor.execute("""
                 SELECT id FROM showtimes 
-                WHERE movie_id = ? AND show_date = ? AND show_time = ?
-            """, (movie_id, show_date, show_time))
+                WHERE movie_id = ? AND show_date = ? AND show_time = ? AND cinema_type = ?
+            """, (movie_id, show_date, show_time, cinema_type))
 
             if not cursor.fetchone():
                 cursor.execute("""
-                    INSERT INTO showtimes (movie_id, show_time, show_date, price)
-                    VALUES (?, ?, ?, ?)
-                """, (movie_id, show_time, show_date, price))
+                    INSERT INTO showtimes (movie_id, show_time, show_date, cinema_type, base_price, price)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (movie_id, show_time, show_date, cinema_type, price, price))
                 added_count += 1
             else:
                 skipped_count += 1
@@ -1669,7 +1812,7 @@ def admin_add_showtimes():
         conn.close()
 
         if added_count > 0:
-            message = f'{added_count} showtimes added successfully'
+            message = f'{added_count} showtimes added successfully for {cinema_config["display_name"]}'
             if skipped_count > 0:
                 message += f' ({skipped_count} skipped - already exist)'
             return jsonify({
@@ -1729,6 +1872,7 @@ def api_showtimes():
     try:
         date_param = request.args.get('date')
         movie_id = request.args.get('movie_id')
+        cinema_type = request.args.get('cinema_type')
 
         conn = get_db_connection()
         if not conn:
@@ -1742,6 +1886,7 @@ def api_showtimes():
                 s.movie_id,
                 s.show_time,
                 s.show_date,
+                s.cinema_type,
                 s.price,
                 m.title as movie_title
             FROM showtimes s
@@ -1757,6 +1902,10 @@ def api_showtimes():
         if movie_id:
             query += " AND s.movie_id = ?"
             params.append(movie_id)
+
+        if cinema_type:
+            query += " AND s.cinema_type = ?"
+            params.append(cinema_type)
 
         query += " ORDER BY s.show_date ASC, s.show_time ASC"
 
@@ -1779,6 +1928,7 @@ def api_showtimes():
             'showtimes': showtimes,
             'date': date_param,
             'movie_id': movie_id,
+            'cinema_type': cinema_type,
             'count': len(showtimes)
         })
 
