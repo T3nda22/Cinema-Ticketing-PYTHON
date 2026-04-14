@@ -43,21 +43,23 @@
         }
 
         .logo {
-            height: 50px;
-            width: auto;
-            max-width: 150px;
+            height: 100px !important;
+            width: auto !important;
             cursor: pointer;
+            transition: transform 0.2s ease;
             display: flex;
             align-items: center;
-            flex-shrink: 0;
         }
 
         .logo img {
-            height: 100%;
-            width: auto;
-            max-width: 100%;
+            height: 100% !important;
+            width: auto !important;
             display: block;
-            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .logo:hover img {
+            transform: scale(1.02);
         }
 
         .top-text {
@@ -506,6 +508,154 @@
             cursor: not-allowed;
         }
 
+        /* LOGIN MODAL PANEL - Appears when user clicks continue while not logged in */
+        .login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInModal 0.25s ease;
+        }
+
+        .login-modal-container {
+            background: linear-gradient(145deg, #1f252e, #12161c);
+            border-radius: 36px;
+            max-width: 460px;
+            width: 90%;
+            padding: 44px 36px;
+            border: 1px solid rgba(229, 9, 20, 0.5);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            animation: slideUpModal 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .login-modal-container h2 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff, #e50914);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-modal-container p {
+            color: #aaa;
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+
+        .login-modal-input {
+            width: 100%;
+            padding: 14px 20px;
+            margin: 12px 0;
+            background: #2a303a;
+            border: 1px solid #3a414b;
+            border-radius: 60px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .login-modal-input:focus {
+            border-color: #e50914;
+            background: #1e232b;
+        }
+
+        .login-modal-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .login-modal-btn-primary {
+            flex: 1;
+            background: #e50914;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-modal-btn-primary:hover {
+            background: #ff2a35;
+            transform: scale(0.98);
+        }
+
+        .login-modal-btn-secondary {
+            flex: 1;
+            background: #2a3138;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 18px;
+            color: #ddd;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-modal-btn-secondary:hover {
+            background: #3a414a;
+        }
+
+        /* Sign Up Link Section */
+        .signup-link-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .signup-link-section p {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .signup-link-section a {
+            color: #e50914;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .signup-link-section a:hover {
+            color: #ff4d4d;
+            text-decoration: underline;
+        }
+
+        .demo-hint {
+            font-size: 12px;
+            color: #e50914;
+            background: rgba(229, 9, 20, 0.15);
+            padding: 8px;
+            border-radius: 30px;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUpModal {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         /* Footer */
         .footer {
             width: 100%;
@@ -540,110 +690,53 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 1100px) {
-            .content {
-                padding: 30px 40px;
-            }
-        }
-
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
             }
-
             .movie-details-container {
                 flex-direction: column;
             }
-
             .movie-poster {
                 flex: 0 0 auto;
                 max-width: 250px;
                 margin: 0 auto;
             }
-
             .movie-title {
                 font-size: 32px;
                 text-align: center;
             }
-
-            .movie-meta {
-                justify-content: center;
-            }
-
-            .director-info {
-                text-align: center;
-            }
-
-            .description {
-                text-align: center;
-                font-size: 16px;
-            }
-
-            .revenue {
-                display: block;
-                text-align: center;
-            }
-
-            .ticket-selector {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .ticket-price {
-                margin-left: 0;
-            }
-
             .top-bar {
                 padding: 12px 20px;
             }
-
             .logo {
-                height: 35px;
-                max-width: 100px;
+                height: 60px;
             }
-
             .top-text {
                 gap: 20px;
                 font-size: 12px;
             }
-
-            .top-text span {
-                white-space: nowrap;
-            }
-
             .date-card {
                 padding: 10px 20px;
                 min-width: 80px;
             }
-
-            .date-number {
-                font-size: 18px;
-            }
-
-            .section-title {
-                font-size: 28px;
-            }
-
-            .showtimes-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                gap: 15px;
-            }
-
-            .showtime {
-                font-size: 24px;
-            }
-
             .continue-btn {
-                padding: 15px 40px;
                 font-size: 22px;
+                padding: 15px;
             }
-
-            .header img {
-                height: 200px;
+            .ticket-selector {
+                flex-direction: column;
+                text-align: center;
             }
-
-            .footer img {
-                height: 150px;
+            .ticket-price {
+                margin-left: 0;
+            }
+            .login-modal-container {
+                padding: 30px 25px;
+                margin: 20px;
+            }
+            .login-modal-container h2 {
+                font-size: 26px;
             }
         }
 
@@ -651,148 +744,30 @@
             .content {
                 padding: 15px;
             }
-
-            .logo {
-                height: 28px;
-                max-width: 80px;
-            }
-
-            .top-bar {
-                padding: 10px 15px;
-            }
-
-            .top-text {
-                gap: 12px;
-                font-size: 10px;
-            }
-
             .movie-title {
                 font-size: 24px;
             }
-
-            .meta-item {
-                font-size: 14px;
-                padding: 6px 12px;
-            }
-
-            .director-name {
-                font-size: 20px;
-            }
-
-            .director-sub {
-                font-size: 14px;
-            }
-
-            .description {
-                font-size: 14px;
-            }
-
-            .section-title {
-                font-size: 24px;
-            }
-
-            .showtimes-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .showtime-card {
-                padding: 15px;
-            }
-
             .showtime {
                 font-size: 22px;
             }
-
-            .ticket-label {
-                font-size: 20px;
+            .continue-btn {
+                font-size: 18px;
+                padding: 12px;
             }
-
             .ticket-btn {
                 width: 45px;
                 height: 45px;
                 font-size: 24px;
             }
-
             .ticket-count {
                 font-size: 28px;
             }
-
-            .ticket-price {
-                font-size: 20px;
+            .login-modal-container {
+                padding: 25px 20px;
             }
-
-            .ticket-price span {
-                font-size: 28px;
+            .login-modal-buttons {
+                flex-direction: column;
             }
-
-            .continue-btn {
-                padding: 12px 30px;
-                font-size: 18px;
-            }
-
-            .header img {
-                height: 150px;
-            }
-
-            .footer img {
-                height: 100px;
-            }
-
-            .date-card {
-                padding: 8px 15px;
-                min-width: 70px;
-            }
-
-            .date-number {
-                font-size: 16px;
-            }
-
-            .date-day {
-                font-size: 12px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .logo {
-                height: 24px;
-                max-width: 70px;
-            }
-
-            .top-text {
-                gap: 8px;
-                font-size: 9px;
-            }
-
-            .movie-title {
-                font-size: 20px;
-            }
-
-            .back-nav a {
-                font-size: 14px;
-            }
-        }
-
-        /* Smooth Scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Prevent text selection on tap */
-        .top-text span,
-        .movie-card,
-        .coming-card,
-        .view-all,
-        .showtime-card,
-        .date-card.available {
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* Touch-friendly improvements */
-        button,
-        .date-card.available,
-        .showtime-card {
-            touch-action: manipulation;
         }
     </style>
 </head>
@@ -897,6 +872,27 @@
         </div>
     </div>
 
+    <!-- LOGIN MODAL PANEL - Appears when unauthenticated user clicks Continue -->
+    <div id="loginModal" class="login-modal-overlay">
+        <div class="login-modal-container">
+            <h2>🔐 Login Required</h2>
+            <p>You need to sign in before selecting seats.<br>Please log in to continue with your booking.</p>
+            <input type="email" id="modalEmail" class="login-modal-input" placeholder="Email address" value="user@cinemax.com">
+            <input type="password" id="modalPassword" class="login-modal-input" placeholder="Password" value="demo123">
+            <div class="login-modal-buttons">
+                <button class="login-modal-btn-primary" id="modalLoginBtn">Sign In & Continue</button>
+                <button class="login-modal-btn-secondary" id="modalCancelBtn">Cancel</button>
+            </div>
+
+            <!-- Don't have an account? Link -->
+            <div class="signup-link-section">
+                <p>Don't have an account? <a id="signupRedirectLink">Create an account</a></p>
+            </div>
+
+            <div class="demo-hint">✨ Demo credentials: user@cinemax.com / demo123</div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <div class="footer">
         <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
@@ -906,13 +902,21 @@
     </div>
 
     <script>
-        // Variables
+        // Check if user is authenticated via Flask session
+        // This variable will be set by Jinja based on session
+        const isAuthenticated = {% if session.user_id or session.predefined_user %}true{% else %}false{% endif %};
+
+        // Variables for booking
         let selectedDate = null;
         let selectedShowtime = null;
         let selectedPrice = 0;
         let ticketCount = 1;
         let allShowtimes = [];
+        let selectedShowtimeId = null;
         const movieId = {{ movie.id }};
+
+        // Store pending booking data for after login
+        let pendingBookingData = null;
 
         // Mobile menu toggle
         function initMobileMenu() {
@@ -945,7 +949,6 @@
                     }
                 };
 
-                // Close menu when clicking outside
                 document.addEventListener('click', function(e) {
                     const topBar = document.querySelector('.top-bar');
                     if (!topBar.contains(e.target) && topText.style.display === 'flex') {
@@ -1091,15 +1094,16 @@
 
             document.querySelectorAll('.showtime-card').forEach(card => {
                 card.addEventListener('click', function() {
+                    const showtimeId = this.dataset.showtimeId;
                     const showtime = this.dataset.showtimeTime;
                     const price = parseFloat(this.dataset.showtimePrice);
-                    selectShowtime(showtime, price, this);
+                    selectShowtime(showtime, price, showtimeId, this);
                 });
             });
         }
 
         // Select showtime
-        function selectShowtime(showtime, price, element) {
+        function selectShowtime(showtime, price, showtimeId, element) {
             document.querySelectorAll('.showtime-card').forEach(card => {
                 card.classList.remove('selected');
             });
@@ -1107,6 +1111,7 @@
             element.classList.add('selected');
             selectedShowtime = showtime;
             selectedPrice = price;
+            selectedShowtimeId = showtimeId;
 
             document.getElementById('ticketSelector').style.display = 'flex';
             updateContinueButton();
@@ -1146,8 +1151,72 @@
             }
         }
 
-        // Continue to seat selection
-        function continueToSeats() {
+        // Show login modal
+        function showLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = 'flex';
+            // Clear any previous values
+            document.getElementById('modalEmail').value = '';
+            document.getElementById('modalPassword').value = '';
+        }
+
+        // Hide login modal
+        function hideLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = 'none';
+        }
+
+        // Perform login via AJAX
+        async function performLogin(email, password) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('remember', 'on');
+
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    return { success: true, redirect: data.redirect };
+                } else {
+                    return { success: false, message: data.message || 'Login failed' };
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                return { success: false, message: 'Network error. Please try again.' };
+            }
+        }
+
+        // Redirect to signup page with return URL
+        function redirectToSignup() {
+            // Store the current movie and selected booking data in sessionStorage
+            if (selectedShowtime && selectedDate) {
+                const bookingData = {
+                    movieId: movieId,
+                    showtime: selectedShowtime,
+                    tickets: ticketCount,
+                    date: selectedDate,
+                    price: selectedPrice,
+                    showtimeId: selectedShowtimeId
+                };
+                sessionStorage.setItem('pendingBooking', JSON.stringify(bookingData));
+            }
+
+            // Redirect to signin page with a return parameter
+            const returnUrl = encodeURIComponent(window.location.href);
+            window.location.href = `/signin?return_to=${returnUrl}&prompt_signup=true`;
+        }
+
+        // Continue to seat selection with login check
+        async function continueToSeats() {
             if (!selectedShowtime) {
                 alert('Please select a showtime first!');
                 return;
@@ -1157,7 +1226,86 @@
                 return;
             }
 
+            // Check if user is authenticated (via Flask session)
+            const isAuth = {% if session.user_id or session.predefined_user %}true{% else %}false{% endif %};
+
+            if (!isAuth) {
+                // Store pending booking data
+                pendingBookingData = {
+                    showtime: selectedShowtime,
+                    tickets: ticketCount,
+                    date: selectedDate,
+                    price: selectedPrice,
+                    showtimeId: selectedShowtimeId
+                };
+                // Show login modal
+                showLoginModal();
+                return;
+            }
+
+            // User is authenticated, proceed directly
+            proceedToSeatSelection();
+        }
+
+        // Proceed to seat selection page
+        function proceedToSeatSelection() {
             window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}&price=${selectedPrice}`;
+        }
+
+        // Handle successful login and restore booking
+        async function handleSuccessfulLogin() {
+            hideLoginModal();
+
+            // Reload the page to reflect logged-in state
+            if (pendingBookingData) {
+                // Redirect to seat selection with the pending data
+                window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(pendingBookingData.showtime)}&tickets=${pendingBookingData.tickets}&date=${encodeURIComponent(pendingBookingData.date)}&price=${pendingBookingData.price}`;
+                pendingBookingData = null;
+            } else {
+                location.reload();
+            }
+        }
+
+        // Check for pending booking after returning from signup
+        function checkPendingBooking() {
+            const pendingBooking = sessionStorage.getItem('pendingBooking');
+            if (pendingBooking) {
+                const booking = JSON.parse(pendingBooking);
+                // Restore the booking data
+                selectedShowtime = booking.showtime;
+                ticketCount = booking.tickets;
+                selectedDate = booking.date;
+                selectedPrice = booking.price;
+                selectedShowtimeId = booking.showtimeId;
+
+                // Update UI to reflect restored selection
+                document.getElementById('ticketCount').textContent = ticketCount;
+                updateTotalPrice();
+                document.getElementById('ticketSelector').style.display = 'flex';
+                updateContinueButton();
+
+                // Try to highlight the selected showtime card
+                setTimeout(() => {
+                    const cards = document.querySelectorAll('.showtime-card');
+                    for (let card of cards) {
+                        if (card.dataset.showtimeTime === selectedShowtime) {
+                            card.classList.add('selected');
+                            break;
+                        }
+                    }
+                }, 100);
+
+                // Clear the stored booking
+                sessionStorage.removeItem('pendingBooking');
+
+                // If user is now authenticated, proceed to seat selection
+                const isAuth = {% if session.user_id or session.predefined_user %}true{% else %}false{% endif %};
+                if (isAuth) {
+                    setTimeout(() => {
+                        proceedToSeatSelection();
+                    }, 500);
+                }
+            }
         }
 
         // Initialize page
@@ -1184,11 +1332,73 @@
                 } else {
                     document.getElementById('dateSelector').innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>';
                 }
+
+                // Check for pending booking after returning from signup
+                checkPendingBooking();
             } catch (error) {
                 console.error('Error initializing page:', error);
                 document.getElementById('dateSelector').innerHTML = `
                     <div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>
                 `;
+            }
+        }
+
+        // Setup modal event listeners
+        function setupModalListeners() {
+            const modal = document.getElementById('loginModal');
+            const loginBtn = document.getElementById('modalLoginBtn');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+            const signupLink = document.getElementById('signupRedirectLink');
+
+            if (loginBtn) {
+                loginBtn.addEventListener('click', async () => {
+                    const email = document.getElementById('modalEmail').value;
+                    const password = document.getElementById('modalPassword').value;
+
+                    if (!email || !password) {
+                        alert('Please enter both email and password');
+                        return;
+                    }
+
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Logging in...';
+
+                    const result = await performLogin(email, password);
+
+                    if (result.success) {
+                        alert('Login successful! Redirecting to seat selection...');
+                        await handleSuccessfulLogin();
+                    } else {
+                        alert(result.message || 'Login failed. Please try again.');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Sign In & Continue';
+                    }
+                });
+            }
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    hideLoginModal();
+                    pendingBookingData = null;
+                });
+            }
+
+            // Sign up link redirect
+            if (signupLink) {
+                signupLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    redirectToSignup();
+                });
+            }
+
+            // Close modal when clicking outside
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        hideLoginModal();
+                        pendingBookingData = null;
+                    }
+                });
             }
         }
 
@@ -1205,6 +1415,7 @@
         // Initialize mobile menu and page
         initMobileMenu();
         init();
+        setupModalListeners();
     </script>
 </body>
 </html>

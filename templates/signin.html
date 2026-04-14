@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinemax - Sign In & Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cinemax - Sign In & Sign Up | Immersive Experience</title>
     <style>
         * {
             margin: 0;
@@ -13,46 +13,63 @@
 
         body {
             width: 100%;
-            max-width: 1920px;
-            margin: 0 auto;
-            background: #0a0c0f;
+            min-height: 100vh;
+            /* CRITICAL: Background image applied to whole page, replacing header image area and footer */
+            background: url("{{ url_for('static', filename='images/Chair Header.png') }}") no-repeat center center fixed;
+            background-size: cover;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             color: white;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-
-        /* Header */
-        .header {
-            width: 100%;
             position: relative;
         }
 
-        /* Top bar with logo and text */
-        .top-bar {
-            position: absolute;
+        /* Optional dark overlay to improve text readability without affecting transparency goal */
+        body::before {
+            content: "";
+            position: fixed;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45); /* subtle dark veil for contrast, but panels remain transparent/translucent */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Header area restructured: we remove the old header img block, keep top navigation bar */
+        .header {
+            width: 100%;
+            position: relative;
+            z-index: 5;
+            /* No extra image inside .header now, background is on body */
+        }
+
+        /* Top bar with logo and text - refined spacing, glass effect but not disturbing transparency goal */
+        .top-bar {
+            position: relative; /* changed from absolute to be in flow, but we can keep clean layout */
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 80px;
-            z-index: 10;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            z-index: 20;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 100%);
+            backdrop-filter: blur(2px);
         }
 
         .logo {
-            height: 50px;
-            width: auto;
+            height: 100px !important;
+            width: auto !important;
             cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
         .logo img {
-            height: 100%;
-            width: auto;
+            height: 100% !important;
+            width: auto !important;
             display: block;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
         }
 
         .top-text {
@@ -68,6 +85,7 @@
             cursor: pointer;
             transition: color 0.3s ease;
             position: relative;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
         }
 
         .top-text span:hover {
@@ -88,58 +106,54 @@
             background: #e50914;
         }
 
-        .top-text span:after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #e50914;
-            transition: width 0.3s ease;
-        }
-
-        .top-text span:hover:after {
-            width: 100%;
-        }
-
-        .header img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-        }
-
         /* Main Content */
         .content {
             flex: 1;
             padding: 60px 80px;
-            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
-            min-height: calc(100vh - 400px);
+            /* Remove dark solid background — we want container panels to be transparent/glass */
+            background: transparent;
+            min-height: auto;
+            z-index: 2;
+            position: relative;
         }
 
-        /* Auth Container */
+        /* Auth Container: TRANSPARENT background with modern glassmorphism effect */
         .auth-container {
             display: flex;
             gap: 40px;
             max-width: 1200px;
             margin: 0 auto;
-            background: #1a1e24;
-            border-radius: 24px;
+            /* BLACK BG REMOVED -> transparent with blur/translucent effect */
+            background: rgba(0, 0, 0, 0.55);  /* Semi-transparent dark base, adjustable for transparency */
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
             overflow: hidden;
-            border: 1px solid #2a3138;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
         }
 
-        /* Left Panel - Login */
+        /* Both panels now inherit the transparent container background, but we adjust inner background to be more subtle/translucent */
         .login-panel {
             flex: 1;
             padding: 60px 50px;
-            background: linear-gradient(145deg, #1e2429, #14181c);
+            background: rgba(10, 12, 15, 0.65);  /* transparent blackish with opacity - fully adjustable */
+            backdrop-filter: blur(4px);
+            position: relative;
+            display: block;
+            border-radius: 0;
+        }
+
+        .signup-panel {
+            flex: 1;
+            padding: 60px 50px;
+            background: rgba(10, 12, 15, 0.65);  /* same transparency for consistency */
+            backdrop-filter: blur(4px);
             position: relative;
             display: block;
         }
 
+        /* Accent borders with gradient */
         .login-panel::before {
             content: '';
             position: absolute;
@@ -148,14 +162,6 @@
             width: 4px;
             height: 100%;
             background: linear-gradient(180deg, #e50914, #ff4d4d);
-        }
-
-        .signup-panel {
-            flex: 1;
-            padding: 60px 50px;
-            background: #1a1e24;
-            position: relative;
-            display: block;
         }
 
         .signup-panel::before {
@@ -172,12 +178,14 @@
             font-size: 36px;
             font-weight: 700;
             margin-bottom: 40px;
-            background: linear-gradient(135deg, #fff 0%, #999 100%);
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        /* Form Styles */
+        /* Form Styles - keep inputs readable but with transparent-ish background */
         .auth-form {
             display: flex;
             flex-direction: column;
@@ -193,29 +201,32 @@
         .form-group label {
             font-size: 14px;
             font-weight: 600;
-            color: #999;
+            color: #f0f0f0;
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-shadow: 0 0 2px black;
         }
 
         .form-group input {
-            background: #0a0c0f;
-            border: 1px solid #2a3138;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
             padding: 16px 20px;
             color: white;
             font-size: 16px;
             transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
         }
 
         .form-group input:focus {
             outline: none;
             border-color: #e50914;
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.3);
+            background: rgba(0, 0, 0, 0.75);
         }
 
         .form-group input::placeholder {
-            color: #4a4f55;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .form-group input.error {
@@ -229,7 +240,7 @@
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
-        /* Password Strength (for signup) */
+        /* Password Strength */
         .password-strength {
             margin-top: 5px;
             display: flex;
@@ -239,7 +250,7 @@
         .strength-bar {
             height: 4px;
             flex: 1;
-            background: #2a3138;
+            background: rgba(255,255,255,0.2);
             border-radius: 2px;
             transition: all 0.3s ease;
         }
@@ -258,7 +269,7 @@
 
         .strength-text {
             font-size: 12px;
-            color: #999;
+            color: #ddd;
             margin-top: 5px;
         }
 
@@ -273,10 +284,11 @@
             width: 20px;
             height: 20px;
             accent-color: #e50914;
+            background: rgba(0,0,0,0.6);
         }
 
         .checkbox-group label {
-            color: #999;
+            color: #eee;
             text-transform: none;
             font-weight: 400;
             font-size: 14px;
@@ -296,7 +308,7 @@
             background: #e50914;
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 16px;
             font-size: 18px;
             font-weight: 600;
@@ -305,19 +317,19 @@
             margin-top: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .auth-btn:hover {
             background: #ff0f1a;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.4);
         }
 
         .auth-btn:disabled {
-            background: #666;
+            background: #a00f1a;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
         /* Divider */
@@ -326,19 +338,19 @@
             align-items: center;
             gap: 15px;
             margin: 30px 0 20px;
-            color: #666;
+            color: #ccc;
         }
 
         .divider-line {
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #2a3138, transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
         }
 
         .divider-text {
             font-size: 14px;
             text-transform: uppercase;
-            color: #999;
+            color: #ddd;
         }
 
         /* Social Login */
@@ -350,9 +362,9 @@
 
         .social-btn {
             flex: 1;
-            background: #0a0c0f;
-            border: 1px solid #2a3138;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 14px;
             padding: 14px;
             color: white;
             font-size: 16px;
@@ -363,28 +375,20 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            backdrop-filter: blur(4px);
         }
 
         .social-btn:hover {
-            background: #1e2429;
+            background: rgba(229, 9, 20, 0.7);
             border-color: #e50914;
             transform: translateY(-2px);
-        }
-
-        .social-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
         }
 
         /* Switch Panel Link */
         .switch-panel {
             text-align: center;
             margin-top: 30px;
-            color: #999;
+            color: #f0f0f0;
         }
 
         .switch-panel a {
@@ -399,14 +403,13 @@
             text-decoration: underline;
         }
 
-        /* Forgot Password */
         .forgot-password {
             text-align: right;
             margin-top: 5px;
         }
 
         .forgot-password a {
-            color: #999;
+            color: #ddd;
             text-decoration: none;
             font-size: 14px;
             transition: color 0.3s ease;
@@ -416,44 +419,31 @@
             color: #e50914;
         }
 
-        /* Message Alerts */
+        /* Alert messages - also semi-transparent */
         .alert {
             padding: 15px 20px;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
             animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.7);
+            border-left: 4px solid;
         }
 
         .alert-success {
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid #4CAF50;
-            color: #4CAF50;
+            border-left-color: #4CAF50;
+            color: #b9f6ca;
         }
-
         .alert-error {
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid #dc3545;
-            color: #dc3545;
+            border-left-color: #dc3545;
+            color: #ffb3b3;
         }
-
         .alert-info {
-            background: rgba(0, 123, 255, 0.1);
-            border: 1px solid #007bff;
-            color: #007bff;
+            border-left-color: #007bff;
+            color: #b8e1ff;
         }
 
         .close-alert {
@@ -462,10 +452,6 @@
             font-size: 20px;
             opacity: 0.7;
             transition: opacity 0.3s ease;
-        }
-
-        .close-alert:hover {
-            opacity: 1;
         }
 
         /* Loading Spinner */
@@ -483,101 +469,21 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Terms */
-        .terms {
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .terms a {
-            color: #e50914;
-            text-decoration: none;
-        }
-
-        .terms a:hover {
-            text-decoration: underline;
-        }
-
-        /* Admin Quick Access Modal */
+        /* Admin Modal - keep consistent style */
         .admin-modal {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #1a1e24;
+            background: rgba(20, 24, 28, 0.95);
+            backdrop-filter: blur(16px);
             padding: 40px;
-            border-radius: 24px;
+            border-radius: 28px;
             z-index: 1000;
             border: 2px solid #e50914;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.6);
             min-width: 320px;
-        }
-
-        .admin-modal h3 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 24px;
-            text-align: center;
-        }
-
-        .admin-modal .admin-note {
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #2a3138;
-        }
-
-        .admin-modal button {
-            width: 100%;
-            margin-bottom: 10px;
-            background: #e50914;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .admin-modal button:hover {
-            background: #ff0f1a;
-            transform: translateY(-2px);
-        }
-
-        .admin-modal button.employee-btn {
-            background: #2a3138;
-        }
-
-        .admin-modal button.employee-btn:hover {
-            background: #3a434b;
-        }
-
-        .admin-modal button.manager-btn {
-            background: #ff9800;
-            color: #1a1e24;
-        }
-
-        .admin-modal button.manager-btn:hover {
-            background: #ffb74d;
-        }
-
-        .admin-modal .close-btn {
-            background: transparent;
-            border: 1px solid #666;
-            color: #999;
-            margin-top: 10px;
-        }
-
-        .admin-modal .close-btn:hover {
-            background: #333;
-            transform: none;
         }
 
         .admin-overlay {
@@ -587,72 +493,48 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 999;
+            backdrop-filter: blur(5px);
         }
 
-        /* Footer */
-        .footer {
-            width: 100%;
-            margin-top: auto;
-            position: relative;
+        /* Footer completely removed (no footer element) */
+        .footer, .copyright {
+            display: none;
         }
 
-        .footer img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .copyright {
-            background: #000;
-            color: #666;
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-            border-top: 1px solid #222;
-        }
-
-        /* Responsive */
+        /* Responsive adjustments */
         @media (max-width: 1200px) {
             .content {
                 padding: 40px 20px;
             }
-
             .auth-container {
                 flex-direction: column;
             }
-
             .login-panel::before,
             .signup-panel::before {
                 width: 100%;
                 height: 4px;
-            }
-
-            .login-panel::before {
                 top: 0;
                 left: 0;
                 right: 0;
-                width: 100%;
-                height: 4px;
             }
-
             .signup-panel::before {
+                top: auto;
                 bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 4px;
             }
-
             .top-bar {
                 padding: 15px 30px;
             }
-
             .top-text {
                 gap: 20px;
                 font-size: 14px;
             }
+        }
+
+        /* additional micro-interactions */
+        .auth-container:hover {
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -660,18 +542,18 @@
     <!-- Admin Quick Access Modal -->
     <div class="admin-overlay" id="adminOverlay" onclick="closeAdminModal()"></div>
     <div class="admin-modal" id="adminModal">
-        <h3>🔐 Quick Access</h3>
+        <h3 style="color:white;">🔐 Quick Access</h3>
         <button onclick="quickLogin('admin@cinemax.com', 'Admin@123')">👑 Login as Admin</button>
         <button class="manager-btn" onclick="quickLogin('manager@cinemax.com', 'Manager@123')">📊 Login as Manager</button>
         <button class="employee-btn" onclick="quickLogin('employee1@cinemax.com', 'Employee@123')">🎫 Login as Employee 1</button>
         <button class="employee-btn" onclick="quickLogin('employee2@cinemax.com', 'Employee@123')">🎟️ Login as Employee 2</button>
-        <div class="admin-note">
+        <div class="admin-note" style="color:#ccc; margin-top:15px; font-size:12px;">
             💡 Tip: Double-click the logo or press Ctrl+Shift+A to open this menu
         </div>
-        <button class="close-btn" onclick="closeAdminModal()">Close</button>
+        <button class="close-btn" style="background:#333; margin-top:10px;" onclick="closeAdminModal()">Close</button>
     </div>
 
-    <!-- Header with Logo and Top Text -->
+    <!-- Header with Logo and Top Text (No header image here, background on body) -->
     <div class="header">
         <div class="top-bar">
             <div class="logo" onclick="location.href='/'">
@@ -679,15 +561,12 @@
             </div>
             <div class="top-text">
                 <span onclick="location.href='/'">MOVIES</span>
-                <span onclick="location.href='/showtimes'">SHOWTIMES</span>
                 <span onclick="location.href='/coming-soon'">COMING SOON</span>
                 <span onclick="location.href='/contact'">CONTACT</span>
                 <span class="active" onclick="location.href='/signin'">SIGN IN</span>
             </div>
         </div>
-
-        <!-- Header Image -->
-        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
+        <!-- No header image element: background covers whole page -->
     </div>
 
     <!-- Main Content -->
@@ -697,7 +576,7 @@
             <div class="login-panel" id="loginPanel">
                 <h2 class="panel-title">Login</h2>
 
-                <!-- Alert Message for Login -->
+                <!-- Flash messages handling with transparency context -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -762,7 +641,6 @@
             <div class="signup-panel" id="signupPanel">
                 <h2 class="panel-title">Sign Up</h2>
 
-                <!-- Alert Message for Signup -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         {% for category, message in messages %}
@@ -837,39 +715,23 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
-    </div>
-
-    <!-- Copyright -->
-    <div class="copyright">
-        Cinemax 2025 All rights reserved
-    </div>
+    <!-- FOOTER REMOVED: No footer or copyright elements exist now -->
 
     <script>
-        // Get URL parameters to check if we should show signup panel
+        // URL param handling
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('signup') === 'true') {
             document.getElementById('loginPanel').style.display = 'none';
             document.getElementById('signupPanel').style.display = 'block';
         }
-
-        // Check for registration success message
         if (urlParams.get('registered') === 'true') {
             showAlert('login', 'success', 'Registration successful! Please login.');
         }
 
-        // Admin Quick Access - Double click on logo to open
+        // Admin quick access
         const logo = document.querySelector('.logo');
-        if (logo) {
-            logo.addEventListener('dblclick', function() {
-                openAdminModal();
-            });
-        }
-
-        // Or with Ctrl+Shift+A
-        document.addEventListener('keydown', function(e) {
+        if (logo) logo.addEventListener('dblclick', () => openAdminModal());
+        document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.shiftKey && e.key === 'A') {
                 e.preventDefault();
                 openAdminModal();
@@ -880,310 +742,134 @@
             document.getElementById('adminModal').style.display = 'block';
             document.getElementById('adminOverlay').style.display = 'block';
         }
-
         function closeAdminModal() {
             document.getElementById('adminModal').style.display = 'none';
             document.getElementById('adminOverlay').style.display = 'none';
         }
-
         function quickLogin(email, password) {
             document.getElementById('login-email').value = email;
             document.getElementById('login-password').value = password;
             closeAdminModal();
-            // Auto submit the form
             document.getElementById('loginForm').dispatchEvent(new Event('submit'));
         }
 
-        // Switch to Sign Up panel
         function switchToSignup() {
             document.getElementById('loginPanel').style.display = 'none';
             document.getElementById('signupPanel').style.display = 'block';
             history.pushState({}, '', '?signup=true');
         }
-
-        // Switch to Login panel
         function switchToLogin() {
             document.getElementById('loginPanel').style.display = 'block';
             document.getElementById('signupPanel').style.display = 'none';
             history.pushState({}, '', '/signin');
         }
 
-        // Email validation function
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
+        function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 
-        // Password strength indicator
         const signupPassword = document.getElementById('signup-password');
         if (signupPassword) {
             signupPassword.addEventListener('input', function(e) {
-                const password = e.target.value;
-                const bar1 = document.getElementById('bar1');
-                const bar2 = document.getElementById('bar2');
-                const bar3 = document.getElementById('bar3');
-                const strengthText = document.getElementById('strengthText');
-
-                bar1.classList.remove('active');
-                bar2.classList.remove('active');
-                bar3.classList.remove('active');
-
-                if (password.length === 0) {
-                    strengthText.textContent = 'Use at least 8 characters with letters and numbers';
-                    return;
-                }
-
+                const pwd = e.target.value;
+                const bars = ['bar1','bar2','bar3'].map(id => document.getElementById(id));
+                bars.forEach(bar => bar.classList.remove('active'));
                 let strength = 0;
-                if (password.length >= 8) strength++;
-                if (/[a-zA-Z]/.test(password) && /[0-9]/.test(password)) strength++;
-                if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-                if (strength >= 1) bar1.classList.add('active');
-                if (strength >= 2) bar2.classList.add('active');
-                if (strength >= 3) bar3.classList.add('active');
-
+                if (pwd.length >= 8) strength++;
+                if (/[a-zA-Z]/.test(pwd) && /[0-9]/.test(pwd)) strength++;
+                if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
+                for (let i=0; i<strength; i++) bars[i].classList.add('active');
+                const strengthText = document.getElementById('strengthText');
                 if (strength === 0) strengthText.textContent = 'Weak password';
                 else if (strength === 1) strengthText.textContent = 'Fair password';
                 else if (strength === 2) strengthText.textContent = 'Good password';
-                else if (strength === 3) strengthText.textContent = 'Strong password';
+                else strengthText.textContent = 'Strong password';
+            });
+        }
+        const confirmPass = document.getElementById('confirm-password');
+        if (confirmPass) {
+            confirmPass.addEventListener('input', function() {
+                const pass = document.getElementById('signup-password').value;
+                this.style.borderColor = (pass === this.value && this.value !== "") ? '#4dff4d' : (this.value ? '#ff4d4d' : 'rgba(255,255,255,0.25)');
             });
         }
 
-        // Password confirmation validation
-        const confirmPassword = document.getElementById('confirm-password');
-        if (confirmPassword) {
-            confirmPassword.addEventListener('input', function(e) {
-                const password = document.getElementById('signup-password').value;
-                const confirm = e.target.value;
-
-                if (confirm.length > 0) {
-                    this.style.borderColor = (password === confirm) ? '#4dff4d' : '#ff4d4d';
-                } else {
-                    this.style.borderColor = '#2a3138';
-                }
-            });
-        }
-
-        // Handle signup form submission
         const signupForm = document.getElementById('signupForm');
         if (signupForm) {
             signupForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-
                 const username = document.getElementById('username').value;
                 const email = document.getElementById('signup-email').value;
                 const password = document.getElementById('signup-password').value;
                 const confirm = document.getElementById('confirm-password').value;
                 const terms = document.getElementById('terms').checked;
 
-                // Validate email format
-                if (!isValidEmail(email)) {
-                    showAlert('signup', 'error', 'Please enter a valid email address!');
-                    document.getElementById('signup-email').classList.add('error');
-                    setTimeout(() => {
-                        document.getElementById('signup-email').classList.remove('error');
-                    }, 500);
-                    return;
-                }
-
-                if (password !== confirm) {
-                    showAlert('signup', 'error', 'Passwords do not match!');
-                    document.getElementById('confirm-password').classList.add('error');
-                    setTimeout(() => {
-                        document.getElementById('confirm-password').classList.remove('error');
-                    }, 500);
-                    return;
-                }
-
-                if (password.length < 8) {
-                    showAlert('signup', 'error', 'Password must be at least 8 characters long!');
-                    document.getElementById('signup-password').classList.add('error');
-                    setTimeout(() => {
-                        document.getElementById('signup-password').classList.remove('error');
-                    }, 500);
-                    return;
-                }
-
-                if (!terms) {
-                    showAlert('signup', 'error', 'You must agree to the Terms of Service!');
-                    return;
-                }
+                if (!isValidEmail(email)) { showAlert('signup','error','Valid email required!'); return; }
+                if (password !== confirm) { showAlert('signup','error','Passwords do not match!'); return; }
+                if (password.length < 8) { showAlert('signup','error','Password must be 8+ characters'); return; }
+                if (!terms) { showAlert('signup','error','Accept terms to continue'); return; }
 
                 const btn = document.getElementById('signupBtn');
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner"></span> Creating Account...';
-
+                btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating...';
                 try {
-                    const response = await fetch('/signup', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            'username': username,
-                            'email': email,
-                            'password': password,
-                            'confirm_password': confirm,
-                            'terms': terms ? 'on' : ''
-                        })
+                    const res = await fetch('/signup', {
+                        method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                        body: new URLSearchParams({username, email, password, confirm_password:confirm, terms:'on'})
                     });
-
-                    const data = await response.json();
-
+                    const data = await res.json();
                     if (data.success) {
-                        showAlert('signup', 'success', 'Account created successfully! Redirecting to login...');
-                        setTimeout(() => {
-                            window.location.href = '/signin?registered=true';
-                        }, 2000);
-                    } else {
-                        showAlert('signup', 'error', data.message || 'Registration failed. Please try again.');
-                        btn.disabled = false;
-                        btn.innerHTML = 'Sign Up';
-                    }
-                } catch (error) {
-                    console.error('Signup error:', error);
-                    showAlert('signup', 'error', 'An error occurred. Please try again.');
-                    btn.disabled = false;
-                    btn.innerHTML = 'Sign Up';
-                }
+                        showAlert('signup','success','Account created! Redirecting...');
+                        setTimeout(()=> window.location.href='/signin?registered=true', 1500);
+                    } else { showAlert('signup','error',data.message||'Signup failed'); btn.disabled=false; btn.innerHTML='Sign Up'; }
+                } catch(err) { showAlert('signup','error','Network error'); btn.disabled=false; btn.innerHTML='Sign Up'; }
             });
         }
 
-        // Handle login form submission with specific error messages
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
                 const remember = document.getElementById('remember').checked;
-
-                if (!email || !password) {
-                    showAlert('login', 'error', 'Please fill in all fields!');
-                    return;
-                }
-
-                // Validate email format
-                if (!isValidEmail(email)) {
-                    showAlert('login', 'error', 'Please enter a valid email address!');
-                    document.getElementById('login-email').classList.add('error');
-                    setTimeout(() => {
-                        document.getElementById('login-email').classList.remove('error');
-                    }, 500);
-                    return;
-                }
-
+                if (!email || !password) { showAlert('login','error','Fill all fields'); return; }
+                if (!isValidEmail(email)) { showAlert('login','error','Valid email required'); return; }
                 const btn = document.getElementById('loginBtn');
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner"></span> Logging in...';
-
+                btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Logging...';
                 try {
-                    const response = await fetch('/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            'email': email,
-                            'password': password,
-                            'remember': remember ? 'on' : ''
-                        })
+                    const res = await fetch('/login', {
+                        method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                        body: new URLSearchParams({email, password, remember: remember?'on':''})
                     });
-
-                    const data = await response.json();
-
+                    const data = await res.json();
                     if (data.success) {
-                        showAlert('login', 'success', 'Login successful! Redirecting...');
-                        setTimeout(() => {
-                            window.location.href = data.redirect || '/';
-                        }, 1500);
+                        showAlert('login','success','Login success! Redirecting...');
+                        setTimeout(()=> window.location.href = data.redirect || '/', 1200);
                     } else {
-                        // Specific error messages based on error type
-                        if (data.error_type === 'email_not_found') {
-                            showAlert('login', 'error', '❌ Email does not exist. Please check your email or sign up.');
-                            document.getElementById('login-email').classList.add('error');
-                            setTimeout(() => {
-                                document.getElementById('login-email').classList.remove('error');
-                            }, 500);
-                        }
-                        else if (data.error_type === 'wrong_password') {
-                            showAlert('login', 'error', '🔒 Wrong password. Please try again.');
-                            document.getElementById('login-password').classList.add('error');
-                            setTimeout(() => {
-                                document.getElementById('login-password').classList.remove('error');
-                            }, 500);
-                        }
-                        else {
-                            showAlert('login', 'error', data.message || 'Invalid credentials. Please try again.');
-                        }
-
-                        btn.disabled = false;
-                        btn.innerHTML = 'Login';
-
-                        // Shake the form
-                        document.getElementById('loginForm').classList.add('error');
-                        setTimeout(() => {
-                            document.getElementById('loginForm').classList.remove('error');
-                        }, 500);
+                        let errMsg = data.message || 'Invalid credentials';
+                        if (data.error_type === 'email_not_found') errMsg = '❌ Email does not exist';
+                        else if (data.error_type === 'wrong_password') errMsg = '🔒 Wrong password';
+                        showAlert('login','error',errMsg);
+                        btn.disabled=false; btn.innerHTML='Login';
                     }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    showAlert('login', 'error', 'An error occurred. Please try again.');
-                    btn.disabled = false;
-                    btn.innerHTML = 'Login';
-                }
+                } catch(err) { showAlert('login','error','Server error'); btn.disabled=false; btn.innerHTML='Login'; }
             });
         }
 
-        // Show alert message
         function showAlert(panel, type, message) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.innerHTML = `
-                <span>${message}</span>
-                <span class="close-alert" onclick="this.parentElement.remove()">&times;</span>
-            `;
-
-            const panelElement = panel === 'login' ?
-                document.querySelector('.login-panel') :
-                document.querySelector('.signup-panel');
-
-            if (panelElement) {
-                const existingAlerts = panelElement.querySelectorAll('.alert');
-                existingAlerts.forEach(alert => alert.remove());
-
-                const form = panelElement.querySelector('.auth-form');
-                if (form) {
-                    panelElement.insertBefore(alertDiv, form);
-                } else {
-                    panelElement.insertBefore(alertDiv, panelElement.firstChild);
-                }
-
-                // Auto-hide after 5 seconds
-                setTimeout(() => {
-                    alertDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        if (alertDiv.parentElement) alertDiv.remove();
-                    }, 500);
-                }, 5000);
+            alertDiv.innerHTML = `<span>${message}</span><span class="close-alert" onclick="this.parentElement.remove()">&times;</span>`;
+            const parentPanel = panel === 'login' ? document.querySelector('.login-panel') : document.querySelector('.signup-panel');
+            if (parentPanel) {
+                const old = parentPanel.querySelector('.alert');
+                if(old) old.remove();
+                const form = parentPanel.querySelector('.auth-form');
+                if(form) parentPanel.insertBefore(alertDiv, form);
+                else parentPanel.insertBefore(alertDiv, parentPanel.firstChild);
+                setTimeout(() => { if(alertDiv.parentElement) alertDiv.style.opacity='0'; setTimeout(()=>alertDiv.remove(),400); }, 4500);
             }
         }
-
-        // Social login
-        function socialLogin(provider) {
-            showAlert('login', 'info', `${provider} login coming soon!`);
-        }
-
-        // Auto-hide existing alerts after 5 seconds
-        setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(alert => {
-                alert.style.opacity = '0';
-                setTimeout(() => {
-                    if (alert.parentElement) alert.remove();
-                }, 500);
-            });
-        }, 5000);
+        function socialLogin(provider) { showAlert('login','info',`${provider} login coming soon!`); }
+        setTimeout(() => { document.querySelectorAll('.alert').forEach(a => a.remove()); }, 5000);
     </script>
 </body>
 </html>

@@ -6,33 +6,32 @@ import json
 import re
 import time
 import os
+import requests
+import base64
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-from paymongo import Paymongo
-from datetime import datetime, date
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-this-in-production'
 app.permanent_session_lifetime = timedelta(days=30)
 
-# SQLite Database Configuration - looks for cinemax.db in the 'db' folder
-# Get the absolute path to the db folder
+# SQLite Database Configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'db', 'cinemax.db')
 
 # Ensure the db directory exists
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
-# PayMongo Configuration
-PAYMONGO_SECRET_KEY = os.getenv("PAYMONGO_SECRET_KEY")
+# PayMongo Configuration - USING YOUR ACTUAL KEYS
+PAYMONGO_SECRET_KEY = "sk_test_LiiWAcE6qzxw1c6aone4ebVb"
 PAYMONGO_PUBLIC_KEY = "pk_test_q8oEnqhZ3VfTBb5MF9DZeZLR"
 
 # Predefined Admin and Employee Accounts
 PREDEFINED_ACCOUNTS = {
     'admin': {
-        'email': 'admin@cinemax.com',
-        'password': 'Admin@123',
+        'email': 'ron@gmail.com',
+        'password': 'Admin123',
         'username': 'Administrator',
         'role': 'admin'
     },
@@ -61,15 +60,12 @@ PREDEFINED_ACCOUNTS = {
     ]
 }
 
-# Initialize PayMongo client
-paymongo = Paymongo(PAYMONGO_SECRET_KEY)
-
 
 def get_db_connection():
-    """Create SQLite database connection to the db folder"""
+    """Create SQLite database connection"""
     try:
         conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row  # This enables column access by name
+        conn.row_factory = sqlite3.Row
         return conn
     except Exception as e:
         print(f"Error connecting to SQLite: {e}")
@@ -86,7 +82,7 @@ def init_db():
     cursor = conn.cursor()
 
     try:
-        # Users table for authentication
+        # Users table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -131,17 +127,6 @@ def init_db():
             )
         """)
 
-        # Seats table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS seats (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                seat_row VARCHAR(2) NOT NULL,
-                seat_number INTEGER NOT NULL,
-                seat_type VARCHAR(20) DEFAULT 'Standard',
-                UNIQUE(seat_row, seat_number)
-            )
-        """)
-
         # Bookings table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS bookings (
@@ -157,8 +142,8 @@ def init_db():
                 total_amount DECIMAL(10,2) NOT NULL,
                 payment_method VARCHAR(50),
                 payment_status VARCHAR(50) DEFAULT 'pending',
+                paymongo_checkout_id VARCHAR(100),
                 paymongo_payment_id VARCHAR(100),
-                paymongo_source_id VARCHAR(100),
                 customer_name VARCHAR(255),
                 customer_email VARCHAR(255),
                 booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -170,13 +155,13 @@ def init_db():
             )
         """)
 
-        # Payments table for tracking PayMongo transactions
+        # Payments table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS payments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 booking_reference VARCHAR(20) NOT NULL,
                 paymongo_payment_id VARCHAR(100),
-                paymongo_source_id VARCHAR(100),
+                paymongo_checkout_id VARCHAR(100),
                 amount DECIMAL(10,2) NOT NULL,
                 payment_method VARCHAR(50),
                 status VARCHAR(50),
@@ -186,26 +171,39 @@ def init_db():
             )
         """)
 
+        # Movie Notifications table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS movie_notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                movie_id INTEGER,
+                movie_title TEXT,
+                email TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         conn.commit()
         print(f"Database initialized at: {DB_PATH}")
 
-        # Insert some sample movies if the movies table is empty
+        # Insert sample movies if empty
         cursor.execute("SELECT COUNT(*) as count FROM movies")
         movie_count = cursor.fetchone()['count']
 
         if movie_count == 0:
             print("Adding sample movies...")
             sample_movies = [
-                ('The Last Voyage', 8.5, '2h 15min', '', 'Christopher Nolan', '', '$450M',
-                 'A thrilling adventure across the ocean.', 1),
-                ('Midnight Express', 7.8, '1h 45min', '', 'David Fincher', '', '$120M',
-                 'A gripping thriller set in the night.', 1),
-                ('Summer Memories', 9.2, '2h 00min', '', 'Greta Gerwig', '', '$80M',
-                 'A heartwarming story of friendship and love.', 1),
-                ('Cyber Punk 2077', 8.0, '2h 30min', '', 'Denis Villeneuve', '', '$350M',
-                 'The future is now in this cyberpunk adventure.', 0),
-                ('The Last Kingdom', 8.9, '2h 10min', '', 'Ridley Scott', '', '$280M',
-                 'Epic battles and royal intrigue.', 1),
+                ('The Last Voyage', 8.5, '2h 15min', '', 'Christopher Nolan', 'Visionary Director', '$450M',
+                 'A thrilling adventure across the ocean. Experience the journey of a lifetime.', 1),
+                ('Midnight Express', 7.8, '1h 45min', '', 'David Fincher', 'Master of Suspense', '$120M',
+                 'A gripping thriller set in the night. Every shadow hides a secret.', 1),
+                ('Summer Memories', 9.2, '2h 00min', '', 'Greta Gerwig', 'Award-winning Director', '$80M',
+                 'A heartwarming story of friendship and love that will touch your soul.', 1),
+                ('Cyber Punk 2077', 8.0, '2h 30min', '', 'Denis Villeneuve', 'Sci-fi Visionary', '$350M',
+                 'The future is now in this cyberpunk adventure. Enter a world of technology and chaos.', 0),
+                ('The Last Kingdom', 8.9, '2h 10min', '', 'Ridley Scott', 'Epic Storyteller', '$280M',
+                 'Epic battles and royal intrigue await in this historical masterpiece.', 1),
+                ('GOAT', 9.5, '2h 45min', '', 'Venkat Prabhu', 'Blockbuster Director', '$500M',
+                 'The greatest of all time - an unforgettable cinematic experience.', 1),
             ]
 
             for movie in sample_movies:
@@ -231,53 +229,136 @@ except Exception as e:
     print(f"Database initialization error: {e}")
 
 
-# Login required decorator
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session and 'predefined_user' not in session:
-            flash('Please log in to access this page', 'warning')
-            return redirect(url_for('signin', next=request.url))
-        return f(*args, **kwargs)
+# ============================================================
+# PAYMONGO PAYMENT FUNCTIONS (REWRITTEN)
+# ============================================================
 
-    return decorated_function
+def create_paymongo_checkout(booking_ref, amount, description, success_url, cancel_url):
+    """
+    Create a PayMongo Checkout Session using direct API calls.
+    This is more reliable than the paymongo library.
+    """
+    url = "https://api.paymongo.com/v1/checkout_sessions"
+
+    # Amount in centavos (PHP's smallest unit)
+    amount_centavos = int(float(amount) * 100)
+
+    payload = {
+        "data": {
+            "attributes": {
+                "send_email_receipt": True,
+                "show_description": True,
+                "show_line_items": True,
+                "description": description,
+                "line_items": [
+                    {
+                        "currency": "PHP",
+                        "amount": amount_centavos,
+                        "name": "Cinemax Movie Ticket",
+                        "quantity": 1,
+                        "description": f"Booking Reference: {booking_ref}"
+                    }
+                ],
+                "payment_method_types": ["card", "gcash", "grab_pay", "paymaya"],
+                "success_url": success_url,
+                "cancel_url": cancel_url,
+                "metadata": {
+                    "booking_reference": booking_ref
+                }
+            }
+        }
+    }
+
+    # Create Basic Auth header
+    auth_string = base64.b64encode(f"{PAYMONGO_SECRET_KEY}:".encode()).decode()
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Basic {auth_string}"
+    }
+
+    try:
+        print(f"Creating PayMongo checkout for booking {booking_ref}, amount: ₱{amount}")
+
+        response = requests.post(url, json=payload, headers=headers)
+
+        print(f"Response Status: {response.status_code}")
+
+        if response.status_code == 200 or response.status_code == 201:
+            result = response.json()
+
+            if "data" in result and "attributes" in result["data"]:
+                checkout_url = result["data"]["attributes"]["checkout_url"]
+                checkout_id = result["data"]["id"]
+
+                print(f"✅ Checkout created successfully! ID: {checkout_id}")
+
+                return {
+                    'success': True,
+                    'checkout_url': checkout_url,
+                    'checkout_id': checkout_id
+                }
+            else:
+                error_msg = result.get('errors', [{}])[0].get('detail', 'Unknown error')
+                print(f"API Error: {error_msg}")
+                return {
+                    'success': False,
+                    'error': error_msg
+                }
+        else:
+            error_text = response.text
+            print(f"HTTP Error {response.status_code}: {error_text}")
+            return {
+                'success': False,
+                'error': f'Payment service error (Status: {response.status_code})'
+            }
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request error: {e}")
+        return {
+            'success': False,
+            'error': f'Connection error: {str(e)}'
+        }
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 
-# Admin required decorator
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session and 'predefined_user' not in session:
-            flash('Please log in to access this page', 'warning')
-            return redirect(url_for('signin', next=request.url))
+def retrieve_checkout_session(checkout_id):
+    """Retrieve checkout session status"""
+    url = f"https://api.paymongo.com/v1/checkout_sessions/{checkout_id}"
 
-        role = session.get('role')
-        if role not in ['admin', 'manager']:
-            flash('You do not have permission to access this page', 'error')
-            return redirect(url_for('index'))
+    auth_string = base64.b64encode(f"{PAYMONGO_SECRET_KEY}:".encode()).decode()
+    headers = {
+        "accept": "application/json",
+        "authorization": f"Basic {auth_string}"
+    }
 
-        return f(*args, **kwargs)
+    try:
+        response = requests.get(url, headers=headers)
 
-    return decorated_function
+        if response.status_code == 200:
+            result = response.json()
+            return {
+                'success': True,
+                'data': result.get('data', {})
+            }
+        else:
+            return {
+                'success': False,
+                'error': f"Status: {response.status_code}"
+            }
+    except Exception as e:
+        print(f"Error retrieving checkout: {e}")
+        return {'success': False, 'error': str(e)}
 
 
-# Employee required decorator
-def employee_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session and 'predefined_user' not in session:
-            flash('Please log in to access this page', 'warning')
-            return redirect(url_for('signin', next=request.url))
-
-        role = session.get('role')
-        if role not in ['admin', 'manager', 'employee']:
-            flash('You do not have permission to access this page', 'error')
-            return redirect(url_for('index'))
-
-        return f(*args, **kwargs)
-
-    return decorated_function
-
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
 
 def get_movie_by_id(movie_id):
     """Fetch a single movie by ID"""
@@ -296,7 +377,7 @@ def get_movie_by_id(movie_id):
 
 
 def get_showtimes_for_movie(movie_id, show_date=None):
-    """Fetch showtimes for a specific movie, optionally filtered by date"""
+    """Fetch showtimes for a specific movie"""
     try:
         conn = get_db_connection()
         if conn:
@@ -347,7 +428,7 @@ def get_booked_seats(movie_id, showtime, show_date):
             cursor.execute("""
                 SELECT seats FROM bookings 
                 WHERE movie_id = ? AND showtime = ? AND show_date = ?
-                AND payment_status IN ('paid', 'pending', 'confirmed')
+                AND payment_status IN ('paid', 'confirmed')
             """, (movie_id, showtime, show_date))
             bookings = cursor.fetchall()
             cursor.close()
@@ -382,7 +463,7 @@ def generate_booking_reference():
 
 
 def save_booking_to_db(booking_data):
-    """Save booking to database with user_id"""
+    """Save booking to database"""
     try:
         conn = get_db_connection()
         if conn:
@@ -466,256 +547,62 @@ def update_booking_payment_status(booking_ref, status):
     return False
 
 
-def save_payment_record(booking_ref, payment_data, payment_method, amount):
-    """Save payment record to database"""
-    try:
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
+# ============================================================
+# AUTHENTICATION DECORATORS
+# ============================================================
 
-            cursor.execute("""
-                INSERT INTO payments (
-                    booking_reference, paymongo_payment_id, paymongo_source_id,
-                    amount, payment_method, status, webhook_payload
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                booking_ref,
-                payment_data.get('id'),
-                payment_data.get('source_id'),
-                amount / 100,
-                payment_method,
-                payment_data.get('status', 'pending'),
-                json.dumps(payment_data)
-            ))
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session and 'predefined_user' not in session:
+            flash('Please log in to access this page', 'warning')
+            return redirect(url_for('signin', next=request.url))
+        return f(*args, **kwargs)
 
-            conn.commit()
-            cursor.close()
-            conn.close()
-            return True
-    except Exception as e:
-        print(f"Error saving payment record: {e}")
-    return False
+    return decorated_function
 
 
-# PayMongo Payment Functions (same as before)
-def create_gcash_payment(amount, description, success_url, failure_url, booking_ref):
-    try:
-        payment_source_payload = {
-            "data": {
-                "attributes": {
-                    "type": "gcash",
-                    "amount": amount,
-                    "currency": "PHP",
-                    "redirect": {
-                        "success": success_url,
-                        "failed": failure_url
-                    },
-                    "metadata": {
-                        "booking_reference": booking_ref
-                    }
-                }
-            }
-        }
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session and 'predefined_user' not in session:
+            flash('Please log in to access this page', 'warning')
+            return redirect(url_for('signin', next=request.url))
 
-        print(f"Creating GCash source for booking {booking_ref}...")
-        response_source = paymongo.sources.create(payment_source_payload)
+        role = session.get('role')
+        if role not in ['admin', 'manager']:
+            flash('You do not have permission to access this page', 'error')
+            return redirect(url_for('index'))
 
-        payment_source_id = response_source['id']
-        checkout_url = response_source['attributes']['redirect']['checkout_url']
+        return f(*args, **kwargs)
 
-        return {
-            'success': True,
-            'source_id': payment_source_id,
-            'checkout_url': checkout_url,
-            'response': response_source
-        }
-
-    except Exception as e:
-        print(f"PayMongo GCash creation error: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
+    return decorated_function
 
 
-def create_grab_pay_payment(amount, description, success_url, failure_url, booking_ref):
-    try:
-        payment_source_payload = {
-            "data": {
-                "attributes": {
-                    "type": "grab_pay",
-                    "amount": amount,
-                    "currency": "PHP",
-                    "redirect": {
-                        "success": success_url,
-                        "failed": failure_url
-                    },
-                    "metadata": {
-                        "booking_reference": booking_ref
-                    }
-                }
-            }
-        }
+def employee_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session and 'predefined_user' not in session:
+            flash('Please log in to access this page', 'warning')
+            return redirect(url_for('signin', next=request.url))
 
-        print(f"Creating GrabPay source for booking {booking_ref}...")
-        response_source = paymongo.sources.create(payment_source_payload)
+        role = session.get('role')
+        if role not in ['admin', 'manager', 'employee']:
+            flash('You do not have permission to access this page', 'error')
+            return redirect(url_for('index'))
 
-        payment_source_id = response_source['id']
-        checkout_url = response_source['attributes']['redirect']['checkout_url']
+        return f(*args, **kwargs)
 
-        return {
-            'success': True,
-            'source_id': payment_source_id,
-            'checkout_url': checkout_url,
-            'response': response_source
-        }
-
-    except Exception as e:
-        print(f"PayMongo GrabPay creation error: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
+    return decorated_function
 
 
-def create_card_payment_intent(amount, description, booking_ref):
-    try:
-        payment_intent_payload = {
-            "data": {
-                "attributes": {
-                    "amount": amount,
-                    "payment_method_allowed": ["card"],
-                    "description": description,
-                    "statement_descriptor": "CINEMAX",
-                    "payment_method_options": {
-                        "card": {
-                            "request_three_d_secure": "automatic"
-                        }
-                    },
-                    "currency": "PHP",
-                    "metadata": {
-                        "booking_reference": booking_ref
-                    }
-                }
-            }
-        }
+# ============================================================
+# ROUTES
+# ============================================================
 
-        print(f"Creating card payment intent for booking {booking_ref}...")
-        intent_response = paymongo.payment_intents.create(payment_intent_payload)
-
-        intent_id = intent_response['id']
-        client_key = intent_response['attributes']['client_key']
-
-        return {
-            'success': True,
-            'intent_id': intent_id,
-            'client_key': client_key,
-            'response': intent_response
-        }
-
-    except Exception as e:
-        print(f"PayMongo card payment error: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
-
-
-def attach_payment_method_to_intent(intent_id, payment_method_id):
-    try:
-        attach_payload = {
-            "data": {
-                "attributes": {
-                    "payment_method": payment_method_id
-                }
-            }
-        }
-
-        result = paymongo.payment_intents.attach(intent_id, attach_payload)
-        return {
-            'success': True,
-            'response': result
-        }
-    except Exception as e:
-        print(f"Error attaching payment method: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
-
-
-def create_payment_method(card_details):
-    try:
-        payment_method_payload = {
-            "data": {
-                "attributes": {
-                    "type": "card",
-                    "details": {
-                        "card_number": card_details['card_number'],
-                        "exp_month": int(card_details['exp_month']),
-                        "exp_year": int(card_details['exp_year']),
-                        "cvc": card_details['cvc']
-                    }
-                }
-            }
-        }
-
-        result = paymongo.payment_methods.create(payment_method_payload)
-        return {
-            'success': True,
-            'payment_method_id': result['id'],
-            'response': result
-        }
-    except Exception as e:
-        print(f"Error creating payment method: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
-
-
-def process_payment_completion(source_id, amount, description, booking_ref):
-    try:
-        time.sleep(15)
-
-        payment_payload = {
-            "data": {
-                "attributes": {
-                    "description": description,
-                    "statement_descriptor": "CINEMAX",
-                    "amount": amount,
-                    "currency": "PHP",
-                    "source": {
-                        "id": source_id,
-                        "type": "source"
-                    },
-                    "metadata": {
-                        "booking_reference": booking_ref
-                    }
-                }
-            }
-        }
-
-        payment_response = paymongo.payments.create(payment_payload)
-
-        return {
-            'success': True,
-            'payment_id': payment_response['id'],
-            'response': payment_response
-        }
-
-    except Exception as e:
-        print(f"Payment completion error: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
-
-
-# Home Routes
 @app.route('/')
 def index():
-    """Home page with now showing and coming soon movies"""
+    """Home page"""
     try:
         conn = get_db_connection()
         if not conn:
@@ -858,49 +745,49 @@ def process_payment():
                 'message': 'Missing required fields'
             }), 400
 
-        amount_centavos = int(float(amount) * 100)
+        amount_float = float(amount)
 
-        if amount_centavos < 10000:
+        if amount_float < 100:
             return jsonify({
                 'success': False,
                 'message': 'Minimum payment amount is ₱100.00'
             }), 400
 
         base_url = request.host_url.rstrip('/')
-        success_url = f"{base_url}{url_for('payment_success', booking_ref=booking_ref)}"
-        failure_url = f"{base_url}{url_for('payment_failed', booking_ref=booking_ref)}"
+        success_url = f"{base_url}{url_for('payment_success')}?booking_ref={booking_ref}"
+        cancel_url = f"{base_url}{url_for('payment_failed')}?booking_ref={booking_ref}"
 
         description = f"Cinemax Booking {booking_ref}"
-        result = create_gcash_payment(
-            amount=amount_centavos,
+
+        result = create_paymongo_checkout(
+            booking_ref=booking_ref,
+            amount=amount_float,
             description=description,
             success_url=success_url,
-            failure_url=failure_url,
-            booking_ref=booking_ref
+            cancel_url=cancel_url
         )
 
         if result and result.get('success'):
+            # Save checkout ID to database
             try:
                 conn = get_db_connection()
                 if conn:
                     cursor = conn.cursor()
                     cursor.execute("""
                         UPDATE bookings 
-                        SET paymongo_source_id = ?, payment_method = ?
+                        SET paymongo_checkout_id = ?, payment_method = ?
                         WHERE booking_reference = ?
-                    """, (result['source_id'], 'gcash', booking_ref))
+                    """, (result['checkout_id'], payment_method, booking_ref))
                     conn.commit()
                     cursor.close()
                     conn.close()
             except Exception as e:
-                print(f"Error updating booking with source_id: {e}")
-
-            save_payment_record(booking_ref, result['response'], 'gcash', amount_centavos)
+                print(f"Error updating booking with checkout_id: {e}")
 
             return jsonify({
                 'success': True,
                 'checkout_url': result['checkout_url'],
-                'source_id': result['source_id']
+                'checkout_id': result['checkout_id']
             })
         else:
             error_message = result.get('error', 'Failed to create payment') if result else 'Payment creation failed'
@@ -919,94 +806,15 @@ def process_payment():
         }), 500
 
 
-@app.route('/create-payment-method', methods=['POST'])
-def create_payment_method_route():
-    try:
-        data = request.json
-        card_details = data.get('data', {}).get('attributes', {}).get('details', {})
-
-        result = create_payment_method(card_details)
-
-        if result['success']:
-            return jsonify({
-                'success': True,
-                'payment_method_id': result['payment_method_id']
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': result['error']
-            }), 400
-
-    except Exception as e:
-        print(f"Error in create_payment_method: {e}")
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 500
-
-
-@app.route('/attach-payment-method', methods=['POST'])
-def attach_payment_method():
-    try:
-        intent_id = request.form.get('intent_id')
-        payment_method_id = request.form.get('payment_method_id')
-        booking_ref = request.form.get('booking_ref')
-
-        result = attach_payment_method_to_intent(intent_id, payment_method_id)
-
-        if result['success']:
-            update_booking_payment_status(booking_ref, 'paid')
-            return jsonify({
-                'success': True,
-                'message': 'Payment successful'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': result['error']
-            }), 400
-
-    except Exception as e:
-        print(f"Error attaching payment method: {e}")
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 500
-
-
 @app.route('/payment/success')
 def payment_success():
     booking_ref = request.args.get('booking_ref')
 
-    try:
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT * FROM bookings 
-                WHERE booking_reference = ?
-            """, (booking_ref,))
-            booking = cursor.fetchone()
-            cursor.close()
+    if not booking_ref:
+        flash('No booking reference provided', 'error')
+        return redirect(url_for('index'))
 
-            if booking and booking['paymongo_source_id']:
-                amount = int(float(booking['total_amount']) * 100)
-                result = process_payment_completion(
-                    source_id=booking['paymongo_source_id'],
-                    amount=amount,
-                    description=f"Cinemax Booking {booking_ref}",
-                    booking_ref=booking_ref
-                )
-
-                if result['success']:
-                    update_booking_payment_status(booking_ref, 'paid')
-                    save_payment_record(booking_ref, result['response'], booking['payment_method'], amount)
-
-            conn.close()
-    except Exception as e:
-        print(f"Error in payment success: {e}")
-
+    # Update booking status to paid
     update_booking_payment_status(booking_ref, 'paid')
 
     try:
@@ -1032,52 +840,9 @@ def payment_success():
 @app.route('/payment/failed')
 def payment_failed():
     booking_ref = request.args.get('booking_ref')
-    update_booking_payment_status(booking_ref, 'failed')
+    if booking_ref:
+        update_booking_payment_status(booking_ref, 'failed')
     return render_template('payment_failed.html', booking_ref=booking_ref)
-
-
-@app.route('/paymongo-webhook', methods=['POST'])
-def paymongo_webhook():
-    payload = request.json
-
-    if payload and 'data' in payload:
-        event_type = payload['data']['attributes']['type']
-        event_data = payload['data']['attributes']['data']
-
-        print(f"Webhook received: {event_type}")
-
-        booking_ref = None
-        if 'attributes' in event_data and 'metadata' in event_data['attributes']:
-            booking_ref = event_data['attributes']['metadata'].get('booking_reference')
-
-        if event_type == 'source.chargeable':
-            source_id = event_data['id']
-            amount = event_data['attributes']['amount']
-
-            if booking_ref:
-                result = process_payment_completion(
-                    source_id=source_id,
-                    amount=amount,
-                    description=f"Cinemax Booking {booking_ref}",
-                    booking_ref=booking_ref
-                )
-
-                if result['success']:
-                    print(f"Payment completed for booking {booking_ref}")
-
-        elif event_type == 'payment.paid':
-            payment_id = event_data['id']
-            if booking_ref:
-                update_booking_payment_status(booking_ref, 'paid')
-                print(f"Payment successful: {payment_id} for booking {booking_ref}")
-
-        elif event_type == 'payment.failed':
-            payment_id = event_data['id']
-            if booking_ref:
-                update_booking_payment_status(booking_ref, 'failed')
-                print(f"Payment failed: {payment_id} for booking {booking_ref}")
-
-    return jsonify({"status": "received"}), 200
 
 
 @app.route('/cancel-booking', methods=['POST'])
@@ -1118,7 +883,10 @@ def mark_paid_cash():
         return jsonify({'success': False, 'message': 'Database error'})
 
 
-# Navigation Routes
+# ============================================================
+# NAVIGATION ROUTES
+# ============================================================
+
 @app.route('/showtimes')
 def showtimes():
     return render_template('showtimes.html')
@@ -1126,8 +894,18 @@ def showtimes():
 
 @app.route('/coming-soon')
 def coming_soon():
-    movies = get_all_movies()
-    return render_template('coming_soon.html', movies=movies)
+    try:
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM movies WHERE is_now_showing = 0 ORDER BY id DESC")
+            coming_soon_movies = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return render_template('coming_soon.html', coming_soon_movies=[dict(m) for m in coming_soon_movies])
+    except Exception as e:
+        print(f"Error in coming_soon: {e}")
+    return render_template('coming_soon.html', coming_soon_movies=[])
 
 
 @app.route('/contact')
@@ -1141,7 +919,10 @@ def all_movies():
     return render_template('all_movies.html', movies=movies)
 
 
-# Authentication Routes
+# ============================================================
+# AUTHENTICATION ROUTES
+# ============================================================
+
 @app.route('/signin')
 def signin():
     if 'user_id' in session or 'predefined_user' in session:
@@ -1292,13 +1073,6 @@ def signup():
         if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
             return jsonify({'success': False, 'message': 'Invalid email format'})
 
-        if email == PREDEFINED_ACCOUNTS['admin']['email']:
-            return jsonify({'success': False, 'message': 'This email is reserved for admin use'})
-
-        for employee in PREDEFINED_ACCOUNTS['employees']:
-            if email == employee['email']:
-                return jsonify({'success': False, 'message': 'This email is reserved for employee use'})
-
         conn = get_db_connection()
         if conn:
             cursor = conn.cursor()
@@ -1366,19 +1140,6 @@ def reset_password():
         if not email:
             return jsonify({'success': False, 'message': 'Email is required'})
 
-        if email == PREDEFINED_ACCOUNTS['admin']['email']:
-            return jsonify({
-                'success': False,
-                'message': 'Cannot reset password for admin account. Please contact system administrator.'
-            })
-
-        for employee in PREDEFINED_ACCOUNTS['employees']:
-            if email == employee['email']:
-                return jsonify({
-                    'success': False,
-                    'message': 'Cannot reset password for employee accounts. Please contact your manager.'
-                })
-
         conn = get_db_connection()
         if not conn:
             return jsonify({'success': False, 'message': 'Database connection error'})
@@ -1392,7 +1153,7 @@ def reset_password():
             conn.close()
             return jsonify({
                 'success': False,
-                'message': 'Email not found in our records. Please check your email or sign up.'
+                'message': 'Email not found in our records.'
             })
 
         reset_token = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
@@ -1482,7 +1243,10 @@ def logout():
     return redirect(url_for('index'))
 
 
-# Admin and Employee Dashboard Routes
+# ============================================================
+# ADMIN DASHBOARD ROUTES
+# ============================================================
+
 @app.route('/admin/dashboard')
 @admin_required
 def admin_dashboard():
@@ -1503,7 +1267,6 @@ def employee_dashboard():
     return render_template('employee_dashboard.html', user=session)
 
 
-# Admin Dashboard API Routes
 @app.route('/admin/stats')
 @admin_required
 def admin_stats():
@@ -1708,7 +1471,7 @@ def admin_delete_movie(movie_id):
             conn.close()
             return jsonify({
                 'success': False,
-                'message': f'Cannot delete movie with {booking_count} existing bookings. Please cancel bookings first.'
+                'message': f'Cannot delete movie with {booking_count} existing bookings.'
             }), 400
 
         cursor.execute("DELETE FROM movies WHERE id = ?", (movie_id,))
@@ -1791,13 +1554,6 @@ def admin_analytics():
         month_sales = cursor.fetchone()['total']
 
         cursor.execute("""
-            SELECT COALESCE(AVG(total_amount / number_of_tickets), 0) as avg_price 
-            FROM bookings 
-            WHERE payment_status = 'paid' AND number_of_tickets > 0
-        """)
-        avg_ticket_price = cursor.fetchone()['avg_price']
-
-        cursor.execute("""
             SELECT movie_title, COUNT(*) as booking_count 
             FROM bookings 
             WHERE payment_status = 'paid'
@@ -1827,7 +1583,6 @@ def admin_analytics():
             'today_sales': float(today_sales),
             'week_sales': float(week_sales),
             'month_sales': float(month_sales),
-            'avg_ticket_price': f"{float(avg_ticket_price):.2f}",
             'most_popular_movie': most_popular_movie,
             'peak_time': peak_time
         })
@@ -1837,7 +1592,6 @@ def admin_analytics():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
-# Showtime Management Routes
 @app.route('/admin/showtimes', methods=['GET'])
 @admin_required
 def admin_showtimes():
@@ -1945,23 +1699,6 @@ def admin_delete_showtime(showtime_id):
 
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT COUNT(*) as count FROM bookings 
-            WHERE movie_id = (SELECT movie_id FROM showtimes WHERE id = ?)
-            AND showtime = (SELECT show_time FROM showtimes WHERE id = ?)
-            AND show_date = (SELECT show_date FROM showtimes WHERE id = ?)
-        """, (showtime_id, showtime_id, showtime_id))
-
-        booking_count = cursor.fetchone()['count']
-
-        if booking_count > 0:
-            cursor.close()
-            conn.close()
-            return jsonify({
-                'success': False,
-                'message': f'Cannot delete showtime with {booking_count} existing bookings'
-            }), 400
-
         cursor.execute("DELETE FROM showtimes WHERE id = ?", (showtime_id,))
         conn.commit()
 
@@ -1983,7 +1720,10 @@ def admin_delete_showtime(showtime_id):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
-# API Routes
+# ============================================================
+# API ROUTES
+# ============================================================
+
 @app.route('/api/showtimes')
 def api_showtimes():
     try:
@@ -2003,13 +1743,7 @@ def api_showtimes():
                 s.show_time,
                 s.show_date,
                 s.price,
-                m.title as movie_title,
-                m.rating as movie_rating,
-                m.duration as movie_duration,
-                m.poster as movie_poster,
-                m.description as movie_description,
-                'Cinemax Mall' as cinema_name,
-                '2D' as format
+                m.title as movie_title
             FROM showtimes s
             JOIN movies m ON s.movie_id = m.id
             WHERE 1=1
@@ -2055,7 +1789,41 @@ def api_showtimes():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
-# User Profile Route
+@app.route('/api/notify-coming-soon', methods=['POST'])
+def notify_coming_soon():
+    try:
+        data = request.get_json()
+        movie_id = data.get('movie_id')
+        movie_title = data.get('movie_title')
+        email = data.get('email')
+
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO movie_notifications (movie_id, movie_title, email)
+                VALUES (?, ?, ?)
+            """, (movie_id, movie_title, email))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': f'You will be notified when {movie_title} is available!'
+        })
+    except Exception as e:
+        print(f"Error in notify_coming_soon: {e}")
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+
+# ============================================================
+# USER PROFILE ROUTES
+# ============================================================
+
 @app.route('/profile')
 @login_required
 def profile():
@@ -2100,7 +1868,6 @@ def profile():
         return redirect(url_for('index'))
 
 
-# My Bookings Route
 @app.route('/my-bookings')
 @login_required
 def my_bookings():
@@ -2127,158 +1894,179 @@ def my_bookings():
         return redirect(url_for('index'))
 
 
-# Test route for PayMongo
+@app.route('/my-bookings/api')
+@login_required
+def my_bookings_api():
+    try:
+        if session.get('predefined_user'):
+            return jsonify({'success': True, 'bookings': []})
+
+        conn = get_db_connection()
+        if conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT * FROM bookings 
+                WHERE user_id = ? 
+                ORDER BY booking_date DESC
+            """, (session['user_id'],))
+            bookings = cursor.fetchall()
+            cursor.close()
+            conn.close()
+
+            return jsonify({
+                'success': True,
+                'bookings': [dict(b) for b in bookings]
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+    except Exception as e:
+        print(f"Error in my_bookings_api: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/profile/update', methods=['POST'])
+@login_required
+def update_profile():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        email = data.get('email')
+
+        if not username or not email:
+            return jsonify({'success': False, 'message': 'Username and email are required'}), 400
+
+        if session.get('predefined_user'):
+            return jsonify({'success': False, 'message': 'Predefined accounts cannot be modified'}), 400
+
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id FROM users WHERE email = ? AND id != ?", (email, session['user_id']))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Email already in use'}), 400
+
+        cursor.execute("SELECT id FROM users WHERE username = ? AND id != ?", (username, session['user_id']))
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Username already taken'}), 400
+
+        cursor.execute("""
+            UPDATE users 
+            SET username = ?, email = ?
+            WHERE id = ?
+        """, (username, email, session['user_id']))
+
+        conn.commit()
+
+        session['username'] = username
+        session['email'] = email
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Profile updated successfully'})
+
+    except Exception as e:
+        print(f"Error in update_profile: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/profile/change-password', methods=['POST'])
+@login_required
+def change_password():
+    try:
+        data = request.get_json()
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+
+        if not current_password or not new_password:
+            return jsonify({'success': False, 'message': 'Current password and new password are required'}), 400
+
+        if len(new_password) < 8:
+            return jsonify({'success': False, 'message': 'Password must be at least 8 characters'}), 400
+
+        if not re.search(r'[A-Za-z]', new_password) or not re.search(r'[0-9]', new_password):
+            return jsonify({'success': False, 'message': 'Password must contain both letters and numbers'}), 400
+
+        if session.get('predefined_user'):
+            return jsonify({'success': False, 'message': 'Predefined accounts cannot change passwords'}), 400
+
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+
+        cursor = conn.cursor()
+        cursor.execute("SELECT password FROM users WHERE id = ?", (session['user_id'],))
+        user = cursor.fetchone()
+
+        if not user:
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+
+        if not check_password_hash(user['password'], current_password):
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Current password is incorrect'}), 400
+
+        hashed_password = generate_password_hash(new_password)
+
+        cursor.execute("""
+            UPDATE users 
+            SET password = ?
+            WHERE id = ?
+        """, (hashed_password, session['user_id']))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Password changed successfully'})
+
+    except Exception as e:
+        print(f"Error in change_password: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+# ============================================================
+# TEST ROUTE
+# ============================================================
+
 @app.route('/test-paymongo')
 def test_paymongo():
+    """Test PayMongo connection"""
     try:
-        test_payload = {
-            "data": {
-                "attributes": {
-                    "type": "gcash",
-                    "amount": 10000,
-                    "currency": "PHP",
-                    "redirect": {
-                        "success": "https://example.com/success",
-                        "failed": "https://example.com/failed"
-                    }
-                }
-            }
-        }
+        test_result = create_paymongo_checkout(
+            booking_ref="TEST001",
+            amount=100,
+            description="Test Payment",
+            success_url="http://localhost:5000/",
+            cancel_url="http://localhost:5000/"
+        )
 
-        response = paymongo.sources.create(test_payload)
-
-        return jsonify({
-            'success': True,
-            'message': 'PayMongo connection successful',
-            'response': response
-        })
+        if test_result.get('success'):
+            return jsonify({
+                'success': True,
+                'message': 'PayMongo connection successful!',
+                'checkout_url': test_result['checkout_url']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': f'PayMongo error: {test_result.get("error", "Unknown error")}'
+            }), 500
     except Exception as e:
         return jsonify({
             'success': False,
             'message': f'Error: {str(e)}'
         }), 500
-
-
-@app.route('/paymongo_checkout')
-def paymongo_checkout():
-    ref = request.args.get('ref')
-
-    if not ref:
-        return "No reference provided", 400
-
-    try:
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
-
-            cursor.execute("""
-                SELECT booking_reference FROM bookings 
-                WHERE paymongo_source_id = ?
-            """, (ref,))
-
-            booking = cursor.fetchone()
-
-            if booking:
-                booking_ref = booking['booking_reference']
-            else:
-                booking_ref = ref
-
-            cursor.close()
-            conn.close()
-
-            update_booking_payment_status(booking_ref, 'paid')
-            return redirect(url_for('payment_success', booking_ref=booking_ref))
-
-    except Exception as e:
-        print(f"Error in paymongo_checkout: {e}")
-
-    return redirect(url_for('payment_success', booking_ref=ref))
-
-
-@app.route('/paymongo_checkout', methods=['POST'])
-def paymongo_webhook_checkout():
-    payload = request.json
-
-    if payload and 'data' in payload:
-        event_type = payload['data']['attributes']['type']
-        event_data = payload['data']['attributes']['data']
-
-        booking_ref = None
-        if 'attributes' in event_data and 'metadata' in event_data['attributes']:
-            booking_ref = event_data['attributes']['metadata'].get('booking_reference')
-
-        if event_type == 'source.chargeable':
-            source_id = event_data['id']
-            amount = event_data['attributes']['amount']
-
-            if booking_ref:
-                result = process_payment_completion(
-                    source_id=source_id,
-                    amount=amount,
-                    description=f"Cinemax Booking {booking_ref}",
-                    booking_ref=booking_ref
-                )
-
-                if result['success']:
-                    update_booking_payment_status(booking_ref, 'paid')
-
-        elif event_type == 'payment.paid':
-            if booking_ref:
-                update_booking_payment_status(booking_ref, 'paid')
-
-        elif event_type == 'payment.failed':
-            if booking_ref:
-                update_booking_payment_status(booking_ref, 'failed')
-
-        elif event_type == 'source.failed':
-            if booking_ref:
-                update_booking_payment_status(booking_ref, 'failed')
-
-    return jsonify({"status": "received"}), 200
-
-
-@app.route('/paymongo_checkout', methods=['GET'])
-def paymongo_checkout_redirect():
-    ref = request.args.get('ref')
-    payment_intent_id = request.args.get('payment_intent_id')
-    source_id = request.args.get('source_id')
-
-    booking_ref = None
-
-    if ref:
-        booking_ref = ref
-    elif payment_intent_id or source_id:
-        try:
-            conn = get_db_connection()
-            if conn:
-                cursor = conn.cursor()
-
-                if payment_intent_id:
-                    cursor.execute("""
-                        SELECT booking_reference FROM bookings 
-                        WHERE paymongo_payment_id = ?
-                    """, (payment_intent_id,))
-                elif source_id:
-                    cursor.execute("""
-                        SELECT booking_reference FROM bookings 
-                        WHERE paymongo_source_id = ?
-                    """, (source_id,))
-
-                booking = cursor.fetchone()
-                if booking:
-                    booking_ref = booking['booking_reference']
-
-                cursor.close()
-                conn.close()
-        except Exception as e:
-            print(f"Error finding booking: {e}")
-
-    if booking_ref:
-        update_booking_payment_status(booking_ref, 'paid')
-        return redirect(url_for('payment_success', booking_ref=booking_ref))
-    else:
-        flash('Payment completed but we could not verify your booking. Please contact support.', 'warning')
-        return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

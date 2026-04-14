@@ -45,13 +45,19 @@
         .logo {
             height: 50px;
             width: auto;
+            max-width: 150px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .logo img {
             height: 100%;
             width: auto;
+            max-width: 100%;
             display: block;
+            object-fit: contain;
         }
 
         .top-text {
@@ -711,9 +717,10 @@
             font-size: 20px;
         }
 
-        @media (max-width: 1200px) {
+        /* Responsive - Match reference logo sizing */
+        @media (max-width: 768px) {
             .movies-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -721,11 +728,23 @@
             .content {
                 padding: 40px;
             }
+            .top-bar {
+                padding: 15px 20px;
+            }
+            .top-text {
+                gap: 20px;
+                font-size: 12px;
+            }
+            .logo {
+                height: 35px;
+                max-width: 100px;
+            }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
             .movies-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
             .stats-grid {
                 grid-template-columns: 1fr;
@@ -734,11 +753,50 @@
                 padding: 20px;
             }
             .top-bar {
-                padding: 15px 20px;
+                padding: 10px 15px;
+            }
+            .logo {
+                height: 28px;
+                max-width: 80px;
             }
             .top-text {
-                gap: 15px;
-                font-size: 12px;
+                gap: 12px;
+                font-size: 10px;
+            }
+            .admin-badge {
+                right: 15px;
+                top: 80px;
+                font-size: 10px;
+                padding: 4px 12px;
+            }
+            .dashboard-header h1 {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo {
+                height: 24px;
+                max-width: 70px;
+            }
+            .top-bar {
+                padding: 8px 12px;
+            }
+            .top-text {
+                gap: 8px;
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .movies-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .movies-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -819,7 +877,9 @@
                     <thead>
                         <tr><th>Reference</th><th>Movie</th><th>Showtime</th><th>Seats</th><th>Amount</th><th>Status</th><th>Date</th></tr>
                     </thead>
-                    <tbody id="bookingsTableBody"><tr><td colspan="7" style="text-align: center;">Loading bookings...</td></tr></tbody>
+                    <tbody id="bookingsTableBody">\
+                        <tr><td colspan="7" style="text-align: center;">Loading bookings...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -891,9 +951,7 @@
         if (tab === 'analytics') loadAnalytics();
     }
 
-    // Function to open Add Movie Modal
     function openAddMovieModal() {
-        // Reset the form
         document.getElementById('modalTitle').textContent = 'Add New Movie';
         document.getElementById('movieId').value = '';
         document.getElementById('title').value = '';
@@ -902,9 +960,7 @@
         document.getElementById('poster').value = '';
         document.getElementById('director').value = '';
         document.getElementById('description').value = '';
-        document.getElementById('isNowShowing').value = '1'; // Default to Now Showing
-
-        // Show the modal
+        document.getElementById('isNowShowing').value = '1';
         document.getElementById('movieModal').classList.add('active');
     }
 
@@ -979,7 +1035,17 @@
             const data = await response.json();
             const tableBody = document.getElementById('bookingsTableBody');
             if (data.success && data.bookings && data.bookings.length > 0) {
-                tableBody.innerHTML = data.bookings.map(booking => `英语<td>${booking.booking_reference}</td><td>${booking.movie_title}</td><td>${booking.showtime} (${booking.show_date})</td><td>${booking.seats}</td><td>₱${booking.total_amount}</td><td><span class="status-${booking.payment_status}">${booking.payment_status.toUpperCase()}</span></td><td>${new Date(booking.booking_date).toLocaleDateString()}</td>`).join('');
+                tableBody.innerHTML = data.bookings.map(booking => `
+                    <tr>
+                        <td>${booking.booking_reference}</td>
+                        <td>${booking.movie_title}</td>
+                        <td>${booking.showtime} (${booking.show_date})</td>
+                        <td>${booking.seats}</td>
+                        <td>₱${booking.total_amount}</td>
+                        <td><span class="status-${booking.payment_status}">${booking.payment_status.toUpperCase()}</span></td>
+                        <td>${new Date(booking.booking_date).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
             } else {
                 tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No bookings found</td></tr>';
             }
@@ -1161,9 +1227,8 @@
             event.target.classList.remove('active');
     }
 
-    // Initialize
     loadStats();
     loadMovies();
-</script>
+    </script>
 </body>
 </html>

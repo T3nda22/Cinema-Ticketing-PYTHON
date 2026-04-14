@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cinemax - My Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            max-width: 150px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            flex-wrap: wrap;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
+        }
+
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
+        }
+
+        .header img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 60px 80px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+        }
+
+        /* Profile Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e50914, #ff4d4d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
+        }
+
+        .profile-info h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #e50914 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-info .role-badge {
+            display: inline-block;
+            background: rgba(229, 9, 20, 0.2);
+            border: 1px solid #e50914;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .profile-info .member-since {
+            color: #999;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid #2a3138;
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #e50914;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Tabs */
+        .profile-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #2a3138;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #e50914;
+        }
+
+        .tab-btn.active {
+            color: #e50914;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #e50914;
+            border-radius: 2px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Bookings Table */
+        .bookings-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1e24;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #2a3138;
+        }
+
+        th {
+            background: #0a0c0f;
+            color: #e50914;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        td {
+            color: #ccc;
+        }
+
+        .status-paid {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .status-cancelled {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .booking-ref {
+            font-family: monospace;
+            font-weight: 600;
+            color: #e50914;
+        }
+
+        .view-details {
+            color: #e50914;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .view-details:hover {
+            text-decoration: underline;
+        }
+
+        /* Profile Form */
+        .profile-form {
+            max-width: 600px;
+            background: #1a1e24;
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid #2a3138;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #999;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #0a0c0f;
+            border: 1px solid #2a3138;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e50914;
+        }
+
+        .form-group input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #e50914, #ff4d4d);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
+        }
+
+        .change-password-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #e50914;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .change-password-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1e24;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #2a3138;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: white;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 30px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #e50914;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.5s ease;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .alert-error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .alert-info {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid #2196f3;
+            color: #2196f3;
+        }
+
+        .close-alert {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            background: #1a1e24;
+            border-radius: 16px;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state .browse-link {
+            color: #e50914;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .empty-state .browse-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 40px 20px;
+            }
+            .top-bar {
+                padding: 15px 20px;
+            }
+            .top-text {
+                gap: 15px;
+                font-size: 12px;
+            }
+            .logo {
+                height: 35px;
+                max-width: 100px;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-info h1 {
+                font-size: 32px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            .stat-value {
+                font-size: 24px;
+            }
+            th, td {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .profile-tabs {
+                gap: 10px;
+            }
+            .tab-btn {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .logo {
+                height: 28px;
+                max-width: 80px;
+            }
+            .top-text {
+                gap: 10px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo {
+                height: 24px;
+                max-width: 70px;
+            }
+            .top-bar {
+                padding: 10px 12px;
+            }
+            .top-text {
+                gap: 8px;
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="top-bar">
+            <div class="logo" onclick="location.href='/'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
+            </div>
+            <div class="top-text">
+                <span onclick="location.href='/'">MOVIES</span>
+                <span onclick="location.href='/coming-soon'">COMING SOON</span>
+                <span onclick="location.href='/contact'">CONTACT</span>
+                <span class="active" onclick="location.href='/profile'">PROFILE</span>
+                {% if session.role in ['admin', 'manager', 'employee'] %}
+                    <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                        {{ session.role|upper }} DASHBOARD
+                    </span>
+                {% endif %}
+                <span onclick="location.href='/logout'">LOGOUT</span>
+            </div>
+        </div>
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
+    </div>
+
+    <div class="content">
+        <div id="alertContainer"></div>
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.username[0].upper() if user and user.username else 'U' }}
+            </div>
+            <div class="profile-info">
+                <h1>{{ user.username if user else 'User' }}</h1>
+                <div class="role-badge">{{ user.role.upper() if user and user.role else 'USER' }}</div>
+                <div class="member-since">
+                    Member since: {{ user.created_at.split()[0] if user and user.created_at and user.created_at != 'Predefined Account' else 'Predefined Account' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎬</div>
+                <div class="stat-value" id="totalBookings">0</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎟️</div>
+                <div class="stat-value" id="totalTickets">0</div>
+                <div class="stat-label">Tickets Purchased</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="totalSpent">₱0</div>
+                <div class="stat-label">Total Spent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="completedBookings">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <button class="tab-btn active" onclick="switchTab('bookings')">🎟️ My Bookings</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ Account Settings</button>
+        </div>
+
+        <div id="bookingsTab" class="tab-content active">
+            <div class="bookings-table">
+                <table>
+                    <thead>
+                        <tr><th>Booking Reference</th><th>Movie</th><th>Showtime</th><th>Date</th><th>Seats</th><th>Tickets</th><th>Amount</th><th>Status</th><th>Details</th></tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <tr><td colspan="9" style="text-align: center;">Loading bookings...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="settingsTab" class="tab-content">
+            <div class="profile-form">
+                <form id="profileForm" onsubmit="updateProfile(event)">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" name="username" value="{{ user.username if user else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ user.email if user else '' }}" required {% if user and user.email in ['admin@cinemax.com', 'employee1@cinemax.com', 'employee2@cinemax.com', 'manager@cinemax.com'] %}disabled{% endif %}>
+                        {% if user and user.email in ['admin@cinemax.com', 'employee1@cinemax.com', 'employee2@cinemax.com', 'manager@cinemax.com'] %}
+                            <small style="color: #e50914;">Email cannot be changed for predefined accounts</small>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <a href="#" class="change-password-link" onclick="openChangePasswordModal(event)">Change Password</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Change Password</h2>
+                <button class="close-modal" onclick="closeModal('passwordModal')">&times;</button>
+            </div>
+            <form id="passwordForm" onsubmit="changePassword(event)">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" required>
+                    <small style="color: #999;">At least 8 characters with letters and numbers</small>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="save-btn">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
+    </div>
+    <div class="copyright">
+        Cinemax 2025 All rights reserved
+    </div>
+
+    <script>
+        let allBookings = [];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('bookingsTab').classList.remove('active');
+            document.getElementById('settingsTab').classList.remove('active');
+            
+            document.getElementById(`${tab}Tab`).classList.add('active');
+            
+            if (tab === 'bookings') {
+                loadBookings();
+            }
+        }
+
+        async function loadBookings() {
+            try {
+                const response = await fetch('/my-bookings/api');
+                if (!response.ok) {
+                    throw new Error('Failed to load bookings');
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    allBookings = data.bookings;
+                    updateBookingsTable(data.bookings);
+                    updateStats(data.bookings);
+                } else {
+                    document.getElementById('bookingsTableBody').innerHTML = `
+                        <tr><td colspan="9" style="text-align: center;">No bookings found. <a href="/" style="color: #e50914;">Browse movies</a> to book your first ticket!</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                document.getElementById('bookingsTableBody').innerHTML = `
+                    <tr><td colspan="9" style="text-align: center;">Error loading bookings. Please try again later.</td></tr>
+                `;
+            }
+        }
+
+        function updateBookingsTable(bookings) {
+            const tbody = document.getElementById('bookingsTableBody');
+            
+            if (!bookings || bookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="9" style="text-align: center;">No bookings found. <a href="/" style="color: #e50914;">Browse movies</a> to book your first ticket!</td></tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = bookings.map(booking => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(booking.payment_status) {
+                    case 'paid':
+                        statusClass = 'status-paid';
+                        statusText = 'PAID';
+                        break;
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusText = 'PENDING';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'status-cancelled';
+                        statusText = 'CANCELLED';
+                        break;
+                    default:
+                        statusText = booking.payment_status.toUpperCase();
+                }
+                
+                const showDate = booking.show_date ? new Date(booking.show_date).toLocaleDateString() : 'N/A';
+                const bookingDate = booking.booking_date ? new Date(booking.booking_date).toLocaleDateString() : 'N/A';
+                
+                return `
+                    <tr>
+                        <td class="booking-ref">${booking.booking_reference || 'N/A'}</td>
+                        <td>${escapeHtml(booking.movie_title || 'N/A')}</td>
+                        <td>${booking.showtime || 'N/A'}</td>
+                        <td>${showDate}</td>
+                        <td>${booking.seats || 'N/A'}</td>
+                        <td>${booking.number_of_tickets || 0}</td>
+                        <td>₱${parseFloat(booking.total_amount || 0).toFixed(2)}</td>
+                        <td><span class="${statusClass}">${statusText}</span></td>
+                        <td><a href="#" class="view-details" onclick="viewBookingDetails('${booking.booking_reference}')">View</a></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats(bookings) {
+            const totalBookings = bookings.length;
+            const totalTickets = bookings.reduce((sum, b) => sum + (b.number_of_tickets || 0), 0);
+            const totalSpent = bookings.reduce((sum, b) => sum + (b.payment_status === 'paid' ? parseFloat(b.total_amount || 0) : 0), 0);
+            const completedBookings = bookings.filter(b => b.payment_status === 'paid').length;
+            
+            document.getElementById('totalBookings').textContent = totalBookings;
+            document.getElementById('totalTickets').textContent = totalTickets;
+            document.getElementById('totalSpent').textContent = `₱${totalSpent.toFixed(2)}`;
+            document.getElementById('completedBookings').textContent = completedBookings;
+        }
+
+        function viewBookingDetails(bookingRef) {
+            window.location.href = `/booking-details/${bookingRef}`;
+        }
+
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            
+            if (!username || !email) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+            
+            const btn = event.submitter;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Saving...';
+            
+            try {
+                const response = await fetch('/profile/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('Profile updated successfully!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showAlert(data.message || 'Error updating profile', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('Error updating profile', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function openChangePasswordModal(event) {
+            event.preventDefault();
+            document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('passwordForm').reset();
+        }
+
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('New passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showAlert('Password must be at least 8 characters', 'error');
+                return;
+            }
+            
+            const btn = event.submitter;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Updating...';
+            
+            try {
+                const response = await fetch('/profile/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('Password changed successfully!', 'success');
+                    closeModal('passwordModal');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showAlert(data.message || 'Error changing password', 'error');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showAlert('Error changing password', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <span>${message}</span>
+                <span class="close-alert" onclick="this.parentElement.remove()">&times;</span>
+            `;
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 500);
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // Initialize
+        loadBookings();
+    </script>
+
+    <style>
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .view-details {
+            color: #e50914;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .view-details:hover {
+            text-decoration: underline;
+        }
+        
+        small {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+    </style>
+</body>
+</html>

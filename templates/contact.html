@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cinemax - Contact Us | Get in Touch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 100px !important;
+            width: auto !important;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 100% !important;
+            width: auto !important;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .logo:hover img {
+            transform: scale(1.02);
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            flex-wrap: wrap;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
+        }
+
+        .header img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            text-align: center;
+            margin-top: -100px;
+            margin-bottom: 60px;
+            z-index: 2;
+        }
+
+        .hero-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #e50914);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-size: 20px;
+            color: #ccc;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 40px 80px 60px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+        }
+
+        /* Contact Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 50px;
+            margin-bottom: 80px;
+        }
+
+        /* Contact Info Cards */
+        .contact-info {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid #2a3138;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e50914;
+        }
+
+        .info-header .icon {
+            font-size: 40px;
+        }
+
+        .info-header h2 {
+            font-size: 28px;
+            color: white;
+        }
+
+        .info-details {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(10px);
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .info-icon {
+            font-size: 32px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .info-text {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #e50914;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .info-value a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .info-value a:hover {
+            color: #e50914;
+        }
+
+        /* Contact Form */
+        .contact-form-container {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid #2a3138;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e50914;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a3138;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #e50914;
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        /* Social Section */
+        .social-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px;
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 24px;
+            border: 1px solid #2a3138;
+        }
+
+        .social-section h2 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .social-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .social-card:hover {
+            transform: translateY(-5px);
+            background: rgba(229, 9, 20, 0.1);
+            border: 1px solid #e50914;
+        }
+
+        .social-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .social-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .social-handle {
+            color: #e50914;
+            font-size: 14px;
+        }
+
+        /* Team Section */
+        .team-section {
+            margin-bottom: 60px;
+        }
+
+        .team-section h2 {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .team-section h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: #e50914;
+            border-radius: 2px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .team-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #2a3138;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e50914, #ff4d4d);
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            border-color: #e50914;
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.2);
+        }
+
+        .team-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e50914, #ff4d4d);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .team-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .team-role {
+            color: #e50914;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .team-bio {
+            color: #999;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Business Hours */
+        .hours-section {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 24px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+            border: 1px solid #2a3138;
+        }
+
+        .hours-section h3 {
+            font-size: 24px;
+            color: #e50914;
+            margin-bottom: 20px;
+        }
+
+        .hours-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hours-item {
+            text-align: center;
+        }
+
+        .hours-day {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .hours-time {
+            color: #999;
+            font-size: 16px;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.5s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 20;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .content {
+                padding: 30px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            .hero-section h1 {
+                font-size: 32px;
+            }
+            .hero-section p {
+                font-size: 16px;
+            }
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .top-bar {
+                padding: 12px 20px;
+            }
+            .logo {
+                height: 60px;
+            }
+            .top-text {
+                gap: 20px;
+                font-size: 12px;
+            }
+            .info-value {
+                font-size: 16px;
+            }
+            .social-card {
+                padding: 15px 25px;
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section h1 {
+                font-size: 24px;
+            }
+            .contact-info, .contact-form-container {
+                padding: 25px;
+            }
+            .info-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            .social-card {
+                width: 100%;
+            }
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="top-bar">
+            <div class="logo" onclick="location.href='{{ url_for('index') }}'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
+            </div>
+            <div class="top-text">
+                <span onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
+                <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
+                <span class="active" onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
+
+                {% if session.user_id or session.predefined_user %}
+                    <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    {% if session.role in ['admin', 'manager', 'employee'] %}
+                        <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                            {{ session.role|upper }} DASHBOARD
+                        </span>
+                    {% endif %}
+                    <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
+                {% else %}
+                    <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+                {% endif %}
+            </div>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
+        </div>
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>Get in Touch</h1>
+            <p>We'd love to hear from you! Whether you have questions about showtimes, bookings, or just want to say hello.</p>
+        </div>
+
+        <!-- Contact Grid -->
+        <div class="contact-grid">
+            <!-- Contact Information -->
+            <div class="contact-info">
+                <div class="info-header">
+                    <span class="icon">📍</span>
+                    <h2>Contact Information</h2>
+                </div>
+                <div class="info-details">
+                    <div class="info-item">
+                        <div class="info-icon">📞</div>
+                        <div class="info-text">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">
+                                <a href="tel:+63909692620684">+63 909 6926 20684</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">📧</div>
+                        <div class="info-text">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">
+                                <a href="mailto:cinemax@cinemax.com">cinemax@cinemax.com</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div class="info-text">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">SM Mall of Asia, Pasay City, Metro Manila</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">🌐</div>
+                        <div class="info-text">
+                            <div class="info-label">Facebook Page</div>
+                            <div class="info-value">
+                                <a href="https://facebook.com/cinemax" target="_blank">@cinemax</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="contact-form-container">
+                <div class="form-header">
+                    <h2>Send us a Message</h2>
+                    <p>We'll get back to you as soon as possible</p>
+                </div>
+
+                <div id="successMessage" class="success-message">
+                    ✅ Thank you for reaching out! We'll respond within 24 hours.
+                </div>
+
+                <form class="contact-form" id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="fullName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="emailAddress" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="phoneNumber" placeholder="Enter your phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="subject">
+                                <option value="general">General Inquiry</option>
+                                <option value="booking">Booking Issue</option>
+                                <option value="refund">Refund Request</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="complaint">Complaint</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="message" placeholder="Tell us how we can help you..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Social Media Section -->
+        <div class="social-section">
+            <h2>Follow Us on Social Media</h2>
+            <div class="social-links">
+                <div class="social-card" onclick="window.open('https://facebook.com/cinemax', '_blank')">
+                    <div class="social-icon">
+                        <img src="{{ url_for('static', filename='images/facebook-logo.png') }}" alt="Facebook" onerror="this.src='https://placehold.co/60x60?text=FB'">
+                    </div>
+                    <div class="social-name">Facebook</div>
+                    <div class="social-handle">@cinemax</div>
+                </div>
+                <div class="social-card" onclick="window.open('https://instagram.com/cinemax', '_blank')">
+                    <div class="social-icon">
+                        <img src="{{ url_for('static', filename='images/instagram-logo.png') }}" alt="Instagram" onerror="this.src='https://placehold.co/60x60?text=IG'">
+                    </div>
+                    <div class="social-name">Instagram</div>
+                    <div class="social-handle">@cinemax_ph</div>
+                </div>
+                <div class="social-card" onclick="window.open('https://twitter.com/cinemax', '_blank')">
+                    <div class="social-icon">
+                        <img src="{{ url_for('static', filename='images/twitter-logo.png') }}" alt="Twitter" onerror="this.src='https://placehold.co/60x60?text=TW'">
+                    </div>
+                    <div class="social-name">Twitter</div>
+                    <div class="social-handle">@cinemax</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Hours -->
+        <div class="hours-section">
+            <h3>Business Hours</h3>
+            <div class="hours-grid">
+                <div class="hours-item">
+                    <div class="hours-day">Monday - Thursday</div>
+                    <div class="hours-time">10:00 AM - 9:00 PM</div>
+                </div>
+                <div class="hours-item">
+                    <div class="hours-day">Friday - Sunday</div>
+                    <div class="hours-time">9:00 AM - 11:00 PM</div>
+                </div>
+                <div class="hours-item">
+                    <div class="hours-day">Holidays</div>
+                    <div class="hours-time">10:00 AM - 10:00 PM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meet the Team Section -->
+        <div class="team-section">
+            <h2>Meet the Team</h2>
+            <div class="team-grid">
+                <!-- Lead Developer / Designer -->
+                <div class="team-card">
+                    <div class="team-avatar">👨‍💻</div>
+                    <div class="team-name">Ron Russel Dungog</div>
+                    <div class="team-role">Lead Developer & Designer</div>
+                    <div class="team-bio">Full-stack developer and UI/UX designer behind Cinemax. Passionate about creating seamless cinema booking experiences.</div>
+                </div>
+
+                <!-- 2nd Developer -->
+                <div class="team-card">
+                    <div class="team-avatar">👨‍💻</div>
+                    <div class="team-name">Jade Deevyd Gallardo</div>
+                    <div class="team-role">Backend Developer</div>
+                    <div class="team-bio">Specializes in database architecture and payment integration. Ensures smooth transaction processing.</div>
+                </div>
+
+                <!-- Documenter -->
+                <div class="team-card">
+                    <div class="team-avatar">📝</div>
+                    <div class="team-name">Christian Jay Unabia</div>
+                    <div class="team-role">Technical Documenter</div>
+                    <div class="team-bio">Responsible for system documentation, user guides, and maintaining technical specifications.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
+    </div>
+    <div class="copyright">
+        Cinemax 2025 All rights reserved
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function initMobileMenu() {
+            const topText = document.querySelector('.top-text');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && topText && mobileMenuBtn) {
+                mobileMenuBtn.style.display = 'block';
+                topText.style.display = 'none';
+
+                mobileMenuBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    if (topText.style.display === 'none' || topText.style.display === '') {
+                        topText.style.display = 'flex';
+                        topText.style.flexDirection = 'column';
+                        topText.style.position = 'absolute';
+                        topText.style.top = '60px';
+                        topText.style.right = '15px';
+                        topText.style.background = 'rgba(0,0,0,0.95)';
+                        topText.style.padding = '15px 20px';
+                        topText.style.borderRadius = '12px';
+                        topText.style.gap = '12px';
+                        topText.style.minWidth = '140px';
+                        topText.style.backdropFilter = 'blur(10px)';
+                        topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                        topText.style.zIndex = '20';
+                    } else {
+                        topText.style.display = 'none';
+                    }
+                };
+
+                document.addEventListener('click', function(e) {
+                    const topBar = document.querySelector('.top-bar');
+                    if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                        topText.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form values
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('emailAddress').value;
+            const phone = document.getElementById('phoneNumber').value;
+            const subjectSelect = document.getElementById('subject');
+            const subject = subjectSelect.options[subjectSelect.selectedIndex].text;
+            const message = document.getElementById('message').value;
+
+            // Simple validation
+            if (!fullName || !email || !message) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+
+            // Reset form
+            document.getElementById('contactForm').reset();
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 5000);
+        });
+
+        // Phone number click handler
+        const phoneLink = document.querySelector('a[href="tel:+63909692620684"]');
+        if (phoneLink) {
+            phoneLink.addEventListener('click', function(e) {
+                console.log('Phone number clicked: 0909692620684');
+            });
+        }
+
+        // Initialize mobile menu
+        initMobileMenu();
+
+        // Add active class to current nav item
+        document.querySelectorAll('.top-text span').forEach(span => {
+            if (span.textContent === 'CONTACT') {
+                span.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
