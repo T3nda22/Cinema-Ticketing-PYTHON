@@ -256,8 +256,8 @@
             font-weight: 600;
         }
 
-        /* Showtimes Section */
-        .showtimes-section {
+        /* Cinema Type Selection */
+        .cinema-type-section {
             margin-top: 40px;
         }
 
@@ -278,6 +278,123 @@
             height: 4px;
             background: #e50914;
             border-radius: 2px;
+        }
+
+        .cinema-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .cinema-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cinema-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .cinema-card.selected {
+            border-color: #e50914;
+            background: linear-gradient(145deg, #2a3138, #1e2429);
+        }
+
+        .cinema-card.regular {
+            border-top: 4px solid #007bff;
+        }
+
+        .cinema-card.directors_club {
+            border-top: 4px solid #ffc107;
+        }
+
+        .cinema-card.imax {
+            border-top: 4px solid #dc3545;
+        }
+
+        .cinema-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .cinema-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .cinema-price {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+
+        .cinema-price small {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .cinema-features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0;
+            text-align: left;
+        }
+
+        .cinema-features li {
+            padding: 5px 0;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .cinema-features li:before {
+            content: '✓';
+            color: #e50914;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .badge-cinema {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-regular {
+            background: #007bff;
+        }
+
+        .badge-premium {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-imax {
+            background: #dc3545;
+        }
+
+        /* Showtimes Section */
+        .showtimes-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .showtimes-section.active {
+            display: block;
         }
 
         .date-selector {
@@ -508,7 +625,7 @@
             cursor: not-allowed;
         }
 
-        /* LOGIN MODAL PANEL - Appears when user clicks continue while not logged in */
+        /* Login Modal */
         .login-modal-overlay {
             position: fixed;
             top: 0;
@@ -610,7 +727,6 @@
             background: #3a414a;
         }
 
-        /* Sign Up Link Section */
         .signup-link-section {
             margin-top: 20px;
             padding-top: 15px;
@@ -689,7 +805,19 @@
             font-weight: bold;
         }
 
-        /* Responsive Design */
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .cinema-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .cinema-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
@@ -716,6 +844,12 @@
                 gap: 20px;
                 font-size: 12px;
             }
+            .cinema-grid {
+                grid-template-columns: 1fr;
+            }
+            .cinema-name {
+                font-size: 24px;
+            }
             .date-card {
                 padding: 10px 20px;
                 min-width: 80px;
@@ -730,13 +864,6 @@
             }
             .ticket-price {
                 margin-left: 0;
-            }
-            .login-modal-container {
-                padding: 30px 25px;
-                margin: 20px;
-            }
-            .login-modal-container h2 {
-                font-size: 26px;
             }
         }
 
@@ -762,12 +889,6 @@
             .ticket-count {
                 font-size: 28px;
             }
-            .login-modal-container {
-                padding: 25px 20px;
-            }
-            .login-modal-buttons {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
@@ -783,7 +904,6 @@
                 <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
                 <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
 
-                <!-- Authentication-aware top bar items -->
                 {% if session.user_id or session.predefined_user %}
                     <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
                     {% if session.role in ['admin', 'manager', 'employee'] %}
@@ -840,8 +960,55 @@
             </div>
         </div>
 
-        <!-- Showtimes Section -->
-        <div class="showtimes-section">
+        <!-- Cinema Type Selection -->
+        <div class="cinema-type-section">
+            <h2 class="section-title">Select Cinema Type</h2>
+            <div class="cinema-grid" id="cinemaGrid">
+                <!-- Regular Cinema -->
+                <div class="cinema-card regular" data-cinema="regular" data-price="350">
+                    <div class="badge-cinema badge-regular">STANDARD</div>
+                    <div class="cinema-icon">🎬</div>
+                    <div class="cinema-name">Regular Cinema</div>
+                    <div class="cinema-price">₱350 <small>/ ticket</small></div>
+                    <ul class="cinema-features">
+                        <li>Standard Comfort Seats</li>
+                        <li>7.1 Surround Sound</li>
+                        <li>Regular Screen</li>
+                    </ul>
+                </div>
+
+                <!-- Director's Club -->
+                <div class="cinema-card directors_club" data-cinema="directors_club" data-price="700">
+                    <div class="badge-cinema badge-premium">PREMIUM</div>
+                    <div class="cinema-icon">✨</div>
+                    <div class="cinema-name">Director's Club</div>
+                    <div class="cinema-price">₱700 <small>/ ticket</small></div>
+                    <ul class="cinema-features">
+                        <li>Luxury Recliner Seats</li>
+                        <li>Dolby Atmos Sound</li>
+                        <li>Wait Service</li>
+                        <li>Exclusive Lounge Access</li>
+                    </ul>
+                </div>
+
+                <!-- IMAX -->
+                <div class="cinema-card imax" data-cinema="imax" data-price="875">
+                    <div class="badge-cinema badge-imax">IMAX</div>
+                    <div class="cinema-icon">🎥</div>
+                    <div class="cinema-name">IMAX</div>
+                    <div class="cinema-price">₱875 <small>/ ticket</small></div>
+                    <ul class="cinema-features">
+                        <li>Giant IMAX Screen</li>
+                        <li>IMAX Laser Projection</li>
+                        <li>12-Channel Sound</li>
+                        <li>Enhanced Experience</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Showtimes Section (hidden initially) -->
+        <div class="showtimes-section" id="showtimesSection">
             <h2 class="section-title">Select Showtime</h2>
 
             <!-- Date Selector -->
@@ -872,24 +1039,21 @@
         </div>
     </div>
 
-    <!-- LOGIN MODAL PANEL - Appears when unauthenticated user clicks Continue -->
+    <!-- LOGIN MODAL PANEL -->
     <div id="loginModal" class="login-modal-overlay">
         <div class="login-modal-container">
             <h2>🔐 Login Required</h2>
             <p>You need to sign in before selecting seats.<br>Please log in to continue with your booking.</p>
-            <input type="email" id="modalEmail" class="login-modal-input" placeholder="Email address" value="user@cinemax.com">
-            <input type="password" id="modalPassword" class="login-modal-input" placeholder="Password" value="demo123">
+            <input type="email" id="modalEmail" class="login-modal-input" placeholder="Email address">
+            <input type="password" id="modalPassword" class="login-modal-input" placeholder="Password">
             <div class="login-modal-buttons">
                 <button class="login-modal-btn-primary" id="modalLoginBtn">Sign In & Continue</button>
                 <button class="login-modal-btn-secondary" id="modalCancelBtn">Cancel</button>
             </div>
-
-            <!-- Don't have an account? Link -->
             <div class="signup-link-section">
                 <p>Don't have an account? <a id="signupRedirectLink">Create an account</a></p>
             </div>
-
-            <div class="demo-hint">✨ Demo credentials: user@cinemax.com / demo123</div>
+            <div class="demo-hint">✨ Demo: employee1@cinemax.com / Employee@123</div>
         </div>
     </div>
 
@@ -902,11 +1066,12 @@
     </div>
 
     <script>
-        // Check if user is authenticated via Flask session
-        // This variable will be set by Jinja based on session
+        // Check if user is authenticated
         const isAuthenticated = {% if session.user_id or session.predefined_user %}true{% else %}false{% endif %};
 
-        // Variables for booking
+        // Variables
+        let selectedCinema = null;
+        let selectedCinemaPrice = 0;
         let selectedDate = null;
         let selectedShowtime = null;
         let selectedPrice = 0;
@@ -914,48 +1079,74 @@
         let allShowtimes = [];
         let selectedShowtimeId = null;
         const movieId = {{ movie.id }};
-
-        // Store pending booking data for after login
         let pendingBookingData = null;
 
-        // Mobile menu toggle
-        function initMobileMenu() {
-            const topText = document.querySelector('.top-text');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const isMobile = window.innerWidth <= 768;
+        // Cinema selection handler
+        function selectCinema(cinemaType, price, element) {
+            // Remove selected class from all cinema cards
+            document.querySelectorAll('.cinema-card').forEach(card => {
+                card.classList.remove('selected');
+            });
 
-            if (isMobile && topText && mobileMenuBtn) {
-                mobileMenuBtn.style.display = 'block';
-                topText.style.display = 'none';
+            // Add selected class to clicked card
+            element.classList.add('selected');
 
-                mobileMenuBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    if (topText.style.display === 'none' || topText.style.display === '') {
-                        topText.style.display = 'flex';
-                        topText.style.flexDirection = 'column';
-                        topText.style.position = 'absolute';
-                        topText.style.top = '60px';
-                        topText.style.right = '15px';
-                        topText.style.background = 'rgba(0,0,0,0.95)';
-                        topText.style.padding = '15px 20px';
-                        topText.style.borderRadius = '12px';
-                        topText.style.gap = '12px';
-                        topText.style.minWidth = '140px';
-                        topText.style.backdropFilter = 'blur(10px)';
-                        topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
-                        topText.style.zIndex = '20';
+            // Store selected cinema info
+            selectedCinema = cinemaType;
+            selectedCinemaPrice = price;
+
+            // Show the showtimes section
+            document.getElementById('showtimesSection').classList.add('active');
+
+            // Reset showtime-related variables
+            selectedDate = null;
+            selectedShowtime = null;
+            selectedPrice = 0;
+            selectedShowtimeId = null;
+
+            // Load showtimes for this cinema type
+            loadShowtimesForCinema(cinemaType);
+        }
+
+        // Load showtimes for selected cinema type
+        async function loadShowtimesForCinema(cinemaType) {
+            try {
+                const response = await fetch(`/api/showtimes?movie_id=${movieId}&cinema_type=${cinemaType}`);
+                const data = await response.json();
+
+                if (data.success && data.showtimes) {
+                    allShowtimes = data.showtimes;
+                    renderDateSelector();
+
+                    const datesWithShowtimes = [...new Set(allShowtimes.map(st => st.show_date))];
+                    if (datesWithShowtimes.length > 0) {
+                        await selectDate(datesWithShowtimes[0]);
                     } else {
-                        topText.style.display = 'none';
+                        document.getElementById('showtimesGrid').innerHTML = `
+                            <div class="no-showtimes" style="grid-column: 1/-1;">
+                                <p>🎬 No showtimes available for ${getCinemaDisplayName(cinemaType)}</p>
+                                <p style="font-size: 14px; margin-top: 10px;">Please select another cinema type</p>
+                            </div>
+                        `;
+                        document.getElementById('ticketSelector').style.display = 'none';
+                        document.getElementById('continueBtn').disabled = true;
                     }
-                };
-
-                document.addEventListener('click', function(e) {
-                    const topBar = document.querySelector('.top-bar');
-                    if (!topBar.contains(e.target) && topText.style.display === 'flex') {
-                        topText.style.display = 'none';
-                    }
-                });
+                } else {
+                    document.getElementById('dateSelector').innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>';
+                }
+            } catch (error) {
+                console.error('Error loading showtimes:', error);
+                document.getElementById('dateSelector').innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>';
             }
+        }
+
+        function getCinemaDisplayName(cinemaType) {
+            const names = {
+                'regular': 'Regular Cinema',
+                'directors_club': "Director's Club",
+                'imax': 'IMAX'
+            };
+            return names[cinemaType] || cinemaType;
         }
 
         // Generate next 7 days
@@ -970,7 +1161,6 @@
             return dates;
         }
 
-        // Format date to YYYY-MM-DD
         function formatDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -978,7 +1168,6 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Format date for display
         function formatDisplayDate(date) {
             const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
             const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
@@ -997,13 +1186,12 @@
             return { dayLabel, day, month };
         }
 
-        // Render date selector
         function renderDateSelector() {
             const dates = generateDates();
             const dateSelector = document.getElementById('dateSelector');
 
             if (allShowtimes.length === 0) {
-                dateSelector.innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">No showtimes available for this movie</div>';
+                dateSelector.innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">No showtimes available</div>';
                 return;
             }
 
@@ -1024,7 +1212,6 @@
             }).join('');
         }
 
-        // Select date
         async function selectDate(dateStr) {
             if (!allShowtimes.some(st => st.show_date === dateStr)) {
                 return;
@@ -1035,7 +1222,6 @@
             await loadShowtimesForDate(dateStr);
         }
 
-        // Load showtimes for selected date
         async function loadShowtimesForDate(date) {
             const showtimesGrid = document.getElementById('showtimesGrid');
             showtimesGrid.innerHTML = '<div class="loading-spinner">Loading showtimes...</div>';
@@ -1046,7 +1232,7 @@
             selectedPrice = 0;
 
             try {
-                const response = await fetch(`/api/showtimes?date=${date}&movie_id=${movieId}`);
+                const response = await fetch(`/api/showtimes?date=${date}&movie_id=${movieId}&cinema_type=${selectedCinema}`);
                 const data = await response.json();
 
                 if (data.success && data.showtimes && data.showtimes.length > 0) {
@@ -1070,7 +1256,6 @@
             }
         }
 
-        // Render showtimes
         function renderShowtimes(showtimesList) {
             const showtimesGrid = document.getElementById('showtimesGrid');
 
@@ -1086,7 +1271,7 @@
             showtimesGrid.innerHTML = showtimesList.map(showtime => `
                 <div class="showtime-card" data-showtime-id="${showtime.id}" data-showtime-time="${showtime.show_time}" data-showtime-price="${showtime.price}">
                     <div class="showtime">${showtime.show_time}</div>
-                    <div class="showtime-type">Standard 2D</div>
+                    <div class="showtime-type">${getCinemaDisplayName(showtime.cinema_type || selectedCinema)}</div>
                     <div class="price">₱${parseFloat(showtime.price).toFixed(2)}</div>
                     <div class="available">▼ Available</div>
                 </div>
@@ -1102,7 +1287,6 @@
             });
         }
 
-        // Select showtime
         function selectShowtime(showtime, price, showtimeId, element) {
             document.querySelectorAll('.showtime-card').forEach(card => {
                 card.classList.remove('selected');
@@ -1123,7 +1307,6 @@
             updateTotalPrice();
         }
 
-        // Ticket count control
         function changeTickets(change) {
             const newCount = ticketCount + change;
             if (newCount >= 1 && newCount <= 10) {
@@ -1135,38 +1318,67 @@
             }
         }
 
-        // Update total price
         function updateTotalPrice() {
             const total = ticketCount * selectedPrice;
             document.getElementById('totalPrice').textContent = `₱${total.toFixed(2)}`;
         }
 
-        // Update continue button state
         function updateContinueButton() {
             const continueBtn = document.getElementById('continueBtn');
-            if (selectedShowtime && selectedDate) {
+            if (selectedShowtime && selectedDate && selectedCinema) {
                 continueBtn.disabled = false;
             } else {
                 continueBtn.disabled = true;
             }
         }
 
-        // Show login modal
+        // Continue to seat selection with login check
+        async function continueToSeats() {
+            if (!selectedCinema) {
+                alert('Please select a cinema type first!');
+                return;
+            }
+            if (!selectedShowtime) {
+                alert('Please select a showtime first!');
+                return;
+            }
+            if (!selectedDate) {
+                alert('Please select a date first!');
+                return;
+            }
+
+            if (!isAuthenticated) {
+                pendingBookingData = {
+                    cinema: selectedCinema,
+                    cinemaPrice: selectedCinemaPrice,
+                    showtime: selectedShowtime,
+                    tickets: ticketCount,
+                    date: selectedDate,
+                    price: selectedPrice,
+                    showtimeId: selectedShowtimeId
+                };
+                showLoginModal();
+                return;
+            }
+
+            proceedToSeatSelection();
+        }
+
+        function proceedToSeatSelection() {
+            window.location.href = `/movie/${movieId}/seats?cinema_type=${selectedCinema}&showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}&price=${selectedPrice}`;
+        }
+
+        // Login modal functions
         function showLoginModal() {
             const modal = document.getElementById('loginModal');
             modal.style.display = 'flex';
-            // Clear any previous values
-            document.getElementById('modalEmail').value = '';
-            document.getElementById('modalPassword').value = '';
         }
 
-        // Hide login modal
         function hideLoginModal() {
             const modal = document.getElementById('loginModal');
             modal.style.display = 'none';
         }
 
-        // Perform login via AJAX
         async function performLogin(email, password) {
             try {
                 const formData = new URLSearchParams();
@@ -1195,12 +1407,21 @@
             }
         }
 
-        // Redirect to signup page with return URL
+        async function handleSuccessfulLogin() {
+            hideLoginModal();
+            if (pendingBookingData) {
+                window.location.href = `/movie/${movieId}/seats?cinema_type=${pendingBookingData.cinema}&showtime=${encodeURIComponent(pendingBookingData.showtime)}&tickets=${pendingBookingData.tickets}&date=${encodeURIComponent(pendingBookingData.date)}&price=${pendingBookingData.price}`;
+                pendingBookingData = null;
+            } else {
+                location.reload();
+            }
+        }
+
         function redirectToSignup() {
-            // Store the current movie and selected booking data in sessionStorage
-            if (selectedShowtime && selectedDate) {
+            if (selectedShowtime && selectedDate && selectedCinema) {
                 const bookingData = {
                     movieId: movieId,
+                    cinema: selectedCinema,
                     showtime: selectedShowtime,
                     tickets: ticketCount,
                     date: selectedDate,
@@ -1209,141 +1430,10 @@
                 };
                 sessionStorage.setItem('pendingBooking', JSON.stringify(bookingData));
             }
-
-            // Redirect to signin page with a return parameter
             const returnUrl = encodeURIComponent(window.location.href);
             window.location.href = `/signin?return_to=${returnUrl}&prompt_signup=true`;
         }
 
-        // Continue to seat selection with login check
-        async function continueToSeats() {
-            if (!selectedShowtime) {
-                alert('Please select a showtime first!');
-                return;
-            }
-            if (!selectedDate) {
-                alert('Please select a date first!');
-                return;
-            }
-
-            // Check if user is authenticated (via Flask session)
-            const isAuth = {% if session.user_id or session.predefined_user %}true{% else %}false{% endif %};
-
-            if (!isAuth) {
-                // Store pending booking data
-                pendingBookingData = {
-                    showtime: selectedShowtime,
-                    tickets: ticketCount,
-                    date: selectedDate,
-                    price: selectedPrice,
-                    showtimeId: selectedShowtimeId
-                };
-                // Show login modal
-                showLoginModal();
-                return;
-            }
-
-            // User is authenticated, proceed directly
-            proceedToSeatSelection();
-        }
-
-        // Proceed to seat selection page
-        function proceedToSeatSelection() {
-            window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(selectedShowtime)}&tickets=${ticketCount}&date=${encodeURIComponent(selectedDate)}&price=${selectedPrice}`;
-        }
-
-        // Handle successful login and restore booking
-        async function handleSuccessfulLogin() {
-            hideLoginModal();
-
-            // Reload the page to reflect logged-in state
-            if (pendingBookingData) {
-                // Redirect to seat selection with the pending data
-                window.location.href = `/movie/${movieId}/seats?showtime=${encodeURIComponent(pendingBookingData.showtime)}&tickets=${pendingBookingData.tickets}&date=${encodeURIComponent(pendingBookingData.date)}&price=${pendingBookingData.price}`;
-                pendingBookingData = null;
-            } else {
-                location.reload();
-            }
-        }
-
-        // Check for pending booking after returning from signup
-        function checkPendingBooking() {
-            const pendingBooking = sessionStorage.getItem('pendingBooking');
-            if (pendingBooking) {
-                const booking = JSON.parse(pendingBooking);
-                // Restore the booking data
-                selectedShowtime = booking.showtime;
-                ticketCount = booking.tickets;
-                selectedDate = booking.date;
-                selectedPrice = booking.price;
-                selectedShowtimeId = booking.showtimeId;
-
-                // Update UI to reflect restored selection
-                document.getElementById('ticketCount').textContent = ticketCount;
-                updateTotalPrice();
-                document.getElementById('ticketSelector').style.display = 'flex';
-                updateContinueButton();
-
-                // Try to highlight the selected showtime card
-                setTimeout(() => {
-                    const cards = document.querySelectorAll('.showtime-card');
-                    for (let card of cards) {
-                        if (card.dataset.showtimeTime === selectedShowtime) {
-                            card.classList.add('selected');
-                            break;
-                        }
-                    }
-                }, 100);
-
-                // Clear the stored booking
-                sessionStorage.removeItem('pendingBooking');
-
-                // If user is now authenticated, proceed to seat selection
-                const isAuth = {% if session.user_id or session.predefined_user %}true{% else %}false{% endif %};
-                if (isAuth) {
-                    setTimeout(() => {
-                        proceedToSeatSelection();
-                    }, 500);
-                }
-            }
-        }
-
-        // Initialize page
-        async function init() {
-            try {
-                const response = await fetch(`/api/showtimes?movie_id=${movieId}`);
-                const data = await response.json();
-
-                if (data.success && data.showtimes) {
-                    allShowtimes = data.showtimes;
-                    renderDateSelector();
-
-                    const datesWithShowtimes = [...new Set(allShowtimes.map(st => st.show_date))];
-                    if (datesWithShowtimes.length > 0) {
-                        await selectDate(datesWithShowtimes[0]);
-                    } else {
-                        document.getElementById('showtimesGrid').innerHTML = `
-                            <div class="no-showtimes" style="grid-column: 1/-1;">
-                                <p>🎬 No showtimes available for this movie</p>
-                                <p style="font-size: 14px; margin-top: 10px;">Please check back later</p>
-                            </div>
-                        `;
-                    }
-                } else {
-                    document.getElementById('dateSelector').innerHTML = '<div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>';
-                }
-
-                // Check for pending booking after returning from signup
-                checkPendingBooking();
-            } catch (error) {
-                console.error('Error initializing page:', error);
-                document.getElementById('dateSelector').innerHTML = `
-                    <div class="no-showtimes" style="grid-column: 1/-1;">Error loading showtimes</div>
-                `;
-            }
-        }
-
-        // Setup modal event listeners
         function setupModalListeners() {
             const modal = document.getElementById('loginModal');
             const loginBtn = document.getElementById('modalLoginBtn');
@@ -1383,7 +1473,6 @@
                 });
             }
 
-            // Sign up link redirect
             if (signupLink) {
                 signupLink.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1391,7 +1480,6 @@
                 });
             }
 
-            // Close modal when clicking outside
             if (modal) {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
@@ -1402,7 +1490,99 @@
             }
         }
 
-        // Add smooth navigation for top text
+        // Setup cinema card click handlers
+        function setupCinemaCards() {
+            document.querySelectorAll('.cinema-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const cinemaType = this.dataset.cinema;
+                    const price = parseFloat(this.dataset.price);
+                    selectCinema(cinemaType, price, this);
+                });
+            });
+        }
+
+        // Mobile menu
+        function initMobileMenu() {
+            const topText = document.querySelector('.top-text');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && topText && mobileMenuBtn) {
+                mobileMenuBtn.style.display = 'block';
+                topText.style.display = 'none';
+
+                mobileMenuBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    if (topText.style.display === 'none' || topText.style.display === '') {
+                        topText.style.display = 'flex';
+                        topText.style.flexDirection = 'column';
+                        topText.style.position = 'absolute';
+                        topText.style.top = '60px';
+                        topText.style.right = '15px';
+                        topText.style.background = 'rgba(0,0,0,0.95)';
+                        topText.style.padding = '15px 20px';
+                        topText.style.borderRadius = '12px';
+                        topText.style.gap = '12px';
+                        topText.style.minWidth = '140px';
+                        topText.style.backdropFilter = 'blur(10px)';
+                        topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                        topText.style.zIndex = '20';
+                    } else {
+                        topText.style.display = 'none';
+                    }
+                };
+
+                document.addEventListener('click', function(e) {
+                    const topBar = document.querySelector('.top-bar');
+                    if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                        topText.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Initialize
+        function init() {
+            setupCinemaCards();
+            setupModalListeners();
+            initMobileMenu();
+
+            // Check for pending booking after returning from signup
+            const pendingBooking = sessionStorage.getItem('pendingBooking');
+            if (pendingBooking) {
+                const booking = JSON.parse(pendingBooking);
+                selectedCinema = booking.cinema;
+                selectedCinemaPrice = booking.cinemaPrice;
+                selectedShowtime = booking.showtime;
+                ticketCount = booking.tickets;
+                selectedDate = booking.date;
+                selectedPrice = booking.price;
+                selectedShowtimeId = booking.showtimeId;
+
+                // Highlight the selected cinema card
+                document.querySelectorAll('.cinema-card').forEach(card => {
+                    if (card.dataset.cinema === selectedCinema) {
+                        card.classList.add('selected');
+                    }
+                });
+
+                document.getElementById('showtimesSection').classList.add('active');
+                document.getElementById('ticketCount').textContent = ticketCount;
+                updateTotalPrice();
+
+                loadShowtimesForCinema(selectedCinema);
+
+                sessionStorage.removeItem('pendingBooking');
+
+                if (isAuthenticated) {
+                    setTimeout(() => {
+                        proceedToSeatSelection();
+                    }, 500);
+                }
+            }
+        }
+
+        // Active class for top text
         document.querySelectorAll('.top-text span').forEach(span => {
             span.addEventListener('click', function() {
                 if (!this.classList.contains('admin-link')) {
@@ -1412,10 +1592,7 @@
             });
         });
 
-        // Initialize mobile menu and page
-        initMobileMenu();
         init();
-        setupModalListeners();
     </script>
 </body>
 </html>

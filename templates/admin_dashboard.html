@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Cinemax - Admin Dashboard</title>
     <style>
         * {
@@ -43,21 +43,23 @@
         }
 
         .logo {
-            height: 50px;
-            width: auto;
-            max-width: 150px;
+            height: 100px !important;
+            width: auto !important;
             cursor: pointer;
+            transition: transform 0.2s ease;
             display: flex;
             align-items: center;
-            flex-shrink: 0;
         }
 
         .logo img {
-            height: 100%;
-            width: auto;
-            max-width: 100%;
+            height: 100% !important;
+            width: auto !important;
             display: block;
-            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .logo:hover img {
+            transform: scale(1.02);
         }
 
         .top-text {
@@ -74,6 +76,7 @@
             cursor: pointer;
             transition: color 0.3s ease;
             position: relative;
+            white-space: nowrap;
         }
 
         .top-text span:hover {
@@ -428,6 +431,26 @@
             color: #e50914;
         }
 
+        .cinema-badge {
+            background: #2a3138;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cinema-regular {
+            color: #007bff;
+        }
+
+        .cinema-directors_club {
+            color: #ffc107;
+        }
+
+        .cinema-imax {
+            color: #dc3545;
+        }
+
         .showtime-info .show-date {
             color: #ffd700;
         }
@@ -610,6 +633,48 @@
             font-weight: bold;
         }
 
+        .cinema-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cinema-option {
+            flex: 1;
+            background: #0a0c0f;
+            border: 2px solid #2a3138;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cinema-option:hover {
+            border-color: #e50914;
+        }
+
+        .cinema-option.selected {
+            border-color: #e50914;
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .cinema-option .cinema-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .cinema-option .cinema-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cinema-option .cinema-price {
+            font-size: 12px;
+            color: #4caf50;
+            margin-top: 5px;
+        }
+
         .bookings-table {
             width: 100%;
             overflow-x: auto;
@@ -717,7 +782,28 @@
             font-size: 20px;
         }
 
-        /* Responsive - Match reference logo sizing */
+        .mobile-menu-btn {
+            display: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 20;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .movies-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .movies-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             .movies-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -732,12 +818,23 @@
                 padding: 15px 20px;
             }
             .top-text {
-                gap: 20px;
+                gap: 15px;
                 font-size: 12px;
             }
             .logo {
-                height: 35px;
-                max-width: 100px;
+                height: 60px;
+            }
+            .admin-badge {
+                right: 15px;
+                top: 80px;
+                font-size: 10px;
+                padding: 4px 12px;
+            }
+            .dashboard-header h1 {
+                font-size: 28px;
+            }
+            .mobile-menu-btn {
+                display: block;
             }
         }
 
@@ -756,47 +853,20 @@
                 padding: 10px 15px;
             }
             .logo {
-                height: 28px;
-                max-width: 80px;
+                height: 40px;
             }
             .top-text {
-                gap: 12px;
+                gap: 10px;
                 font-size: 10px;
             }
             .admin-badge {
-                right: 15px;
-                top: 80px;
-                font-size: 10px;
-                padding: 4px 12px;
+                right: 10px;
+                top: 70px;
+                font-size: 8px;
+                padding: 3px 8px;
             }
             .dashboard-header h1 {
-                font-size: 28px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .logo {
-                height: 24px;
-                max-width: 70px;
-            }
-            .top-bar {
-                padding: 8px 12px;
-            }
-            .top-text {
-                gap: 8px;
-                font-size: 9px;
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .movies-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .movies-grid {
-                grid-template-columns: repeat(2, 1fr);
+                font-size: 22px;
             }
         }
     </style>
@@ -807,13 +877,14 @@
             <div class="logo" onclick="location.href='/'">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
             </div>
-            <div class="top-text">
+            <div class="top-text" id="topText">
                 <span onclick="location.href='/'">MOVIES</span>
                 <span onclick="location.href='/coming-soon'">COMING SOON</span>
                 <span onclick="location.href='/contact'">CONTACT</span>
                 <span onclick="location.href='/profile'">PROFILE</span>
                 <span class="admin-link" onclick="location.href='/logout'">LOGOUT</span>
             </div>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
         </div>
         <div class="admin-badge">
             ⚡ ADMIN DASHBOARD
@@ -875,10 +946,10 @@
             <div class="bookings-table">
                 <table id="bookingsTable">
                     <thead>
-                        <tr><th>Reference</th><th>Movie</th><th>Showtime</th><th>Seats</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+                        <tr><th>Reference</th><th>Movie</th><th>Cinema Type</th><th>Showtime</th><th>Seats</th><th>Amount</th><th>Status</th><th>Date</th></tr>
                     </thead>
-                    <tbody id="bookingsTableBody">\
-                        <tr><td colspan="7" style="text-align: center;">Loading bookings...</td></tr>
+                    <tbody id="bookingsTableBody">
+                        <tr><td colspan="8" style="text-align: center;">Loading bookings...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -920,6 +991,26 @@
             <div class="modal-header"><h2>Add Showtimes</h2><button class="close-modal" onclick="closeModal('showtimeModal')">&times;</button></div>
             <form id="showtimeForm" onsubmit="saveShowtimes(event)">
                 <div class="form-group"><label>Select Movie</label><select id="showtimeMovieId" required><option value="">Choose a movie...</option></select></div>
+                <div class="form-group"><label>Cinema Type</label>
+                    <div class="cinema-type-selector" id="cinemaTypeSelector">
+                        <div class="cinema-option" data-cinema="regular" onclick="selectCinemaType('regular')">
+                            <div class="cinema-icon">🎬</div>
+                            <div class="cinema-name">Regular Cinema</div>
+                            <div class="cinema-price">₱350</div>
+                        </div>
+                        <div class="cinema-option" data-cinema="directors_club" onclick="selectCinemaType('directors_club')">
+                            <div class="cinema-icon">✨</div>
+                            <div class="cinema-name">Director's Club</div>
+                            <div class="cinema-price">₱700</div>
+                        </div>
+                        <div class="cinema-option" data-cinema="imax" onclick="selectCinemaType('imax')">
+                            <div class="cinema-icon">🎥</div>
+                            <div class="cinema-name">IMAX</div>
+                            <div class="cinema-price">₱875</div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="selectedCinemaType" value="regular">
                 <div class="form-group"><label>Show Date</label><input type="date" id="showDate" required></div>
                 <div class="form-group"><label>Show Times</label><div class="time-input-group"><input type="time" id="newTime" step="60"><button type="button" class="add-time-btn" onclick="addTime()">+ Add Time</button></div><div id="timeList" class="time-list"></div></div>
                 <div class="form-group"><label>Ticket Price (₱)</label><input type="number" id="showtimePrice" value="350" step="10" min="100" required></div>
@@ -934,9 +1025,36 @@
     <script>
     let times = [];
     let allMovies = [];
+    let selectedCinemaType = 'regular';
+
+    const cinemaPrices = {
+        'regular': 350,
+        'directors_club': 700,
+        'imax': 875
+    };
+
+    const cinemaDisplayNames = {
+        'regular': 'Regular Cinema',
+        'directors_club': "Director's Club",
+        'imax': 'IMAX'
+    };
+
+    const cinemaIcons = {
+        'regular': '🎬',
+        'directors_club': '✨',
+        'imax': '🎥'
+    };
 
     const date = new Date();
     document.getElementById('currentDate').textContent = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    function selectCinemaType(type) {
+        selectedCinemaType = type;
+        document.getElementById('selectedCinemaType').value = type;
+        document.querySelectorAll('.cinema-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelector(`.cinema-option[data-cinema="${type}"]`).classList.add('selected');
+        document.getElementById('showtimePrice').value = cinemaPrices[type];
+    }
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1015,6 +1133,7 @@
                     <div class="showtime-card">
                         <div class="showtime-info">
                             <span class="movie-title">${escapeHtml(st.movie_title)}</span>
+                            <span class="cinema-badge cinema-${st.cinema_type || 'regular'}">${cinemaIcons[st.cinema_type] || '🎬'} ${cinemaDisplayNames[st.cinema_type] || 'Regular'}</span>
                             <span class="show-date">📅 ${st.show_date}</span>
                             <span class="show-time">⏰ ${st.show_time}</span>
                             <span class="price">💰 ₱${parseFloat(st.price).toFixed(2)}</span>
@@ -1038,7 +1157,8 @@
                 tableBody.innerHTML = data.bookings.map(booking => `
                     <tr>
                         <td>${booking.booking_reference}</td>
-                        <td>${booking.movie_title}</td>
+                        <td>${escapeHtml(booking.movie_title)}</td>
+                        <td><span class="cinema-badge cinema-${booking.cinema_type || 'regular'}">${cinemaIcons[booking.cinema_type] || '🎬'} ${cinemaDisplayNames[booking.cinema_type] || 'Regular'}</span></td>
                         <td>${booking.showtime} (${booking.show_date})</td>
                         <td>${booking.seats}</td>
                         <td>₱${booking.total_amount}</td>
@@ -1047,7 +1167,7 @@
                     </tr>
                 `).join('');
             } else {
-                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No bookings found</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No bookings found</td></tr>';
             }
         } catch (error) { console.error('Error loading bookings:', error); }
     }
@@ -1060,7 +1180,7 @@
                 document.getElementById('todaySales').textContent = `₱${data.today_sales.toLocaleString()}`;
                 document.getElementById('weekSales').textContent = `₱${data.week_sales.toLocaleString()}`;
                 document.getElementById('monthSales').textContent = `₱${data.month_sales.toLocaleString()}`;
-                document.getElementById('avgTicketPrice').textContent = `₱${data.avg_ticket_price}`;
+                document.getElementById('avgTicketPrice').textContent = `₱${data.avg_ticket_price || '0'}`;
                 document.getElementById('mostPopularMovie').textContent = data.most_popular_movie || '-';
                 document.getElementById('peakTime').textContent = data.peak_time || '-';
             }
@@ -1070,7 +1190,12 @@
     async function openAddShowtimeModal() {
         await loadMoviesForDropdown();
         times = [];
+        selectedCinemaType = 'regular';
+        document.getElementById('selectedCinemaType').value = 'regular';
         document.getElementById('timeList').innerHTML = '';
+        document.getElementById('showtimePrice').value = 350;
+        document.querySelectorAll('.cinema-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelector('.cinema-option[data-cinema="regular"]').classList.add('selected');
         document.getElementById('showtimeForm').reset();
         document.getElementById('showtimeModal').classList.add('active');
     }
@@ -1108,23 +1233,44 @@
         const movieId = document.getElementById('showtimeMovieId').value;
         const showDate = document.getElementById('showDate').value;
         const price = document.getElementById('showtimePrice').value;
+        const cinemaType = selectedCinemaType;
+
         if (!movieId) { showAlert('Please select a movie', 'error'); return; }
         if (!showDate) { showAlert('Please select a date', 'error'); return; }
         if (times.length === 0) { showAlert('Please add at least one show time', 'error'); return; }
+
         const btn = event.submitter;
         const originalText = btn.textContent;
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span> Saving...';
+
         try {
             const response = await fetch('/admin/showtimes', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ movie_id: movieId, show_date: showDate, show_times: times, price: parseFloat(price) })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    movie_id: movieId,
+                    show_date: showDate,
+                    show_times: times,
+                    price: parseFloat(price),
+                    cinema_type: cinemaType
+                })
             });
             const data = await response.json();
-            if (data.success) { showAlert(data.message || 'Showtimes added successfully!', 'success'); closeModal('showtimeModal'); loadShowtimes(); }
-            else { showAlert(data.message || 'Error saving showtimes', 'error'); }
-        } catch (error) { console.error('Error saving showtimes:', error); showAlert('Error saving showtimes', 'error'); }
-        finally { btn.disabled = false; btn.innerHTML = originalText; }
+            if (data.success) {
+                showAlert(data.message || 'Showtimes added successfully!', 'success');
+                closeModal('showtimeModal');
+                loadShowtimes();
+            } else {
+                showAlert(data.message || 'Error saving showtimes', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving showtimes:', error);
+            showAlert('Error saving showtimes', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
     }
 
     async function deleteShowtime(showtimeId) {
@@ -1222,11 +1368,63 @@
         return div.innerHTML;
     }
 
+    // Mobile menu toggle
+    function initMobileMenu() {
+        const topText = document.getElementById('topText');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile && topText && mobileMenuBtn) {
+            mobileMenuBtn.style.display = 'block';
+            topText.style.display = 'none';
+
+            mobileMenuBtn.onclick = function(e) {
+                e.stopPropagation();
+                if (topText.style.display === 'none' || topText.style.display === '') {
+                    topText.style.display = 'flex';
+                    topText.style.flexDirection = 'column';
+                    topText.style.position = 'absolute';
+                    topText.style.top = '70px';
+                    topText.style.right = '15px';
+                    topText.style.background = 'rgba(0,0,0,0.95)';
+                    topText.style.padding = '15px 20px';
+                    topText.style.borderRadius = '12px';
+                    topText.style.gap = '12px';
+                    topText.style.minWidth = '140px';
+                    topText.style.backdropFilter = 'blur(10px)';
+                    topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                    topText.style.zIndex = '20';
+                } else {
+                    topText.style.display = 'none';
+                }
+            };
+
+            document.addEventListener('click', function(e) {
+                const topBar = document.querySelector('.top-bar');
+                if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                    topText.style.display = 'none';
+                }
+            });
+        }
+    }
+
+    // Active class for top text
+    document.querySelectorAll('.top-text span').forEach(span => {
+        span.addEventListener('click', function() {
+            if (!this.classList.contains('admin-link')) {
+                document.querySelectorAll('.top-text span').forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+
     window.onclick = function(event) {
         if (event.target.classList.contains('modal'))
             event.target.classList.remove('active');
     }
 
+    // Initialize
+    initMobileMenu();
     loadStats();
     loadMovies();
     </script>

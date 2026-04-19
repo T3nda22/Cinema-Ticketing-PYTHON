@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Cinemax · Select Seats - {{ movie.title }}</title>
     <style>
         * {
@@ -12,7 +12,8 @@
         }
 
         body {
-            width: 1920px;
+            width: 100%;
+            max-width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -45,7 +46,6 @@
             height: 100px !important;
             width: auto !important;
             cursor: pointer;
-            transition: transform 0.2s ease;
             display: flex;
             align-items: center;
         }
@@ -64,12 +64,14 @@
             font-size: 16px;
             font-weight: 500;
             letter-spacing: 1px;
+            flex-wrap: wrap;
         }
 
         .top-text span {
             cursor: pointer;
             transition: color 0.3s ease;
             position: relative;
+            white-space: nowrap;
         }
 
         .top-text span:hover {
@@ -103,6 +105,22 @@
 
         .top-text span:hover:after {
             width: 100%;
+        }
+
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
         }
 
         .header img {
@@ -154,6 +172,8 @@
             padding: 20px 30px;
             margin-bottom: 40px;
             border-left: 5px solid #e50914;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .movie-title-section {
@@ -188,21 +208,21 @@
             font-weight: 600;
         }
 
+        .cinema-badge {
+            background: #e50914;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
         .price-info {
             background: #e50914;
             padding: 8px 25px;
             border-radius: 40px;
             font-weight: 700;
             font-size: 22px;
-        }
-
-        .ticket-badge {
-            background: #e50914;
-            padding: 5px 15px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
-            margin-left: 20px;
         }
 
         /* Legend */
@@ -217,6 +237,7 @@
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
+            flex-wrap: wrap;
         }
 
         .legend-item {
@@ -282,11 +303,12 @@
             margin-top: 12px;
         }
 
-        /* Seating Grid - EXACT rows A..H */
+        /* Seating Grid */
         .seating-wrapper {
             display: flex;
             justify-content: center;
             margin: 20px 0 40px;
+            overflow-x: auto;
         }
 
         .seat-grid {
@@ -316,24 +338,24 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
-            max-width: 1000px;
         }
 
         .seat {
             width: 48px;
             height: 48px;
-            background: #26313c;
-            border: 2px solid #3f4e5c;
+            background: #2a343e;
+            border: 2px solid #3e4a55;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
             color: white;
             cursor: pointer;
-            transition: 0.15s ease;
             box-shadow: 0 2px 4px #00000050;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .seat.taken {
@@ -357,17 +379,13 @@
         }
 
         .seat.selected {
-            background: #e50914;
-            border-color: #ff8a8a;
-            box-shadow: 0 0 18px #e50914;
-            transform: scale(1.02);
+            background: #e50914 !important;
+            border-color: #ff8a8a !important;
+            box-shadow: 0 0 12px #e50914;
         }
 
-        .seat.available:hover {
-            background: #e50914;
-            border-color: #ffb3b3;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px #e50914;
+        .seat.available {
+            cursor: pointer;
         }
 
         .seat.empty {
@@ -376,6 +394,21 @@
             cursor: default;
             opacity: 0.5;
             pointer-events: none;
+        }
+
+        /* Director's Club - Gold theme */
+        .cinema-directors_club .seat.selected {
+            background: #ffc107 !important;
+            border-color: #ffd966 !important;
+            color: #000 !important;
+            box-shadow: 0 0 12px #ffc107;
+        }
+
+        /* IMAX - Red/Orange theme */
+        .cinema-imax .seat.selected {
+            background: #dc3545 !important;
+            border-color: #ff6b6b !important;
+            box-shadow: 0 0 12px #dc3545;
         }
 
         /* Ticket Limit Message */
@@ -433,6 +466,86 @@
             font-size: 26px;
         }
 
+        /* Mobile Responsive */
+        @media (max-width: 1200px) {
+            .seat {
+                width: 40px;
+                height: 40px;
+                font-size: 12px;
+            }
+            .row-label {
+                width: 40px;
+                font-size: 22px;
+            }
+            .seat-grid {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            .top-bar {
+                padding: 12px 20px;
+            }
+            .logo {
+                height: 60px;
+            }
+            .top-text {
+                gap: 20px;
+                font-size: 12px;
+            }
+            .seat {
+                width: 35px;
+                height: 35px;
+                font-size: 11px;
+            }
+            .row-label {
+                width: 35px;
+                font-size: 18px;
+            }
+            .seat-grid {
+                padding: 15px;
+            }
+            .confirm-btn {
+                font-size: 22px;
+                padding: 12px 60px;
+            }
+            .movie-title {
+                font-size: 22px;
+            }
+            .price-info {
+                font-size: 18px;
+                padding: 5px 15px;
+            }
+            .seats {
+                gap: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .seat {
+                width: 28px;
+                height: 28px;
+                font-size: 9px;
+            }
+            .row-label {
+                width: 28px;
+                font-size: 14px;
+            }
+            .seats {
+                gap: 4px;
+            }
+            .legend-item {
+                font-size: 12px;
+            }
+            .legend-box {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
         /* Footer */
         .footer {
             width: 100%;
@@ -455,22 +568,42 @@
             font-size: 14px;
             border-top: 1px solid #222;
         }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 20;
+            font-weight: bold;
+        }
     </style>
 </head>
-<body>
+<body class="cinema-{{ cinema_type }}">
     <!-- Header -->
     <div class="header">
         <div class="top-bar">
-            <div class="logo" onclick="location.href='/'">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CINEMAX Logo">
+            <div class="logo" onclick="location.href='{{ url_for('index') }}'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
             </div>
             <div class="top-text">
-                <span onclick="location.href='/'">MOVIES</span>
-                <span class="active" onclick="location.href='/showtimes'">SHOWTIMES</span>
-                <span onclick="location.href='/coming-soon'">COMING SOON</span>
-                <span onclick="location.href='/contact'">CONTACT</span>
-                <span onclick="location.href='/signin'">SIGN IN</span>
+                <span onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
+                <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
+                <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
+
+                {% if session.user_id or session.predefined_user %}
+                    <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    {% if session.role in ['admin', 'manager', 'employee'] %}
+                        <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                            {{ session.role|upper }} DASHBOARD
+                        </span>
+                    {% endif %}
+                    <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
+                {% else %}
+                    <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+                {% endif %}
             </div>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
         </div>
         <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
     </div>
@@ -484,12 +617,15 @@
         <!-- Movie Info with Ticket Count -->
         <div class="movie-info-bar">
             <div class="movie-title-section">
-                <div class="movie-title">{{ movie.title }}</div>
+                <div class="movie-title">
+                    {{ movie.title }}
+                    <span class="cinema-badge">{{ cinema_config.display_name }}</span>
+                </div>
                 <div class="movie-details">
                     <span><i>📅</i> {{ show_date }}</span>
                     <span><i>⏰</i> {{ showtime }}</span>
-                    <span><i>📍</i> SCREEN 1</span>
-                    <span><i>🎟️</i> {{ tickets }} tickets <span class="ticket-badge">Limit: {{ tickets }}</span></span>
+                    <span><i>🎬</i> {{ cinema_config.display_name }}</span>
+                    <span><i>🎟️</i> {{ tickets }} tickets</span>
                 </div>
             </div>
             <div class="price-info">₱{{ "%.2f"|format(price) }} each</div>
@@ -511,33 +647,21 @@
         <!-- Ticket Limit Message -->
         <div class="ticket-limit" id="ticketLimitMessage">⚠️ Please select exactly {{ tickets }} seat(s)</div>
 
-        <!-- SEATING LAYOUT — fully compliant with original A..H specification -->
+        <!-- SEATING LAYOUT - Original arrangement preserved -->
         <div class="seating-wrapper">
             <div class="seat-grid">
-                <!-- ROW A : 1–17, with gaps (1-5) (6-12) (13-17) -->
+                <!-- ROW A : 1–17 -->
                 <div class="row">
                     <div class="row-label">A</div>
-                    <div class="seats" style="gap: 8px;">
-                        <!-- block 1–5 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A1">1</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A2">2</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A3">3</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A4">4</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A5">5</div>
-                        <!-- block 6-12 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A12">12</div>
-                        <!-- block 13–17 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A13">13</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A14">14</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A15">15</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A16">16</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="A17">17</div>
+                    <div class="seats">
+                        {% for i in range(1, 18) %}
+                            {% set seat_id = "A" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="A" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -545,26 +669,14 @@
                 <div class="row">
                     <div class="row-label">B</div>
                     <div class="seats">
-                        <!-- 1-5 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B1">1</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B2">2</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B3">3</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B4">4</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B5">5</div>
-                        <!-- 6-12 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B12">12</div>
-                        <!-- 13-17 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B13">13</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B14">14</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B15">15</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B16">16</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="B17">17</div>
+                        {% for i in range(1, 18) %}
+                            {% set seat_id = "B" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="B" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -572,23 +684,14 @@
                 <div class="row">
                     <div class="row-label">C</div>
                     <div class="seats">
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C1">1</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C2">2</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C3">3</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C4">4</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C5">5</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C12">12</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C13">13</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C14">14</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C15">15</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C16">16</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="C17">17</div>
+                        {% for i in range(1, 18) %}
+                            {% set seat_id = "C" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="C" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -596,23 +699,14 @@
                 <div class="row">
                     <div class="row-label">D</div>
                     <div class="seats">
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D1">1</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D2">2</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D3">3</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D4">4</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D5">5</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D12">12</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D13">13</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D14">14</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D15">15</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D16">16</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="D17">17</div>
+                        {% for i in range(1, 18) %}
+                            {% set seat_id = "D" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="D" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -620,59 +714,57 @@
                 <div class="row">
                     <div class="row-label">E</div>
                     <div class="seats">
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E1">1</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E2">2</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E3">3</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E4">4</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E5">5</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E12">12</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E13">13</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E14">14</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E15">15</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E16">16</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="E17">17</div>
+                        {% for i in range(1, 18) %}
+                            {% set seat_id = "E" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="E" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <!-- ROW F : only 6–12, no seats outside. empty cells on both sides -->
+                <!-- ROW F : only 6–12 -->
                 <div class="row">
                     <div class="row-label">F</div>
                     <div class="seats">
-                        <!-- left gap: 5 empty seats to simulate 1-5 missing -->
+                        <!-- left gap: 5 empty seats -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                         <!-- middle block 6–12 -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="F12">12</div>
-                        <!-- right gap: 5 empty seats for 13-17 -->
+                        {% for i in range(6, 13) %}
+                            {% set seat_id = "F" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="F" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
+                        <!-- right gap: 5 empty seats -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
 
-                <!-- ROW G : only 6–12, but with some taken/missing -->
+                <!-- ROW G : only 6–12, with some missing -->
                 <div class="row">
                     <div class="row-label">G</div>
                     <div class="seats">
                         <!-- left 5 empties -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                         <!-- 6 available, 7 empty, 8 available, 9 available, 10 empty, 11 available, 12 available -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G6">6</div>
-                        <div class="seat empty"></div>    <!-- 7 missing (empty) -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G9">9</div>
-                        <div class="seat empty"></div>    <!-- 10 missing -->
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="G12">12</div>
+                        {% set g_seats = {6: true, 7: false, 8: true, 9: true, 10: false, 11: true, 12: true} %}
+                        {% for i in range(6, 13) %}
+                            {% if g_seats[i] %}
+                                {% set seat_id = "G" ~ i %}
+                                <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                     onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                     data-seat="{{ seat_id }}" data-row="G" data-col="{{ i }}">
+                                    {{ i }}
+                                </div>
+                            {% else %}
+                                <div class="seat empty"></div>
+                            {% endif %}
+                        {% endfor %}
                         <!-- right 5 empties -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
@@ -683,13 +775,14 @@
                     <div class="row-label">H</div>
                     <div class="seats">
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H6">6</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H7">7</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H8">8</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H9">9</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H10">10</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H11">11</div>
-                        <div class="seat available" onclick="toggleSeat(this)" data-seat="H12">12</div>
+                        {% for i in range(6, 13) %}
+                            {% set seat_id = "H" ~ i %}
+                            <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
+                                 onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
+                                 data-seat="{{ seat_id }}" data-row="H" data-col="{{ i }}">
+                                {{ i }}
+                            </div>
+                        {% endfor %}
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
@@ -715,30 +808,27 @@
         // Data from Flask
         const movieId = {{ movie.id }};
         const movieTitle = "{{ movie.title }}";
+        const cinemaType = "{{ cinema_type }}";
         const REQUIRED_TICKETS = {{ tickets }};
         const showtime = "{{ showtime }}";
         const showDate = "{{ show_date }}";
         const pricePerTicket = {{ price }};
         const bookedSeats = {{ booked_seats|tojson }};
 
+        // Cinema config
+        const cinemaConfig = {
+            display_name: "{{ cinema_config.display_name }}",
+            icon: "{{ cinema_config.icon }}"
+        };
+
         // Global variables
         let selectedSeats = [];
 
-        // Mark booked seats from database
-        function markBookedSeats() {
-            // Get all seat elements
-            document.querySelectorAll('.seat.available, .seat.taken').forEach(seat => {
-                const seatId = seat.getAttribute('data-seat');
-                if (seatId && bookedSeats.includes(seatId)) {
-                    seat.classList.remove('available');
-                    seat.classList.add('taken');
-                    seat.removeAttribute('onclick');
-                }
-            });
-        }
-
         // Toggle seat selection
         window.toggleSeat = function(seat) {
+            // Prevent event bubbling
+            event.stopPropagation();
+
             if (seat.classList.contains('taken') || seat.classList.contains('empty')) return;
 
             const isSelected = seat.classList.contains('selected');
@@ -748,17 +838,17 @@
                 return;
             }
 
-            seat.classList.toggle('selected');
-
-            if (seat.classList.contains('selected')) {
+            if (isSelected) {
+                seat.classList.remove('selected');
+                const seatId = seat.getAttribute('data-seat');
+                selectedSeats = selectedSeats.filter(s => s.seatId !== seatId);
+            } else {
+                seat.classList.add('selected');
                 selectedSeats.push({
                     seatId: seat.getAttribute('data-seat'),
                     seatNumber: seat.textContent,
-                    row: seat.closest('.row').querySelector('.row-label').textContent
+                    row: seat.getAttribute('data-row')
                 });
-            } else {
-                const seatId = seat.getAttribute('data-seat');
-                selectedSeats = selectedSeats.filter(s => s.seatId !== seatId);
             }
 
             updateSelectionUI();
@@ -792,17 +882,30 @@
                 return;
             }
 
+            // Sort selected seats by row and column
+            const sortedSeats = [...selectedSeats].sort((a, b) => {
+                if (a.row !== b.row) return a.row.localeCompare(b.row);
+                return parseInt(a.seatNumber) - parseInt(b.seatNumber);
+            });
+
             // Create form data for POST request
             const formData = new FormData();
             formData.append('movie_id', movieId);
             formData.append('movie_title', movieTitle);
+            formData.append('cinema_type', cinemaType);
             formData.append('showtime', showtime);
             formData.append('show_date', showDate);
-            formData.append('seats', selectedSeats.map(s => s.seatId).join(', '));
+            formData.append('seats', sortedSeats.map(s => s.seatId).join(', '));
             formData.append('tickets', REQUIRED_TICKETS);
             formData.append('total', (REQUIRED_TICKETS * pricePerTicket).toFixed(2));
 
-            // Submit form via POST to /confirm-booking
+            // Show loading state
+            const confirmBtn = document.getElementById('confirmBtn');
+            const originalText = confirmBtn.textContent;
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Processing...';
+            confirmBtn.style.opacity = '0.6';
+
             fetch('/confirm-booking', {
                 method: 'POST',
                 body: formData
@@ -814,7 +917,6 @@
                 throw new Error('Network response was not ok');
             })
             .then(html => {
-                // Replace current page with the response (booking confirmation)
                 document.open();
                 document.write(html);
                 document.close();
@@ -822,18 +924,61 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('There was an error processing your booking. Please try again.');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = originalText;
+                confirmBtn.style.opacity = '';
             });
         };
 
-        // Go back to movie details
+        // Go back to movie details with cinema type preserved
         window.goBack = function() {
-            window.location.href = `/movie/${movieId}`;
+            window.location.href = `/movie/${movieId}?cinema_type=${cinemaType}&date=${encodeURIComponent(showDate)}`;
         };
 
-        // Initialize on load
+        // Mobile menu toggle
+        function initMobileMenu() {
+            const topText = document.querySelector('.top-text');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && topText && mobileMenuBtn) {
+                mobileMenuBtn.style.display = 'block';
+                topText.style.display = 'none';
+
+                mobileMenuBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    if (topText.style.display === 'none' || topText.style.display === '') {
+                        topText.style.display = 'flex';
+                        topText.style.flexDirection = 'column';
+                        topText.style.position = 'absolute';
+                        topText.style.top = '60px';
+                        topText.style.right = '15px';
+                        topText.style.background = 'rgba(0,0,0,0.95)';
+                        topText.style.padding = '15px 20px';
+                        topText.style.borderRadius = '12px';
+                        topText.style.gap = '12px';
+                        topText.style.minWidth = '140px';
+                        topText.style.backdropFilter = 'blur(10px)';
+                        topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                        topText.style.zIndex = '20';
+                    } else {
+                        topText.style.display = 'none';
+                    }
+                };
+
+                document.addEventListener('click', function(e) {
+                    const topBar = document.querySelector('.top-bar');
+                    if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                        topText.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Initialize
         window.onload = function() {
-            markBookedSeats();
             updateSelectionUI();
+            initMobileMenu();
         };
     </script>
 </body>
