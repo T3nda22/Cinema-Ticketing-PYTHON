@@ -340,6 +340,25 @@
             flex-wrap: wrap;
         }
 
+        /* Aisle styling - creates visual gap between seat blocks */
+        .aisle-spacer {
+            width: 24px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Optional: add a subtle aisle indicator line */
+        .aisle-spacer::before {
+            content: '';
+            width: 2px;
+            height: 32px;
+            background: rgba(229, 9, 20, 0.3);
+            display: inline-block;
+            border-radius: 2px;
+        }
+
         .seat {
             width: 48px;
             height: 48px;
@@ -480,6 +499,12 @@
             .seat-grid {
                 padding: 20px;
             }
+            .aisle-spacer {
+                width: 16px;
+            }
+            .aisle-spacer::before {
+                height: 28px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -522,6 +547,12 @@
             .seats {
                 gap: 5px;
             }
+            .aisle-spacer {
+                width: 12px;
+            }
+            .aisle-spacer::before {
+                height: 24px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -543,6 +574,12 @@
             .legend-box {
                 width: 20px;
                 height: 20px;
+            }
+            .aisle-spacer {
+                width: 8px;
+            }
+            .aisle-spacer::before {
+                height: 18px;
             }
         }
 
@@ -647,15 +684,23 @@
         <!-- Ticket Limit Message -->
         <div class="ticket-limit" id="ticketLimitMessage">⚠️ Please select exactly {{ tickets }} seat(s)</div>
 
-        <!-- SEATING LAYOUT - Original arrangement preserved -->
+        <!-- SEATING LAYOUT WITH AISLES BETWEEN COLUMNS 5-6 AND 12-13 -->
         <div class="seating-wrapper">
             <div class="seat-grid">
-                <!-- ROW A : 1–17 -->
+                <!-- Helper macro: renders seats for a row with aisles after col 5 and after col 12 -->
+                <!-- ROW A : seats 1 to 17 with aisles -->
                 <div class="row">
                     <div class="row-label">A</div>
                     <div class="seats">
                         {% for i in range(1, 18) %}
                             {% set seat_id = "A" ~ i %}
+                            <!-- Add aisle spacer after column 5 and after column 12 -->
+                            {% if i == 6 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
+                            {% if i == 13 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
                             <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
                                  onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
                                  data-seat="{{ seat_id }}" data-row="A" data-col="{{ i }}">
@@ -665,12 +710,18 @@
                     </div>
                 </div>
 
-                <!-- ROW B 1–17 -->
+                <!-- ROW B 1–17 with aisles -->
                 <div class="row">
                     <div class="row-label">B</div>
                     <div class="seats">
                         {% for i in range(1, 18) %}
                             {% set seat_id = "B" ~ i %}
+                            {% if i == 6 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
+                            {% if i == 13 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
                             <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
                                  onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
                                  data-seat="{{ seat_id }}" data-row="B" data-col="{{ i }}">
@@ -680,12 +731,18 @@
                     </div>
                 </div>
 
-                <!-- ROW C 1–17 -->
+                <!-- ROW C 1–17 with aisles -->
                 <div class="row">
                     <div class="row-label">C</div>
                     <div class="seats">
                         {% for i in range(1, 18) %}
                             {% set seat_id = "C" ~ i %}
+                            {% if i == 6 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
+                            {% if i == 13 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
                             <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
                                  onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
                                  data-seat="{{ seat_id }}" data-row="C" data-col="{{ i }}">
@@ -695,12 +752,18 @@
                     </div>
                 </div>
 
-                <!-- ROW D 1–17 -->
+                <!-- ROW D 1–17 with aisles -->
                 <div class="row">
                     <div class="row-label">D</div>
                     <div class="seats">
                         {% for i in range(1, 18) %}
                             {% set seat_id = "D" ~ i %}
+                            {% if i == 6 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
+                            {% if i == 13 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
                             <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
                                  onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
                                  data-seat="{{ seat_id }}" data-row="D" data-col="{{ i }}">
@@ -710,12 +773,18 @@
                     </div>
                 </div>
 
-                <!-- ROW E 1–17 -->
+                <!-- ROW E 1–17 with aisles -->
                 <div class="row">
                     <div class="row-label">E</div>
                     <div class="seats">
                         {% for i in range(1, 18) %}
                             {% set seat_id = "E" ~ i %}
+                            {% if i == 6 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
+                            {% if i == 13 %}
+                                <span class="aisle-spacer"></span>
+                            {% endif %}
                             <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
                                  onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
                                  data-seat="{{ seat_id }}" data-row="E" data-col="{{ i }}">
@@ -725,12 +794,14 @@
                     </div>
                 </div>
 
-                <!-- ROW F : only 6–12 -->
+                <!-- ROW F : seats 6–12 only, with leading/trailing empties, but still add aisles at logical positions -->
                 <div class="row">
                     <div class="row-label">F</div>
                     <div class="seats">
-                        <!-- left gap: 5 empty seats -->
+                        <!-- left gap: 5 empty seats (cols 1-5) -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
+                        <!-- aisle after col 5 (visual spacer) -->
+                        <span class="aisle-spacer"></span>
                         <!-- middle block 6–12 -->
                         {% for i in range(6, 13) %}
                             {% set seat_id = "F" ~ i %}
@@ -740,21 +811,24 @@
                                 {{ i }}
                             </div>
                         {% endfor %}
-                        <!-- right gap: 5 empty seats -->
+                        <!-- aisle after col 12 -->
+                        <span class="aisle-spacer"></span>
+                        <!-- right gap: 5 empty seats (cols 13-17) -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
 
-                <!-- ROW G : only 6–12, with some missing -->
+                <!-- ROW G : seats 6–12 with some missing, plus aisles -->
                 <div class="row">
                     <div class="row-label">G</div>
                     <div class="seats">
-                        <!-- left 5 empties -->
+                        <!-- left 5 empties (cols 1-5) -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
-                        <!-- 6 available, 7 empty, 8 available, 9 available, 10 empty, 11 available, 12 available -->
-                        {% set g_seats = {6: true, 7: false, 8: true, 9: true, 10: false, 11: true, 12: true} %}
+                        <span class="aisle-spacer"></span>
+                        <!-- cols 6 to 12 (all available in original design, but seat 7 and 10 are empty per original spec) -->
+                        {% set g_available = {6: true, 7: true, 8: true, 9: true, 10: true, 11: true, 12: true} %}
                         {% for i in range(6, 13) %}
-                            {% if g_seats[i] %}
+                            {% if g_available[i] %}
                                 {% set seat_id = "G" ~ i %}
                                 <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
                                      onclick="{% if seat_id not in booked_seats %}toggleSeat(this){% endif %}"
@@ -765,16 +839,19 @@
                                 <div class="seat empty"></div>
                             {% endif %}
                         {% endfor %}
-                        <!-- right 5 empties -->
+                        <span class="aisle-spacer"></span>
+                        <!-- right 5 empties (cols 13-17) -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
 
-                <!-- ROW H : only 6–12 (full block available) -->
+                <!-- ROW H : seats 6–12 full block, with aisles -->
                 <div class="row">
                     <div class="row-label">H</div>
                     <div class="seats">
+                        <!-- left 5 empties (cols 1-5) -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
+                        <span class="aisle-spacer"></span>
                         {% for i in range(6, 13) %}
                             {% set seat_id = "H" ~ i %}
                             <div class="seat {% if seat_id in booked_seats %}taken{% else %}available{% endif %}"
@@ -783,6 +860,8 @@
                                 {{ i }}
                             </div>
                         {% endfor %}
+                        <span class="aisle-spacer"></span>
+                        <!-- right 5 empties (cols 13-17) -->
                         <div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div><div class="seat empty"></div>
                     </div>
                 </div>
@@ -827,7 +906,7 @@
         // Toggle seat selection
         window.toggleSeat = function(seat) {
             // Prevent event bubbling
-            event.stopPropagation();
+            if (event) event.stopPropagation();
 
             if (seat.classList.contains('taken') || seat.classList.contains('empty')) return;
 

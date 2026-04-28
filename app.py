@@ -143,25 +143,25 @@ def init_seats_table():
             regular_seats = generate_seats_for_cinema_type('regular', 10, 12)
             for seat in regular_seats:
                 cursor.execute("""
-                    INSERT INTO seats (cinema_type, row_label, seat_number, seat_code, seat_type, is_active)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, seat)
+                               INSERT INTO seats (cinema_type, row_label, seat_number, seat_code, seat_type, is_active)
+                               VALUES (?, ?, ?, ?, ?, ?)
+                               """, seat)
 
             # Director's Club (6 rows x 8 cols = 48 seats)
             directors_seats = generate_seats_for_cinema_type('directors_club', 6, 8)
             for seat in directors_seats:
                 cursor.execute("""
-                    INSERT INTO seats (cinema_type, row_label, seat_number, seat_code, seat_type, is_active)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, seat)
+                               INSERT INTO seats (cinema_type, row_label, seat_number, seat_code, seat_type, is_active)
+                               VALUES (?, ?, ?, ?, ?, ?)
+                               """, seat)
 
             # IMAX (12 rows x 15 cols = 180 seats)
             imax_seats = generate_seats_for_cinema_type('imax', 12, 15)
             for seat in imax_seats:
                 cursor.execute("""
-                    INSERT INTO seats (cinema_type, row_label, seat_number, seat_code, seat_type, is_active)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, seat)
+                               INSERT INTO seats (cinema_type, row_label, seat_number, seat_code, seat_type, is_active)
+                               VALUES (?, ?, ?, ?, ?, ?)
+                               """, seat)
 
             conn.commit()
             print(f"✅ Generated {len(regular_seats) + len(directors_seats) + len(imax_seats)} seats total!")
@@ -185,132 +185,361 @@ def init_db():
     try:
         # Users table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username VARCHAR(100) UNIQUE NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                role VARCHAR(50) DEFAULT 'user',
-                reset_token VARCHAR(100),
-                reset_token_expiry TIMESTAMP NULL,
-                is_verified BOOLEAN DEFAULT 0,
-                verification_token VARCHAR(100),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_login TIMESTAMP NULL
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS users
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           username
+                           VARCHAR
+                       (
+                           100
+                       ) UNIQUE NOT NULL,
+                           email VARCHAR
+                       (
+                           255
+                       ) UNIQUE NOT NULL,
+                           password VARCHAR
+                       (
+                           255
+                       ) NOT NULL,
+                           role VARCHAR
+                       (
+                           50
+                       ) DEFAULT 'user',
+                           reset_token VARCHAR
+                       (
+                           100
+                       ),
+                           reset_token_expiry TIMESTAMP NULL,
+                           is_verified BOOLEAN DEFAULT 0,
+                           verification_token VARCHAR
+                       (
+                           100
+                       ),
+                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           last_login TIMESTAMP NULL
+                           )
+                       """)
 
         # Movies table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS movies (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title VARCHAR(255) NOT NULL,
-                rating DECIMAL(2,1),
-                duration VARCHAR(50),
-                poster VARCHAR(500),
-                director VARCHAR(255),
-                director_sub VARCHAR(255),
-                revenue VARCHAR(50),
-                description TEXT,
-                is_now_showing BOOLEAN DEFAULT 1
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS movies
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           title
+                           VARCHAR
+                       (
+                           255
+                       ) NOT NULL,
+                           rating DECIMAL
+                       (
+                           2,
+                           1
+                       ),
+                           duration VARCHAR
+                       (
+                           50
+                       ),
+                           poster VARCHAR
+                       (
+                           500
+                       ),
+                           director VARCHAR
+                       (
+                           255
+                       ),
+                           director_sub VARCHAR
+                       (
+                           255
+                       ),
+                           revenue VARCHAR
+                       (
+                           50
+                       ),
+                           description TEXT,
+                           is_now_showing BOOLEAN DEFAULT 1
+                           )
+                       """)
 
         # Showtimes table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS showtimes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                movie_id INTEGER NOT NULL,
-                show_time VARCHAR(20) NOT NULL,
-                show_date DATE NOT NULL,
-                cinema_type VARCHAR(50) DEFAULT 'regular',
-                base_price DECIMAL(8,2) DEFAULT 350.00,
-                price DECIMAL(8,2) DEFAULT 350.00,
-                FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS showtimes
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           movie_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           show_time
+                           VARCHAR
+                       (
+                           20
+                       ) NOT NULL,
+                           show_date DATE NOT NULL,
+                           cinema_type VARCHAR
+                       (
+                           50
+                       ) DEFAULT 'regular',
+                           base_price DECIMAL
+                       (
+                           8,
+                           2
+                       ) DEFAULT 350.00,
+                           price DECIMAL
+                       (
+                           8,
+                           2
+                       ) DEFAULT 350.00,
+                           FOREIGN KEY
+                       (
+                           movie_id
+                       ) REFERENCES movies
+                       (
+                           id
+                       ) ON DELETE CASCADE
+                           )
+                       """)
 
         # SEATS table (NEW - 3NF compliant)
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS seats (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cinema_type VARCHAR(50) NOT NULL,
-                row_label VARCHAR(2) NOT NULL,
-                seat_number INTEGER NOT NULL,
-                seat_code VARCHAR(10) NOT NULL,
-                seat_type VARCHAR(50) DEFAULT 'standard',
-                is_active BOOLEAN DEFAULT 1,
-                UNIQUE(cinema_type, seat_code)
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS seats
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           cinema_type
+                           VARCHAR
+                       (
+                           50
+                       ) NOT NULL,
+                           row_label VARCHAR
+                       (
+                           2
+                       ) NOT NULL,
+                           seat_number INTEGER NOT NULL,
+                           seat_code VARCHAR
+                       (
+                           10
+                       ) NOT NULL,
+                           seat_type VARCHAR
+                       (
+                           50
+                       ) DEFAULT 'standard',
+                           is_active BOOLEAN DEFAULT 1,
+                           UNIQUE
+                       (
+                           cinema_type,
+                           seat_code
+                       )
+                           )
+                       """)
 
         # Bookings table (REMOVED seats column)
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS bookings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                booking_reference VARCHAR(20) UNIQUE NOT NULL,
-                user_id INTEGER,
-                movie_id INTEGER NOT NULL,
-                movie_title VARCHAR(255) NOT NULL,
-                cinema_type VARCHAR(50) DEFAULT 'regular',
-                showtime VARCHAR(20) NOT NULL,
-                show_date DATE NOT NULL,
-                number_of_tickets INTEGER NOT NULL,
-                total_amount DECIMAL(10,2) NOT NULL,
-                payment_method VARCHAR(50),
-                payment_status VARCHAR(50) DEFAULT 'pending',
-                paymongo_checkout_id VARCHAR(100),
-                paymongo_payment_id VARCHAR(100),
-                customer_name VARCHAR(255),
-                customer_email VARCHAR(255),
-                booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                paid_at TIMESTAMP NULL,
-                cancelled_at TIMESTAMP NULL,
-                cancellation_reason VARCHAR(255),
-                FOREIGN KEY (movie_id) REFERENCES movies(id),
-                FOREIGN KEY (user_id) REFERENCES users(id)
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS bookings
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           booking_reference
+                           VARCHAR
+                       (
+                           20
+                       ) UNIQUE NOT NULL,
+                           user_id INTEGER,
+                           movie_id INTEGER NOT NULL,
+                           movie_title VARCHAR
+                       (
+                           255
+                       ) NOT NULL,
+                           cinema_type VARCHAR
+                       (
+                           50
+                       ) DEFAULT 'regular',
+                           showtime VARCHAR
+                       (
+                           20
+                       ) NOT NULL,
+                           show_date DATE NOT NULL,
+                           number_of_tickets INTEGER NOT NULL,
+                           total_amount DECIMAL
+                       (
+                           10,
+                           2
+                       ) NOT NULL,
+                           payment_method VARCHAR
+                       (
+                           50
+                       ),
+                           payment_status VARCHAR
+                       (
+                           50
+                       ) DEFAULT 'pending',
+                           paymongo_checkout_id VARCHAR
+                       (
+                           100
+                       ),
+                           paymongo_payment_id VARCHAR
+                       (
+                           100
+                       ),
+                           customer_name VARCHAR
+                       (
+                           255
+                       ),
+                           customer_email VARCHAR
+                       (
+                           255
+                       ),
+                           booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           paid_at TIMESTAMP NULL,
+                           cancelled_at TIMESTAMP NULL,
+                           cancellation_reason VARCHAR
+                       (
+                           255
+                       ),
+                           FOREIGN KEY
+                       (
+                           movie_id
+                       ) REFERENCES movies
+                       (
+                           id
+                       ),
+                           FOREIGN KEY
+                       (
+                           user_id
+                       ) REFERENCES users
+                       (
+                           id
+                       )
+                           )
+                       """)
 
         # BOOKING_SEATS table (NEW - Junction table)
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS booking_seats (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                booking_reference VARCHAR(20) NOT NULL,
-                seat_id INTEGER NOT NULL,
-                price DECIMAL(8,2) NOT NULL,
-                FOREIGN KEY (booking_reference) REFERENCES bookings(booking_reference) ON DELETE CASCADE,
-                FOREIGN KEY (seat_id) REFERENCES seats(id),
-                UNIQUE(booking_reference, seat_id)
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS booking_seats
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           booking_reference
+                           VARCHAR
+                       (
+                           20
+                       ) NOT NULL,
+                           seat_id INTEGER NOT NULL,
+                           price DECIMAL
+                       (
+                           8,
+                           2
+                       ) NOT NULL,
+                           FOREIGN KEY
+                       (
+                           booking_reference
+                       ) REFERENCES bookings
+                       (
+                           booking_reference
+                       ) ON DELETE CASCADE,
+                           FOREIGN KEY
+                       (
+                           seat_id
+                       ) REFERENCES seats
+                       (
+                           id
+                       ),
+                           UNIQUE
+                       (
+                           booking_reference,
+                           seat_id
+                       )
+                           )
+                       """)
 
         # Payments table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS payments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                booking_reference VARCHAR(20) NOT NULL,
-                paymongo_payment_id VARCHAR(100),
-                paymongo_checkout_id VARCHAR(100),
-                amount DECIMAL(10,2) NOT NULL,
-                payment_method VARCHAR(50),
-                status VARCHAR(50),
-                webhook_payload TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (booking_reference) REFERENCES bookings(booking_reference)
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS payments
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           booking_reference
+                           VARCHAR
+                       (
+                           20
+                       ) NOT NULL,
+                           paymongo_payment_id VARCHAR
+                       (
+                           100
+                       ),
+                           paymongo_checkout_id VARCHAR
+                       (
+                           100
+                       ),
+                           amount DECIMAL
+                       (
+                           10,
+                           2
+                       ) NOT NULL,
+                           payment_method VARCHAR
+                       (
+                           50
+                       ),
+                           status VARCHAR
+                       (
+                           50
+                       ),
+                           webhook_payload TEXT,
+                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           FOREIGN KEY
+                       (
+                           booking_reference
+                       ) REFERENCES bookings
+                       (
+                           booking_reference
+                       )
+                           )
+                       """)
 
         # Movie Notifications table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS movie_notifications (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                movie_id INTEGER,
-                movie_title TEXT,
-                email TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS movie_notifications
+                       (
+                           id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           movie_id
+                           INTEGER,
+                           movie_title
+                           TEXT,
+                           email
+                           TEXT,
+                           created_at
+                           TIMESTAMP
+                           DEFAULT
+                           CURRENT_TIMESTAMP
+                       )
+                       """)
 
         conn.commit()
         print(f"Database initialized at: {DB_PATH}")
@@ -499,16 +728,16 @@ def get_booked_seats(movie_id, showtime, show_date, cinema_type):
         if conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT s.seat_code 
-                FROM booking_seats bs
-                JOIN bookings b ON bs.booking_reference = b.booking_reference
-                JOIN seats s ON bs.seat_id = s.id
-                WHERE b.movie_id = ? 
-                AND b.showtime = ? 
-                AND b.show_date = ? 
-                AND b.cinema_type = ?
-                AND b.payment_status IN ('paid', 'confirmed')
-            """, (movie_id, showtime, show_date, cinema_type))
+                           SELECT s.seat_code
+                           FROM booking_seats bs
+                                    JOIN bookings b ON bs.booking_reference = b.booking_reference
+                                    JOIN seats s ON bs.seat_id = s.id
+                           WHERE b.movie_id = ?
+                             AND b.showtime = ?
+                             AND b.show_date = ?
+                             AND b.cinema_type = ?
+                             AND b.payment_status IN ('paid', 'confirmed')
+                           """, (movie_id, showtime, show_date, cinema_type))
             bookings = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -547,39 +776,39 @@ def save_booking_to_db(booking_data):
             # Insert into bookings table (no seats column)
             if user_id:
                 cursor.execute("""
-                    INSERT INTO bookings (
-                        booking_reference, user_id, movie_id, movie_title, cinema_type, 
-                        showtime, show_date, number_of_tickets, total_amount, payment_status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    booking_data['booking_reference'],
-                    user_id,
-                    booking_data['movie_id'],
-                    booking_data['movie_title'],
-                    booking_data['cinema_type'],
-                    booking_data['showtime'],
-                    booking_data['show_date'],
-                    booking_data['tickets'],
-                    booking_data['total_amount'],
-                    'pending'
-                ))
+                               INSERT INTO bookings (booking_reference, user_id, movie_id, movie_title, cinema_type,
+                                                     showtime, show_date, number_of_tickets, total_amount,
+                                                     payment_status)
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               """, (
+                                   booking_data['booking_reference'],
+                                   user_id,
+                                   booking_data['movie_id'],
+                                   booking_data['movie_title'],
+                                   booking_data['cinema_type'],
+                                   booking_data['showtime'],
+                                   booking_data['show_date'],
+                                   booking_data['tickets'],
+                                   booking_data['total_amount'],
+                                   'pending'
+                               ))
             else:
                 cursor.execute("""
-                    INSERT INTO bookings (
-                        booking_reference, movie_id, movie_title, cinema_type, 
-                        showtime, show_date, number_of_tickets, total_amount, payment_status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    booking_data['booking_reference'],
-                    booking_data['movie_id'],
-                    booking_data['movie_title'],
-                    booking_data['cinema_type'],
-                    booking_data['showtime'],
-                    booking_data['show_date'],
-                    booking_data['tickets'],
-                    booking_data['total_amount'],
-                    'pending'
-                ))
+                               INSERT INTO bookings (booking_reference, movie_id, movie_title, cinema_type,
+                                                     showtime, show_date, number_of_tickets, total_amount,
+                                                     payment_status)
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                               """, (
+                                   booking_data['booking_reference'],
+                                   booking_data['movie_id'],
+                                   booking_data['movie_title'],
+                                   booking_data['cinema_type'],
+                                   booking_data['showtime'],
+                                   booking_data['show_date'],
+                                   booking_data['tickets'],
+                                   booking_data['total_amount'],
+                                   'pending'
+                               ))
 
             # Insert each seat into booking_seats table
             price_per_ticket = booking_data['total_amount'] / booking_data['tickets']
@@ -590,9 +819,9 @@ def save_booking_to_db(booking_data):
                 seat = cursor.fetchone()
                 if seat:
                     cursor.execute("""
-                        INSERT INTO booking_seats (booking_reference, seat_id, price)
-                        VALUES (?, ?, ?)
-                    """, (booking_data['booking_reference'], seat['id'], price_per_ticket))
+                                   INSERT INTO booking_seats (booking_reference, seat_id, price)
+                                   VALUES (?, ?, ?)
+                                   """, (booking_data['booking_reference'], seat['id'], price_per_ticket))
 
             conn.commit()
             cursor.close()
@@ -622,6 +851,96 @@ def update_booking_payment_status(booking_ref, status):
     except Exception as e:
         print("Status update error:", e)
     return False
+
+
+# ============================================================
+# BOOKING HELPER FUNCTIONS (MISSING - ADDED)
+# ============================================================
+
+def get_user_bookings(user_id):
+    """Fetch all bookings for a user with seat information"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return []
+
+        cursor = conn.cursor()
+
+        # Handle predefined users (admin, employees)
+        if str(user_id) == 'admin_predefined' or str(user_id).startswith('emp_'):
+            cursor.execute("""
+                           SELECT b.*,
+                                  GROUP_CONCAT(s.seat_code, ', ') as seats_list
+                           FROM bookings b
+                                    LEFT JOIN booking_seats bs ON b.booking_reference = bs.booking_reference
+                                    LEFT JOIN seats s ON bs.seat_id = s.id
+                           GROUP BY b.booking_reference
+                           ORDER BY b.booking_date DESC
+                           """)
+        else:
+            cursor.execute("""
+                           SELECT b.*,
+                                  GROUP_CONCAT(s.seat_code, ', ') as seats_list
+                           FROM bookings b
+                                    LEFT JOIN booking_seats bs ON b.booking_reference = bs.booking_reference
+                                    LEFT JOIN seats s ON bs.seat_id = s.id
+                           WHERE b.user_id = ?
+                           GROUP BY b.booking_reference
+                           ORDER BY b.booking_date DESC
+                           """, (user_id,))
+
+        bookings = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        # Process results to add seats as a string
+        result = []
+        for booking in bookings:
+            booking_dict = dict(booking)
+            booking_dict['seats'] = booking_dict.get('seats_list', 'No seats')
+            result.append(booking_dict)
+
+        return result
+    except Exception as e:
+        print(f"Error fetching user bookings: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+
+def get_booking_by_reference(booking_reference):
+    """Fetch a single booking by reference with seat information"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return None
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+                       SELECT b.*,
+                              GROUP_CONCAT(s.seat_code, ', ') as seats_list
+                       FROM bookings b
+                                LEFT JOIN booking_seats bs ON b.booking_reference = bs.booking_reference
+                                LEFT JOIN seats s ON bs.seat_id = s.id
+                       WHERE b.booking_reference = ?
+                       GROUP BY b.booking_reference
+                       """, (booking_reference,))
+
+        booking = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if booking:
+            booking_dict = dict(booking)
+            booking_dict['seats'] = booking_dict.get('seats_list', 'No seats')
+            return booking_dict
+        return None
+    except Exception as e:
+        print(f"Error fetching booking by reference: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 
 # ============================================================
@@ -1549,17 +1868,19 @@ def profile():
 @app.route('/my-bookings')
 @login_required
 def my_bookings():
+    """View user's booking history"""
     try:
         if session.get('predefined_user'):
-            return render_template('my_bookings.html', bookings=[])
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM bookings WHERE user_id = ? ORDER BY booking_date DESC", (session['user_id'],))
-            bookings = cursor.fetchall()
-            cursor.close()
-            conn.close()
-            return render_template('my_bookings.html', bookings=[dict(b) for b in bookings])
+            bookings = get_user_bookings(session.get('user_id'))
+            return render_template('my_bookings.html', bookings=bookings)
+
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('Please login to view your bookings', 'warning')
+            return redirect(url_for('signin'))
+
+        bookings = get_user_bookings(user_id)
+        return render_template('my_bookings.html', bookings=bookings)
     except Exception as e:
         print(f"My bookings error: {e}")
         flash('Error loading bookings', 'error')
@@ -1569,21 +1890,48 @@ def my_bookings():
 @app.route('/my-bookings/api')
 @login_required
 def my_bookings_api():
+    """API endpoint for user's bookings"""
     try:
         if session.get('predefined_user'):
-            return jsonify({'success': True, 'bookings': []})
-        conn = get_db_connection()
-        if conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM bookings WHERE user_id = ? ORDER BY booking_date DESC", (session['user_id'],))
-            bookings = cursor.fetchall()
-            cursor.close()
-            conn.close()
-            return jsonify({'success': True, 'bookings': [dict(b) for b in bookings]})
-        else:
-            return jsonify({'success': False, 'message': 'Database connection error'}), 500
+            bookings = get_user_bookings(session.get('user_id'))
+            return jsonify({'success': True, 'bookings': bookings})
+
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+        bookings = get_user_bookings(user_id)
+        return jsonify({'success': True, 'bookings': bookings})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/booking-details/<booking_reference>')
+@login_required
+def booking_details(booking_reference):
+    """View detailed booking information"""
+    try:
+        booking = get_booking_by_reference(booking_reference)
+        if not booking:
+            flash('Booking not found', 'danger')
+            return redirect(url_for('index'))
+
+        user_id = session.get('user_id')
+        user_role = session.get('role', 'user')
+        is_predefined = session.get('predefined_user', False)
+        booking_user_id = booking.get('user_id')
+
+        # Allow access if: user owns booking, OR user is admin/manager/employee
+        if (not is_predefined and user_id and booking_user_id and str(user_id) == str(booking_user_id)) or \
+                user_role in ['admin', 'manager', 'employee']:
+            return render_template('booking_details.html', booking=booking)
+        else:
+            flash('You do not have permission to view this booking', 'error')
+            return redirect(url_for('index'))
+    except Exception as e:
+        print(f"Booking details error: {e}")
+        flash('Error loading booking details', 'error')
+        return redirect(url_for('index'))
 
 
 @app.route('/profile/update', methods=['POST'])

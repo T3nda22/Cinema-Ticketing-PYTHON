@@ -135,29 +135,161 @@
             display: block;
         }
 
-        /* Hero Section */
+        /* Hero Section - Enhanced Header Text Design */
         .hero-section {
             position: relative;
             text-align: center;
-            margin-top: -100px;
+            margin-top: -80px;
             margin-bottom: 60px;
             z-index: 2;
+            padding: 40px 20px;
         }
 
+        /* Glowing badge above main title */
+        .hero-badge {
+            display: inline-block;
+            background: rgba(229, 9, 20, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(229, 9, 20, 0.4);
+            border-radius: 100px;
+            padding: 8px 24px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: #e50914;
+            text-transform: uppercase;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                border-color: rgba(229, 9, 20, 0.4);
+                box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.2);
+            }
+            50% {
+                border-color: rgba(229, 9, 20, 0.8);
+                box-shadow: 0 0 15px 2px rgba(229, 9, 20, 0.3);
+            }
+            100% {
+                border-color: rgba(229, 9, 20, 0.4);
+                box-shadow: 0 0 0 0 rgba(229, 9, 20, 0);
+            }
+        }
+
+        /* Main title with multi-layer text effect */
         .hero-section h1 {
-            font-size: 56px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff, #e50914);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 72px;
+            font-weight: 800;
             margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(135deg, #ffffff 0%, #e50914 40%, #ff6b6b 70%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+            letter-spacing: -1px;
         }
 
+        @keyframes shimmer {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        /* Decorative line under title */
+        .title-decoration {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0 25px;
+        }
+
+        .title-decoration .line {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #e50914, #ff6b6b, #e50914, transparent);
+            border-radius: 3px;
+        }
+
+        .title-decoration .dot {
+            width: 8px;
+            height: 8px;
+            background: #e50914;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #e50914;
+        }
+
+        /* Subtitle with modern styling */
         .hero-section p {
             font-size: 20px;
-            color: #ccc;
+            color: #b0b8c5;
             max-width: 700px;
             margin: 0 auto;
+            line-height: 1.6;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        /* Floating decorative elements */
+        .hero-bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-bg-elements .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(229, 9, 20, 0.03);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .hero-bg-elements .circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .hero-bg-elements .circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        .hero-bg-elements .circle:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            33% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            66% {
+                transform: translateY(15px) translateX(-10px);
+            }
         }
 
         /* Main Content */
@@ -620,17 +752,31 @@
             .content {
                 padding: 30px 40px;
             }
+            .hero-section h1 {
+                font-size: 52px;
+            }
         }
 
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
             }
+            .hero-section {
+                margin-top: -40px;
+                padding: 20px;
+            }
             .hero-section h1 {
-                font-size: 32px;
+                font-size: 36px;
             }
             .hero-section p {
                 font-size: 16px;
+            }
+            .hero-badge {
+                font-size: 10px;
+                padding: 6px 16px;
+            }
+            .title-decoration .line {
+                width: 40px;
             }
             .team-grid {
                 grid-template-columns: 1fr;
@@ -659,7 +805,7 @@
 
         @media (max-width: 480px) {
             .hero-section h1 {
-                font-size: 24px;
+                font-size: 28px;
             }
             .contact-info, .contact-form-container {
                 padding: 25px;
@@ -714,9 +860,20 @@
 
     <!-- Main Content -->
     <div class="content">
-        <!-- Hero Section -->
+        <!-- Hero Section - Enhanced Header Text Design -->
         <div class="hero-section">
+            <div class="hero-bg-elements">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            <div class="hero-badge">✨ CONNECT WITH US ✨</div>
             <h1>Get in Touch</h1>
+            <div class="title-decoration">
+                <span class="line"></span>
+                <span class="dot"></span>
+                <span class="line"></span>
+            </div>
             <p>We'd love to hear from you! Whether you have questions about showtimes, bookings, or just want to say hello.</p>
         </div>
 
@@ -864,23 +1021,18 @@
         <div class="team-section">
             <h2>Meet the Team</h2>
             <div class="team-grid">
-                <!-- Lead Developer / Designer -->
                 <div class="team-card">
                     <div class="team-avatar">👨‍💻</div>
                     <div class="team-name">Ron Russel Dungog</div>
                     <div class="team-role">Lead Developer & Designer</div>
                     <div class="team-bio">Full-stack developer and UI/UX designer behind Cinemax. Passionate about creating seamless cinema booking experiences.</div>
                 </div>
-
-                <!-- 2nd Developer -->
                 <div class="team-card">
                     <div class="team-avatar">👨‍💻</div>
                     <div class="team-name">Jade Deevyd Gallardo</div>
                     <div class="team-role">Backend Developer</div>
                     <div class="team-bio">Specializes in database architecture and payment integration. Ensures smooth transaction processing.</div>
                 </div>
-
-                <!-- Documenter -->
                 <div class="team-card">
                     <div class="team-avatar">📝</div>
                     <div class="team-name">Christian Jay Unabia</div>
@@ -944,15 +1096,10 @@
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Get form values
             const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('emailAddress').value;
-            const phone = document.getElementById('phoneNumber').value;
-            const subjectSelect = document.getElementById('subject');
-            const subject = subjectSelect.options[subjectSelect.selectedIndex].text;
             const message = document.getElementById('message').value;
 
-            // Simple validation
             if (!fullName || !email || !message) {
                 alert('Please fill in all required fields.');
                 return;
@@ -963,31 +1110,16 @@
                 return;
             }
 
-            // Show success message
             const successMsg = document.getElementById('successMessage');
             successMsg.classList.add('show');
-
-            // Reset form
             document.getElementById('contactForm').reset();
 
-            // Hide success message after 5 seconds
             setTimeout(() => {
                 successMsg.classList.remove('show');
             }, 5000);
         });
 
-        // Phone number click handler
-        const phoneLink = document.querySelector('a[href="tel:+63909692620684"]');
-        if (phoneLink) {
-            phoneLink.addEventListener('click', function(e) {
-                console.log('Phone number clicked: 0909692620684');
-            });
-        }
-
-        // Initialize mobile menu
         initMobileMenu();
-
-        // Add active class to current nav item
         document.querySelectorAll('.top-text span').forEach(span => {
             if (span.textContent === 'CONTACT') {
                 span.classList.add('active');

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cinemax - Ticket Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            background: #0a0c0f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            position: relative;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .logo {
+            height: 100px !important;
+            width: auto !important;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 100% !important;
+            width: auto !important;
+            display: block;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+        }
+
+        .logo:hover img {
+            transform: scale(1.02);
+        }
+
+        .top-text {
+            display: flex;
+            gap: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            flex-wrap: wrap;
+        }
+
+        .top-text span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .top-text span:hover {
+            color: #e50914;
+        }
+
+        .top-text span.active {
+            color: #e50914;
+        }
+
+        .top-text span.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e50914;
+        }
+
+        .top-text span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+
+        .top-text span:hover:after {
+            width: 100%;
+        }
+
+        .admin-link {
+            background: #e50914;
+            padding: 5px 15px !important;
+            border-radius: 20px;
+            color: white !important;
+        }
+
+        .admin-link:hover {
+            background: #ff0f1a;
+            transform: translateY(-2px);
+        }
+
+        .admin-link:after {
+            display: none !important;
+        }
+
+        .header img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 40px 80px 60px;
+            background: linear-gradient(180deg, #0a0c0f 0%, #14181c 100%);
+        }
+
+        /* Back Navigation */
+        .back-nav {
+            margin-bottom: 30px;
+        }
+
+        .back-nav a {
+            color: #999;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .back-nav a:hover {
+            color: #e50914;
+        }
+
+        .back-nav a:before {
+            content: '←';
+            font-size: 20px;
+            margin-right: 5px;
+        }
+
+        /* Ticket Card */
+        .ticket-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .ticket-card {
+            background: linear-gradient(145deg, #1e2429, #14181c);
+            border-radius: 30px;
+            border: 1px solid #2a3138;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #e50914, #ff6b6b, #e50914);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 0 30px;
+        }
+
+        .status-paid {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+        }
+
+        .status-cancelled {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+
+        /* Ticket Header */
+        .ticket-header {
+            padding: 30px 30px 20px;
+            border-bottom: 1px solid #2a3138;
+        }
+
+        .booking-ref {
+            font-family: monospace;
+            font-size: 18px;
+            color: #e50914;
+            margin-bottom: 10px;
+        }
+
+        .movie-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .cinema-type {
+            display: inline-block;
+            background: rgba(229, 9, 20, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* Ticket Body */
+        .ticket-body {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .info-group {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .info-value.seats {
+            color: #4CAF50;
+            font-size: 18px;
+        }
+
+        /* Seats List */
+        .seats-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .seat-badge {
+            background: #e50914;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Price Section */
+        .price-section {
+            background: linear-gradient(135deg, #1a1e24, #0f1217);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #2a3138;
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+            font-size: 20px;
+            font-weight: 700;
+            color: #e50914;
+        }
+
+        /* QR Code */
+        .qrcode-section {
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #2a3138;
+            border-bottom: 1px solid #2a3138;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .qrcode-placeholder {
+            width: 160px;
+            height: 160px;
+            background: white;
+            margin: 0 auto 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: #333;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            padding: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #e50914;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff0f1a;
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: #2a3138;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #3a434b;
+            transform: translateY(-3px);
+        }
+
+        .btn-print {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #5fba67;
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .copyright {
+            background: #000;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            border-top: 1px solid #222;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 20;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            .top-bar {
+                padding: 12px 20px;
+            }
+            .logo {
+                height: 60px;
+            }
+            .ticket-body {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 20px;
+            }
+            .movie-title {
+                font-size: 24px;
+            }
+            .info-value {
+                font-size: 16px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        @media print {
+            .header, .footer, .top-bar, .action-buttons, .back-nav, .mobile-menu-btn {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+            .ticket-card {
+                background: white;
+                color: black;
+                border: 2px solid #ddd;
+                box-shadow: none;
+            }
+            .info-group {
+                background: #f5f5f5;
+            }
+            .info-value {
+                color: black !important;
+            }
+            .qrcode-placeholder {
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="top-bar">
+            <div class="logo" onclick="location.href='{{ url_for('index') }}'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cinemax Logo">
+            </div>
+            <div class="top-text">
+                <span onclick="location.href='{{ url_for('index') }}'">MOVIES</span>
+                <span onclick="location.href='{{ url_for('coming_soon') }}'">COMING SOON</span>
+                <span onclick="location.href='{{ url_for('contact') }}'">CONTACT</span>
+                {% if session.user_id or session.predefined_user %}
+                    <span onclick="location.href='{{ url_for('profile') }}'">PROFILE</span>
+                    <span onclick="location.href='{{ url_for('my_bookings') }}'">MY BOOKINGS</span>
+                    {% if session.role in ['admin', 'manager', 'employee'] %}
+                        <span class="admin-link" onclick="location.href='{{ url_for('admin_dashboard') if session.role == 'admin' else url_for('employee_dashboard') }}'">
+                            {{ session.role|upper }} DASHBOARD
+                        </span>
+                    {% endif %}
+                    <span onclick="location.href='{{ url_for('logout') }}'">LOGOUT</span>
+                {% else %}
+                    <span onclick="location.href='{{ url_for('signin') }}'">SIGN IN</span>
+                {% endif %}
+            </div>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
+        </div>
+        <img src="{{ url_for('static', filename='images/Chair Header.png') }}" alt="Cinemax Header">
+    </div>
+
+    <div class="content">
+        <div class="ticket-container">
+            <div class="back-nav">
+                <a href="#" onclick="goBack()">Back</a>
+            </div>
+
+            <div class="ticket-card">
+                <!-- Status Badge -->
+                <div style="padding: 20px 30px 0;">
+                    {% if booking.payment_status == 'paid' %}
+                        <span class="status-badge status-paid">✓ Payment Confirmed</span>
+                    {% elif booking.payment_status == 'pending' %}
+                        <span class="status-badge status-pending">⏳ Payment Pending</span>
+                    {% else %}
+                        <span class="status-badge status-cancelled">✗ Booking Cancelled</span>
+                    {% endif %}
+                </div>
+
+                <!-- Ticket Header -->
+                <div class="ticket-header">
+                    <div class="booking-ref">Booking #{{ booking.booking_reference }}</div>
+                    <div class="movie-title">{{ booking.movie_title }}</div>
+                    <span class="cinema-type">
+                        {% if booking.cinema_type == 'directors_club' %}
+                            ✨ Director's Club
+                        {% elif booking.cinema_type == 'imax' %}
+                            🎥 IMAX
+                        {% else %}
+                            🎬 Regular Cinema
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Ticket Body -->
+                <div class="ticket-body">
+                    <div class="info-group">
+                        <div class="info-label">📅 Date</div>
+                        <div class="info-value">{{ booking.show_date }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">⏰ Showtime</div>
+                        <div class="info-value">{{ booking.showtime }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">💺 Selected Seats</div>
+                        <div class="seats-list">
+                            {% for seat in booking.seats.split(', ') %}
+                                <span class="seat-badge">{{ seat }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">🎟️ Number of Tickets</div>
+                        <div class="info-value">{{ booking.number_of_tickets }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">🏢 Screen</div>
+                        <div class="info-value">Screen 1</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">💰 Price per Ticket</div>
+                        <div class="info-value">
+                            {% if booking.cinema_type == 'directors_club' %}
+                                ₱700.00
+                            {% elif booking.cinema_type == 'imax' %}
+                                ₱875.00
+                            {% else %}
+                                ₱350.00
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Summary -->
+                <div class="price-section" style="margin: 0 30px 20px;">
+                    <div class="price-row">
+                        <span>Subtotal</span>
+                        <span>₱{{ "%.2f"|format(booking.total_amount) }}</span>
+                    </div>
+                    {% if booking.payment_method %}
+                    <div class="price-row">
+                        <span>Payment Method</span>
+                        <span>{{ booking.payment_method|title }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="price-row">
+                        <span>Total Paid</span>
+                        <span>₱{{ "%.2f"|format(booking.total_amount) }}</span>
+                    </div>
+                </div>
+
+                <!-- QR Code Section -->
+                <div class="qrcode-section">
+                    <div class="qrcode-placeholder">
+                        🎬<br>
+                        {{ booking.booking_reference[:6] }}
+                    </div>
+                    <p style="color: #999; font-size: 14px;">Show this QR code at the cinema entrance</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-print" onclick="window.print()">
+                        🖨️ Print Ticket
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadTicket()">
+                        📥 Download Ticket
+                    </button>
+                    <button class="btn btn-secondary" onclick="location.href='/booking-details/{{ booking.booking_reference }}'">
+    📋 View Details
+</button>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <img src="{{ url_for('static', filename='images/Footer.png') }}" alt="Cinemax Footer">
+    </div>
+    <div class="copyright">Cinemax 2025 All rights reserved</div>
+
+    <script>
+        function goBack() {
+            if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                window.history.back();
+            } else {
+                window.location.href = "{{ url_for('my_bookings') }}";
+            }
+        }
+
+        function downloadTicket() {
+            alert("Ticket PDF download will be available soon. You can print your ticket for now.");
+            window.print();
+        }
+
+        // Mobile menu toggle
+        function initMobileMenu() {
+            const topText = document.querySelector('.top-text');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && topText && mobileMenuBtn) {
+                mobileMenuBtn.style.display = 'block';
+                topText.style.display = 'none';
+
+                mobileMenuBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    if (topText.style.display === 'none' || topText.style.display === '') {
+                        topText.style.display = 'flex';
+                        topText.style.flexDirection = 'column';
+                        topText.style.position = 'absolute';
+                        topText.style.top = '60px';
+                        topText.style.right = '15px';
+                        topText.style.background = 'rgba(0,0,0,0.95)';
+                        topText.style.padding = '15px 20px';
+                        topText.style.borderRadius = '12px';
+                        topText.style.gap = '12px';
+                        topText.style.minWidth = '140px';
+                        topText.style.backdropFilter = 'blur(10px)';
+                        topText.style.border = '1px solid rgba(229, 9, 20, 0.3)';
+                        topText.style.zIndex = '20';
+                    } else {
+                        topText.style.display = 'none';
+                    }
+                };
+
+                document.addEventListener('click', function(e) {
+                    const topBar = document.querySelector('.top-bar');
+                    if (!topBar.contains(e.target) && topText.style.display === 'flex') {
+                        topText.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        initMobileMenu();
+    </script>
+</body>
+</html>
