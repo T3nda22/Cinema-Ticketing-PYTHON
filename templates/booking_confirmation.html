@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cinemax - Booking Confirmation & Payment</title>
     <style>
-        /* ALL YOUR EXISTING STYLES REMAIN EXACTLY THE SAME */
+        /* ALL EXISTING STYLES REMAIN EXACTLY THE SAME */
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +13,8 @@
         }
 
         body {
-            width: 1920px;
+            width: 100%;
+            max-width: 1920px;
             margin: 0 auto;
             background: #0a0c0f;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -300,7 +301,7 @@
             font-size: 28px;
         }
 
-        /* Payment Action Section */
+        /* Payment Action Section - Updated for single online option */
         .payment-action-section {
             background: linear-gradient(145deg, #1e2429, #14181c);
             border-radius: 16px;
@@ -330,16 +331,15 @@
             font-weight: 600;
         }
 
-        .teller-buttons {
+        /* Single payment button container */
+        .payment-button-container {
             display: flex;
-            gap: 20px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
-        .teller-btn {
-            flex: 1;
-            min-width: 250px;
+        .paymongo-single-btn {
+            width: 100%;
+            max-width: 400px;
             padding: 25px 20px;
             border-radius: 16px;
             font-size: 20px;
@@ -352,45 +352,32 @@
             align-items: center;
             gap: 15px;
             background: #0f1217;
-            border: 2px solid #2a3138;
+            border: 2px solid #e50914;
             color: white;
         }
 
-        .teller-btn:hover:not(:disabled) {
+        .paymongo-single-btn:hover:not(:disabled) {
             transform: translateY(-5px);
-            border-color: #e50914;
+            background: rgba(229, 9, 20, 0.1);
             box-shadow: 0 10px 20px rgba(229, 9, 20, 0.2);
         }
 
-        .teller-btn:disabled {
+        .paymongo-single-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .teller-btn .btn-icon {
+        .paymongo-single-btn .btn-icon {
             font-size: 48px;
         }
 
-        .teller-btn .btn-label {
+        .paymongo-single-btn .btn-label {
             font-size: 22px;
         }
 
-        .teller-btn .btn-desc {
+        .paymongo-single-btn .btn-desc {
             font-size: 14px;
             color: #999;
-        }
-
-        .teller-btn.cash {
-            border-color: #4CAF50;
-        }
-        .teller-btn.cash:hover:not(:disabled) {
-            background: rgba(76, 175, 80, 0.1);
-        }
-        .teller-btn.paymongo {
-            border-color: #e50914;
-        }
-        .teller-btn.paymongo:hover:not(:disabled) {
-            background: rgba(229, 9, 20, 0.1);
         }
 
         .payment-success-message {
@@ -794,7 +781,7 @@
                 </div>
 
                 <h1>Booking Created</h1>
-                <div class="subtitle">Complete payment to confirm your booking</div>
+                <div class="subtitle">Complete payment online to confirm your booking</div>
 
                 <!-- Booking Reference with Cancellation Timer -->
                 <div class="reference-section">
@@ -853,25 +840,18 @@
                     </div>
                 </div>
 
-                <!-- PAYMENT ACTION SECTION -->
+                <!-- PAYMENT ACTION SECTION - CASH OPTION REMOVED, ONLY ONLINE PAYMENT -->
                 <div class="payment-action-section" id="paymentActionSection">
                     <div class="payment-header">
                         <i>💰</i>
-                        <h3>Complete Payment</h3>
+                        <h3>Complete Payment Online</h3>
                     </div>
 
-                    <div class="teller-buttons">
-                        <!-- Cash Payment Button -->
-                        <button class="teller-btn cash" id="cashButton" onclick="markAsPaidCash()">
-                            <span class="btn-icon">💵</span>
-                            <span class="btn-label">Pay with Cash</span>
-                            <span class="btn-desc">Pay at the counter</span>
-                        </button>
-
-                        <!-- PayMongo Online Payment Button -->
-                        <button class="teller-btn paymongo" id="paymongoButton" onclick="processPaymongoPayment()">
+                    <div class="payment-button-container">
+                        <!-- PayMongo Online Payment Button (Single Option) -->
+                        <button class="paymongo-single-btn" id="paymongoButton" onclick="processPaymongoPayment()">
                             <span class="btn-icon">💳</span>
-                            <span class="btn-label">Pay Online</span>
+                            <span class="btn-label">Pay Online Now</span>
                             <span class="btn-desc">Credit Card • GCash • GrabPay • PayMaya</span>
                         </button>
                     </div>
@@ -950,46 +930,7 @@
         const bookingRef = '{{ booking_ref }}';
         const totalAmount = {{ total }};
 
-        // Mark as paid with cash
-        function markAsPaidCash() {
-            if (!confirm('Mark this booking as paid with CASH? This will confirm the booking.')) return;
-
-            const cashBtn = document.getElementById('cashButton');
-            cashBtn.disabled = true;
-            cashBtn.style.opacity = '0.5';
-
-            const formData = new FormData();
-            formData.append('booking_ref', bookingRef);
-
-            fetch('/mark-paid-cash', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Hide payment section, show success message
-                    document.getElementById('paymentActionSection').style.display = 'none';
-                    document.getElementById('paymentSuccessMessage').classList.add('show');
-
-                    // Update cancellation timer message
-                    const timerDiv = document.getElementById('cancellationTimer');
-                    if (timerDiv) timerDiv.innerHTML = '<i>✅</i> Payment confirmed';
-                } else {
-                    alert('Error: ' + (data.message || 'Could not mark as paid'));
-                    cashBtn.disabled = false;
-                    cashBtn.style.opacity = '1';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-                cashBtn.disabled = false;
-                cashBtn.style.opacity = '1';
-            });
-        }
-
-        // Process PayMongo payment
+        // Process PayMongo payment (Online only)
         function processPaymongoPayment() {
             const paymongoBtn = document.getElementById('paymongoButton');
             paymongoBtn.disabled = true;
@@ -1030,7 +971,7 @@
             paymongoBtn.disabled = false;
             paymongoBtn.innerHTML = `
                 <span class="btn-icon">💳</span>
-                <span class="btn-label">Pay Online</span>
+                <span class="btn-label">Pay Online Now</span>
                 <span class="btn-desc">Credit Card • GCash • GrabPay • PayMaya</span>
             `;
         }
@@ -1151,7 +1092,6 @@
         }
 
         function showCancellationConfirmation() {
-            // Hide payment section and buttons
             const paymentSection = document.getElementById('paymentActionSection');
             const actionButtons = document.getElementById('actionButtons');
             const infoMessage = document.querySelector('.info-message');
@@ -1193,12 +1133,10 @@
             ticketDetails.parentNode.insertBefore(confirmationDiv, ticketDetails.nextSibling);
         }
 
-        // Close modal when clicking outside
         window.addEventListener("click", (event) => {
             if (event.target === cancellationModal) closeCancellationModal();
         });
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeCancellationModal();
             if (e.ctrlKey && e.key === 'p') {
@@ -1207,7 +1145,6 @@
             }
         });
 
-        // Initialize
         startCancellationTimer();
         checkPaymentStatus();
     </script>
